@@ -1,0 +1,20 @@
+import type { ExecutionIntent, RoutePlan } from '@keeta-agent-sdk/types';
+
+/** Bump when pipeline semantics change (for consumers / migrations). */
+export const PIPELINE_SCHEMA_VERSION = 1;
+
+/** High-level pipeline stages for observability and worker routing. */
+export type PipelineStage =
+  | 'created'
+  | 'quoted'
+  | 'routed'
+  | 'policy_checked'
+  | 'simulated'
+  | 'executed'
+  | 'failed';
+
+export interface PipelineContext {
+  intent: ExecutionIntent;
+  routePlan?: RoutePlan;
+  stage: PipelineStage;
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@keeta-agent-sdk/agent-runtime",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@keeta-agent-sdk/adapter-registry": "workspace:*",
+    "@keeta-agent-sdk/policy": "workspace:*",
+    "@keeta-agent-sdk/routing": "workspace:*",
+    "@keeta-agent-sdk/simulator": "workspace:*",
+    "@keeta-agent-sdk/types": "workspace:*",
+    "@keeta-agent-sdk/wallet": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

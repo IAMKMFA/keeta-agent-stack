@@ -1,0 +1,12 @@
+{
+  "name": "@keeta-agent-sdk/docs",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log('Docs site coming soon. See repository README.')\"",
+    "build": "node -e \"console.log('skip')\"",
+    "lint": "node -e \"console.log('skip')\"",
+    "typecheck": "node -e \"console.log('skip')\"",
+    "clean": "rm -rf dist"
+  }
+}
