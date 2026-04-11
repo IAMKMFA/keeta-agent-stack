@@ -1,4 +1,10 @@
-# Keeta Agent SDK Capability Map
+# Keeta Agent SDK
+
+## Status
+
+Release track: `v2`
+
+Current state: in progress. This is a working build and not the final release version.
 
 ## Positioning
 
