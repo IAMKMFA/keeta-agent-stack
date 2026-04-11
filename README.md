@@ -4,9 +4,9 @@ Build Keeta-native agents that can take an intent, find the best route, enforce 
 
 ## Status
 
-`v2` is in progress.
+Active development (0.x pre-release).
 
-This repository is an active build of the next Keeta Agent SDK release. It is already powerful and end-to-end capable, but it is still evolving and should be treated as a working release track rather than a final public release.
+This repository is an active build of the Keeta Agent SDK. It is already powerful and end-to-end capable, but it is still evolving and should be treated as a working release track rather than a final public release.
 
 ## In One Minute
 
