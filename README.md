@@ -1,245 +1,195 @@
-# keeta-agent-sdk
+# Keeta Agent SDK
 
-Production-oriented TypeScript monorepo for **adapter-first**, **simulation-first** execution of Keeta trading intents. Agents validate intents, gather quotes, score routes, enforce policy, simulate or execute, and persist telemetry. **Signing keys never live in agent logic** — live Keeta transfers use `UserClient` + `Account.fromSeed` **only inside `apps/worker`**, behind environment configuration.
+Build Keeta-native agents that can take an intent, find the best route, enforce policy, simulate risk, execute safely, and keep users and operators informed in real time.
 
-## Stack
+## Status
 
-- **pnpm** workspaces + **Turborepo**
-- **Fastify** API (`apps/api`), **BullMQ** workers (`apps/worker`), **Next.js** dashboard (`apps/dashboard`)
-- **MCP** server (`apps/mcp`) with dynamic Keeta SDK execution + KTA-Oracle tool bridge
-- **PostgreSQL** + **Drizzle ORM**, **Redis**
-- **Zod**, **Vitest**, **Pino**
-- **KeetaNet** — [`@keetanetwork/keetanet-client`](https://www.npmjs.com/package/@keetanetwork/keetanet-client) (`Client`, `UserClient`, `lib.Account`)
+`v2` is in progress.
 
-## Repo layout
+This repository is an active build of the next Keeta Agent SDK release. It is already powerful and end-to-end capable, but it is still evolving and should be treated as a working release track rather than a final public release.
 
-- `packages/types` — shared Zod schemas
-- `packages/adapter-*` — venue adapters + registry (includes [`adapter-oracle-rail`](packages/adapter-oracle-rail/src/cctp-rail-adapter.ts) for Oracle-guided USDC/CCTP-shaped rails)
-- `packages/wallet` — `Signer` boundary + dev signer (never for production Keeta native transfers)
-- `packages/keeta` — **Keeta SDK wrapper**: chain health, balances, read-only `UserClient`, worker signing helpers, native `send` via `UserClient.send`
-- `packages/core` — pipeline types + **Phase 3 design hooks** ([`future-hooks.ts`](packages/core/src/future-hooks.ts))
-- `packages/policy`, `routing`, `simulator`, `storage`, `telemetry`, `agent-runtime`, `sdk`
-- `apps/mcp` — stdio MCP server (bootstrap/discovery/execute tools + Oracle tools)
-- `infrastructure/migrations` — Drizzle SQL migrations
-- `examples/*` — small CLI samples (also surfaced as **strategy templates** in the dashboard after seed); see `examples/oracle-payment-playbook`, `examples/simulation-fidelity`, and `examples/mock-live-run` (`--cctp` for the second rail)
+## In One Minute
 
-## What is real vs placeholder
+Keeta Agent SDK is a full execution stack for autonomous payment and trading agents on Keeta.
 
-| Area | Status |
-|------|--------|
-| Keeta RPC reads (`Client.getChain`, `getAccountInfo`, `getAllBalances`, `getNodeStats`) | **Real** via `@keetanetwork/keetanet-client` |
-| Native KTA transfer execution | **Real** via `UserClient.send` when `LIVE_MODE_ENABLED`, `KEETA_SIGNING_SEED`, and intent metadata are set (worker only) |
-| `Signer.sign` + `signAndSubmit` for Keeta | **Not used** — Keeta blocks are signed by the SDK `Account`; `signAndSubmit` throws by design |
-| Mock DEX / mock anchor adapters | **Simulated** (unchanged) |
-| DEX / anchor adapters on Keeta venues | **Future** — plug into `VenueAdapter` + registry |
-| `buildTransferTx` / `submitTx` byte paths | **Legacy stubs** for tests; real path is `sendTransferWithUserClient` |
+It gives an agent the infrastructure to:
 
-## Security model
+- accept a durable execution intent
+- gather quotes across adapters
+- build explainable multi-hop routes
+- enforce policy and risk controls
+- simulate before going live
+- execute through a worker-controlled settlement path
+- emit events, webhooks, metrics, and audit records
 
-- **Agent runtime** only references the `Signer` **type** from `@keeta-agent-sdk/wallet` (for non-Keeta or future KMS bridges).
-- **Never** import `DevSigner` or seeds into `packages/agent-runtime` or API routes.
-- **Live Keeta native transfers**: `KEETA_SIGNING_SEED` is read **only in the worker**; `UserClient` is injected into `ExecuteContext.extensions` under `keetaUserClient` for the `keeta-transfer` adapter.
-- **Policy**: `live_mode_enabled` policy rule still gates `intent.mode === 'live'`.
-- **Keeta policy extension**: when `KEETA_POLICY_ENABLED=true`, the worker runs a chain/account preflight and passes `keetaHints` into `PolicyEngine`. The `keeta_extension` rule requires those hints; certificate-level checks are a future extension.
+It gives operators and users:
 
-## Simulation fidelity (`POST /simulations/run`)
+- safer execution because signing stays in the worker, not in agent logic
+- visibility into what the agent decided and why
+- dashboards, webhooks, SSE, and metrics for monitoring
+- durable records for policy, routing, simulation, execution, and reconciliation
 
-`SimulationScenario` includes `fidelityMode`:
+This is not a prompt wrapper. It is an execution platform.
 
-| Mode | Behavior |
-|------|----------|
-| `standard` | Synthetic latency/slippage only (default). |
-| `shadow` | Attaches live **Keeta chain + wallet balance** snapshot to the result — **no** transaction submit. |
-| `replay` | Same as shadow plus a **`replayAnchor`** string (ledger block count + timestamp) for correlating backtests. |
+## What The Agent Gets
 
-Pass `scenario: { fidelityMode: 'shadow' }` (or `'replay'`) in the simulation job body. The worker fills `SimulationResult.keetaSnapshot`.
+- A durable `intent -> quote -> route -> policy -> execute` pipeline
+- Adapter-driven venue access through a shared contract and registry
+- Multi-hop routing with explainable scoring and route adjustments
+- A policy engine with custom rules, toggles, metadata, and composition
+- Simulation modes for safer decision-making before live execution
+- Runtime hooks around quote, route, policy, simulation, and execution
+- SDK, API, and MCP surfaces for different integration styles
 
-## Live Keeta integration (how to run)
+## What The User And Operator Get
 
-1. **Environment** (see [`.env.example`](.env.example)):
-   - `KEETA_NETWORK` — `main` \| `staging` \| `test` \| `dev` (default `test`).
-   - `LIVE_MODE_ENABLED=true` — required for live intents at the policy layer.
-   - `KEETA_SIGNING_SEED` — hex seed for the signing account (**worker only**).
-   - `KEETA_ACCOUNT_INDEX` — account index for `Account.fromSeed` (default `0`).
-   - `KEETA_EXPLORER_TX_URL_TEMPLATE` — optional; use `{hash}` placeholder for explorer links on execution rows.
+- Clear records of what happened, not just final outcomes
+- Safer live execution because Keeta signing keys stay in `apps/worker`
+- Webhooks and SSE for reactive systems
+- Dashboard views for intents, routes, executions, anchors, and operations
+- Metrics, traces, audit events, and job-failure visibility
+- Anchor and bond lifecycle management for settlement operations
 
-2. **Intent metadata for `keeta-transfer`**:
-   - `metadata.transferTo` — destination Keeta address string.
-   - `metadata.amountAtomic` — optional base-unit amount (integer string). If omitted, the route step `sizeIn` integer part is used.
+## Why This SDK Stands Out
 
-3. **Route**: the first step must target adapter `keeta-transfer` (router + policy must allow it).
+- It is Keeta-native, not generic infrastructure with Keeta branding added later.
+- It is durable, not in-memory orchestration that disappears after a run.
+- It is explainable, not a black box that only returns a final action.
+- It is extensible, so teams can plug in adapters, policies, and runtime hooks.
+- It is built for real operations, with auditability, retries, metrics, and worker isolation.
 
-4. **API / dashboard**:
-   - `GET /chain/health` — node RTT, ledger counters, base token + network address (read-only client).
-   - `GET /oracle/status`, `GET /oracle/tools`, `GET /oracle/rate`, `GET /oracle/compare` — KTA-Oracle passthrough endpoints.
-   - `GET /oracle/mcp/tools`, `POST /oracle/mcp/tools/:name` — full KTA-Oracle MCP tool catalog + generic tool execution proxy.
-   - `POST /oracle/autopilot/payment-plan` — one-call agent playbook (rate + rails + exchange + optional compliance/snippet).
-   - `GET /executions` — persisted executions including `tx_hash`, `settlement_state`, `receipt`.
-   - `GET /strategy-templates` — seeded product templates.
-   - `GET /wallets/:id/balances` — live Keeta balances for the wallet address.
+## Core Flow
 
-## MCP server (`apps/mcp`)
+1. A client creates an intent.
+2. The system gathers quotes from adapters.
+3. The router builds and scores direct or multi-hop paths.
+4. The policy engine decides whether execution is allowed.
+5. The runtime simulates or executes.
+6. The system persists outcomes and emits events, webhooks, and metrics.
 
-This monorepo includes a first-party MCP server that merges:
+## Main Surfaces
 
-- Dynamic Keeta SDK discovery/execution from [`kta-mcp`](https://github.com/schenkty/kta-mcp) patterns
-- Oracle-facing tools (`keeta_oracle_*`) plus full mirrored KTA-Oracle tool names (17 tools) backed by [`KTA-Oracle`](https://github.com/Elemzir/KTA-Oracle)
-- Phase 3 orchestration tool: `keeta_agent_payment_playbook` for one-call payment planning
+| Surface | Path | Purpose |
+|---|---|---|
+| SDK client | `packages/sdk` | Typed client for intents, routes, simulations, events, webhooks, oracle, and anchor operations |
+| API | `apps/api` | Fastify control plane with typed routes, auth, metrics, and OpenAPI |
+| Worker | `apps/worker` | BullMQ-driven execution, policy, simulation, reconciliation, and delivery engine |
+| Dashboard | `apps/dashboard` | Operator UI for platform visibility and control |
+| MCP server | `apps/mcp` | Tool surface for LLM-driven workflows and oracle-assisted playbooks |
+| Agent runtime | `packages/agent-runtime` | High-level orchestration hooks for custom agent behavior |
 
-Mirrored KTA-Oracle tools include:
-`get_kta_rate`, `get_exchange_instructions`, `compare_payment_rails`, `get_currencies_by_region`, `check_payment_status`, `get_keeta_facts`, `get_oracle_info`, `get_wallet_onboarding`, `activate_subscription`, `validate_business_entity`, `get_compliance`, `get_kta_market_data`, `get_sdk_snippet`, `get_anchor_info`, `get_agent_onboarding`, `get_legal_rights`, `manage_social_alerts`.
+## What Is Real Today
 
-For forward compatibility, MCP also exposes `keeta_oracle_discover_upstream_tools` and `keeta_oracle_call` so new upstream Oracle tools can be used without waiting for a repo release.
+| Area | Current state |
+|---|---|
+| Keeta chain reads | Real via `@keetanetwork/keetanet-client` |
+| Native KTA transfer execution | Real in live mode through the worker |
+| Oracle-assisted rate and rail planning | Real |
+| Multi-hop routing | Real |
+| Policy engine with custom rules and composition | Real |
+| Dashboard, events, webhooks, metrics, tracing | Real |
+| Integration test harness with Postgres and Redis | Real |
+| Mock DEX and mock anchor venues | Simulated by design |
+| Additional live third-party venue adapters | Future expansion through the adapter contract |
 
-## Agent SDK (HTTP client)
+## Security Model
 
-`@keeta-agent-sdk/sdk` now includes Oracle-first helpers in addition to intent/simulation methods:
+- Signing keys do not live in agent logic.
+- Live Keeta signing happens only inside `apps/worker`.
+- The API and SDK can drive execution without being trusted with settlement secrets.
+- Policy still gates live execution before the worker submits.
+- JWT/RBAC and remote JWKS/OIDC support are in place for controlled access.
 
-- `oracleStatus()`, `oracleTools()`, `oracleRate()`, `oracleCompare()`
-- `oracleListMcpTools()`, `oracleCallMcpTool(name, args)`
-- `oraclePaymentPlan({...})` (calls `POST /oracle/autopilot/payment-plan`)
-
-Run it locally:
-
-```bash
-pnpm --filter @keeta-agent-sdk/mcp dev
-```
-
-or:
+## Quick Start
 
 ```bash
-pnpm --filter @keeta-agent-sdk/mcp build
-pnpm --filter @keeta-agent-sdk/mcp start
+pnpm install
+docker compose up -d
+cp .env.example .env
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
 ```
 
-### Runtime Middleware Hooks
+Default local surfaces:
 
-`@keeta-agent-sdk/agent-runtime` now supports optional pipeline hooks for custom agent behavior:
+- API: `http://localhost:3001`
+- Dashboard: `http://localhost:3000`
 
-- `beforeQuote`, `afterRoute`
-- `beforePolicy`, `afterPolicy`
-- `beforeSimulation`, `afterSimulation`
-- `beforeExecute`, `afterExecute`
+To run API, worker, dashboard, and MCP together:
 
-Hooks receive a mutable context with `intent`, `route`, `routes`, and current outputs, so extensions can do lightweight logging, policy overlays, or pre/post checks without forking the runtime.
+```bash
+pnpm dev:all
+```
 
-## Adapter contract
-
-Each adapter implementation should pass `runAdapterContractSuite` (see `packages/adapter-base/src/contract.ts`). Use `runAdapterConformanceSuite` for extended timeout/latency checks (`packages/adapter-base/src/conformance.ts`).
-
-## Operational model (Trust Layer)
-
-This repo layers **reliability**, **audit**, **observability**, **operator controls**, and **portfolio policy** without moving signing out of the worker.
-
-| Concern | Behavior |
-|--------|----------|
-| **Intent lifecycle** | Row status progresses `created` → `quoted` → `routed` → `policy_checked` → `executed` or `failed`; operators may set `held` and release. |
-| **BullMQ** | Centralized timeouts/backoff in `packages/config/src/bullmq.ts`. API enqueues with deterministic `jobId`s (`quote:{id}`, `route:{id}`, …) for deduplication. |
-| **Execute dedup** | Live path skips a second submit when the latest execution is already `submitted` / `confirmed` / `unknown` settlement (see worker). |
-| **Kill switch** | `EXECUTION_KILL_SWITCH` or `system_settings.execution_kill_switch` blocks execute jobs. |
-| **Strategy pause** | `strategies.paused`; worker skips execute. Pause/unpause via `POST /ops/strategies/:id/pause` (requires `OPS_API_KEY` when set). |
-| **Approvals** | `requires_approval` + `approval_status` on intents; live execute requires `approved` unless `mode === simulate`. |
-| **Audit** | Append-only `execution_audit_events`; optional `policy_snapshots`, `intent_snapshots`, `route_snapshots`. |
-| **Metrics** | `metric_samples` table; worker cron samples queue depths; `GET /ops/metrics` (optional `OPS_API_KEY`). |
-| **Reconciliation** | Repeat job on `execution-reconciliation` scans stale `submitted`/`unknown` rows and records audit ticks. |
-| **Portfolio policy** | Extra caps on `PolicyConfig` (daily trades, unsettled count, exposure, notional); contributions persisted on `policy_decisions` and summarized in `portfolio_state`. |
-
-**What makes this production-credible:** explicit execution states, bounded Keeta retries on transient RPC errors, persisted failures (`job_failures`), stuck-job telemetry, first-party metrics API, audited admin policy evaluation (`POST /policy/evaluate`), and adapter conformance hooks.
-
-### First-time demo
+For the one-command demo flow:
 
 ```bash
 pnpm demo
 ```
 
-(brings up Docker services when available, runs `db:migrate` + `db:seed`, then `pnpm dev`.)
+## Live Keeta Mode
 
-## Local development
+For live native Keeta transfers:
 
-1. **Install**
+- set `LIVE_MODE_ENABLED=true`
+- set `KEETA_NETWORK`
+- set `KEETA_SIGNING_SEED` in the worker environment only
+- route through the `keeta-transfer` adapter
+- provide transfer metadata such as `metadata.transferTo`
 
-   ```bash
-   pnpm install
-   ```
+Useful environment variables:
 
-2. **Infra**
+- `DATABASE_URL`
+- `REDIS_URL`
+- `KEETA_NETWORK`
+- `KEETA_SIGNING_SEED`
+- `KEETA_ACCOUNT_INDEX`
+- `KEETA_POLICY_ENABLED`
+- `AUTH_JWT_*`
+- `METRICS_ENABLED`
 
-   ```bash
-   docker compose up -d
-   cp .env.example .env
-   ```
+See [`.env.example`](.env.example) for the full runtime contract.
 
-3. **Database**
+## Developer Workflow
 
-   ```bash
-   pnpm db:migrate
-   pnpm db:seed
-   ```
+Quality checks:
 
-   Use `pnpm db:generate` when changing Drizzle schema under `packages/storage/src/schema`.
+```bash
+pnpm build
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm test:integration
+```
 
-4. **Run API + worker + dashboard**
+The integration suite runs the real API and worker against Postgres and Redis.
 
-   ```bash
-   pnpm dev
-   ```
+## Repository Map
 
-   - API: `http://localhost:3001` (see `API_PORT`)
-   - Dashboard: `http://localhost:3000`
+- `packages/types` — shared Zod schemas and lifecycle types
+- `packages/adapter-*` — adapters and adapter registry
+- `packages/routing` — multi-hop route discovery and scoring
+- `packages/policy` — policy rules, registration, and composition
+- `packages/simulator` — simulation pipeline
+- `packages/keeta` — Keeta chain, transfer, oracle, and bond helpers
+- `packages/storage` — Drizzle schema, repositories, migrations, rollback helpers
+- `packages/telemetry` — logging, tracing, and metrics helpers
+- `packages/agent-runtime` — agent-oriented orchestration hooks
+- `packages/integration-tests` — full-stack verification harness
+- `apps/api` — HTTP control plane
+- `apps/worker` — durable execution worker
+- `apps/dashboard` — operational UI
+- `apps/mcp` — MCP server for tool-driven workflows
+- `examples/*` — runnable samples for agent builders
 
-   To include MCP in the same loop, run:
+## What A Smart Reader Should Know
 
-   ```bash
-   pnpm dev:all
-   ```
-
-5. **Quality**
-
-   ```bash
-   pnpm build
-   pnpm test
-   pnpm test:integration
-   pnpm lint
-   pnpm typecheck
-   ```
-
-   `pnpm test:integration` runs the real API + worker happy path against Postgres and Redis when local infra is available.
-
-## Environment
-
-See [`.env.example`](.env.example). Key variables:
-
-- `DATABASE_URL`, `REDIS_URL`
-- `LIVE_MODE_ENABLED`, `ALLOW_DEV_SIGNER`
-- `KEETA_NETWORK`, `KEETA_SIGNING_SEED`, `KEETA_ACCOUNT_INDEX`, `KEETA_EXPLORER_TX_URL_TEMPLATE`
-- `KEETA_POLICY_ENABLED` — strict Keeta preflight hints for policy (worker)
-- `NEXT_PUBLIC_API_URL` for the dashboard
-
-## Vision alignment (how pieces fit)
-
-- **KTA-Oracle** — global rates, rails, and compliance *intelligence* (planning), exposed via HTTP/MCP and [`buildOraclePaymentPlaybook`](packages/keeta/src/oracle-playbook.ts).
-- **API + worker** — durable intent pipeline, policy, and execution (settlement) with signing only in the worker.
-- **Adapters** — breadth of rails: native Keeta transfer plus rail-specific adapters (e.g. `oracle-rail-cctp-usdc`); each execution can emit a **normalized receipt** (`railKind`, `railRef`, `network`).
-- **Identity policy** — optional `IDENTITY_POLICY_ENABLED` + metadata (`agentId`, `identityAttestation`, `identityCertFingerprint`) evaluated in policy; Keeta certificate verification remains an extension point on `keetaHints.identity`.
-
-## Future expansions (Phase 3 — interfaces only)
-
-Typed **design hooks** live in [`packages/core/src/future-hooks.ts`](packages/core/src/future-hooks.ts). **Verifiable execution journal** is implemented: Postgres table `execution_journal_entries` + [`createVerifiableExecutionJournal`](packages/storage/src/repositories/journal.ts) (worker appends after successful executes). Still interface-only:
-
-- **Multi-account / vault** — `VaultOrchestrator` (see [`InMemoryVaultOrchestrator`](packages/core/src/vault-orchestrator.ts) for tests/dev)
-- **Operator cockpit** — `OperatorCockpit`
-- **Intent copilot** — `IntentCopilot`
-
-Additional follow-ups:
-
-- Certificate / deep account preconditions on top of `ruleKeetaExtension`
-- **Read-only browser demo** route without exposing seeds or unsafe client-side signing
-
-## Known SDK caveats
-
-- `UserClient.send` return shape may be `voteStaple` or publish-aid `blocks`; `receiptFromPublishResult` handles both.
-- Block height from the staple is not always exposed in a stable field — `block_height` is reserved for when the SDK exposes it consistently.
+- This repo is strongest at execution infrastructure, not marketing polish.
+- The architecture is already shaped like a serious SDK platform: shared contracts, durable pipeline, adapter model, policy engine, control plane, and operator surfaces.
+- The main frontier work is packaging and deeper production maturity, not rebuilding the core design.
+- The current `v2` branch is meant to be understandable, extensible, and operationally credible before it is declared final.
 
 ## License
 
-Apache-2.0 (default for OSS; change if your org requires otherwise).
+Apache-2.0
