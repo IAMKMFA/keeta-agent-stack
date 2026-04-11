@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "api",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@keeta-agent-sdk/api", "dev"],
+      "port": 3001
+    },
+    {
+      "name": "worker",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@keeta-agent-sdk/worker", "dev"],
+      "port": 0
+    },
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@keeta-agent-sdk/dashboard", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "mcp",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@keeta-agent-sdk/mcp", "dev"],
+      "port": 0
+    }
+  ]
+}

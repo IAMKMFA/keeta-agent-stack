@@ -1,2 +1,2 @@
 export { AdapterRegistry } from './registry.js';
-export { createDefaultDevAdapters } from './factory.js';
+export { createDefaultDevAdapters, createDefaultDevRegistry } from './factory.js';

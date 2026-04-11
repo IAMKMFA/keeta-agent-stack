@@ -7,5 +7,6 @@ export const policyDecisions = pgTable('policy_decisions', {
     .references(() => executionIntents.id)
     .notNull(),
   payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
+  ruleContributions: jsonb('rule_contributions').$type<unknown[] | null>(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });

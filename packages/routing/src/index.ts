@@ -1,1 +1,1 @@
-export { Router, type RouterOptions } from './router.js';
+export { Router, scoreRoute, type RouterOptions, type RouteBuildOptions } from './router.js';

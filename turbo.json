@@ -24,5 +24,14 @@
       "cache": false
     }
   },
-  "globalEnv": ["DATABASE_URL", "REDIS_URL", "NODE_ENV", "API_PORT", "LOG_LEVEL", "NEXT_PUBLIC_API_URL"]
+  "globalEnv": [
+    "DATABASE_URL",
+    "REDIS_URL",
+    "NODE_ENV",
+    "API_PORT",
+    "LOG_LEVEL",
+    "NEXT_PUBLIC_API_URL",
+    "KTA_ORACLE_BASE_URL",
+    "KTA_ORACLE_TIMEOUT_MS"
+  ]
 }

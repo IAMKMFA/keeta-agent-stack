@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  quality:
+    name: Lint, Typecheck, Unit Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Build docs bundle
+        run: pnpm --filter @keeta-agent-sdk/docs build
+
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: keeta
+          POSTGRES_PASSWORD: keeta
+          POSTGRES_DB: keeta_agent
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U keeta -d keeta_agent"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Wait for Postgres and Redis
+        run: |
+          until pg_isready -h localhost -p 5432 -U keeta -d keeta_agent; do sleep 1; done
+          until redis-cli -h localhost -p 6379 ping; do sleep 1; done
+
+      - name: Run integration tests
+        env:
+          RUN_INTEGRATION_TESTS: "true"
+          INTEGRATION_DATABASE_URL: postgresql://keeta:keeta@localhost:5432/keeta_agent
+          INTEGRATION_REDIS_URL: redis://localhost:6379/15
+          OPS_API_KEY: integration-ops-key
+        run: pnpm test:integration

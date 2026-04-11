@@ -1,11 +1,111 @@
 import { DataTable } from '../../components/DataTable';
+import { StatusCard } from '../../components/StatusCard';
+import { fetchJson } from '../../lib/api';
+import { formatDateTime, formatNumber, formatOptionalNumber, shortId } from '../../lib/format';
 
-export default function Page() {
-  const rows = [{ id: 'route-1', score: '-1.25', hops: '1' }];
+type RoutePayload = {
+  hopCount?: number;
+  totalFeeBps?: number;
+  expectedSlippageBps?: number;
+  steps?: Array<{
+    adapterId?: string;
+    paymentAnchorId?: string;
+    routingContext?: {
+      corridorMatch?: 'exact' | 'listed' | 'unscoped';
+      scoreAdjustment?: number;
+      operatorSuccessRate?: number;
+      operatorP95LatencyMs?: number;
+    };
+  }>;
+};
+
+type RouteRow = {
+  id: string;
+  intentId: string;
+  score: number;
+  payload?: RoutePayload;
+  createdAt: string;
+};
+
+function averageScore(rows: RouteRow[]): string {
+  if (rows.length === 0) return '—';
+  const avg = rows.reduce((sum, row) => sum + row.score, 0) / rows.length;
+  return avg.toFixed(4);
+}
+
+export default async function Page() {
+  const rows = await fetchJson<RouteRow[]>('/routes', []);
+  const highConfidence = rows.filter((row) => row.score > 0).length;
+  const avgScore = averageScore(rows);
+
+  const tableRows = rows.map((row) => ({
+    _key: row.id,
+    id: (
+      <div className="space-y-1">
+        <div className="font-mono text-xs">{shortId(row.id)}</div>
+        <div className="font-mono text-[11px] text-[var(--hub-muted)]">{row.id}</div>
+      </div>
+    ),
+    intent: <span className="font-mono text-xs">{shortId(row.intentId)}</span>,
+    venue: (
+      <div className="space-y-1">
+        <div className="font-mono text-xs">{row.payload?.steps?.[0]?.adapterId ?? '—'}</div>
+        <div className="text-[11px] text-[var(--hub-muted)]">
+          {row.payload?.steps?.[0]?.routingContext?.corridorMatch ?? '—'}
+          {typeof row.payload?.steps?.[0]?.routingContext?.scoreAdjustment === 'number'
+            ? ` / ${row.payload.steps[0].routingContext.scoreAdjustment >= 0 ? '+' : ''}${row.payload.steps[0].routingContext.scoreAdjustment.toFixed(1)}`
+            : ''}
+        </div>
+        <div className="text-[11px] text-[var(--hub-muted)]">
+          {typeof row.payload?.steps?.[0]?.routingContext?.operatorSuccessRate === 'number'
+            ? `${row.payload.steps[0].routingContext.operatorSuccessRate.toFixed(1)}%`
+            : '—'}
+          {typeof row.payload?.steps?.[0]?.routingContext?.operatorP95LatencyMs === 'number'
+            ? ` / ${Math.round(row.payload.steps[0].routingContext.operatorP95LatencyMs)} ms`
+            : ''}
+        </div>
+      </div>
+    ),
+    hops: formatOptionalNumber(row.payload?.hopCount),
+    feeBps: formatOptionalNumber(row.payload?.totalFeeBps, 1),
+    slippage: formatOptionalNumber(row.payload?.expectedSlippageBps, 1),
+    score: <span className="font-mono">{row.score.toFixed(4)}</span>,
+    created: <span className="font-mono text-xs">{formatDateTime(row.createdAt)}</span>,
+  }));
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Routes</h1>
-      <DataTable columns={['id', 'score', 'hops']} rows={rows} />
+    <div className="space-y-6">
+      <div>
+        <div className="hub-kicker">Routing Intelligence</div>
+        <h1 className="hub-heading mt-1 text-3xl font-semibold">Routes</h1>
+        <p className="mt-2 text-sm text-[var(--hub-muted)]">
+          Candidate route plans produced by the router with hop count, fee, slippage, and composite score.
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatusCard title="Route plans" value={formatNumber(rows.length)} hint="Latest first" />
+        <StatusCard title="Positive score" value={formatNumber(highConfidence)} hint="Score greater than 0" />
+        <StatusCard title="Average score" value={avgScore} hint="Across visible plans" />
+      </div>
+
+      <section className="hub-soft-panel p-4">
+        <DataTable
+          columns={[
+            { key: 'id', label: 'Route ID' },
+            { key: 'intent', label: 'Intent' },
+            { key: 'venue', label: 'Venue' },
+            { key: 'hops', label: 'Hops' },
+            { key: 'feeBps', label: 'Fee (bps)' },
+            { key: 'slippage', label: 'Slippage (bps)' },
+            { key: 'score', label: 'Score' },
+            { key: 'created', label: 'Created' },
+          ]}
+          rows={tableRows}
+          rowKey={(row) => String(row._key)}
+          emptyMessage="No route plans yet. Run route generation for an intent to see output here."
+        />
+      </section>
     </div>
   );
 }

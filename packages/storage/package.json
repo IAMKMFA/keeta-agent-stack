@@ -15,9 +15,12 @@
     "build": "tsup src/index.ts --format esm --dts --clean",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "migrate": "tsx src/migrate.ts",
+    "migrate:down": "tsx src/migrate-down.ts"
   },
   "dependencies": {
+    "@keeta-agent-sdk/core": "workspace:*",
     "@keeta-agent-sdk/types": "workspace:*",
     "drizzle-orm": "^0.38.3",
     "pg": "^8.13.1"

@@ -1,4 +1,10 @@
-import type { ExecutionIntent, RoutePlan, SimulationResult, SimulationScenario } from '@keeta-agent-sdk/types';
+import type {
+  ExecutionIntent,
+  KeetaSimulationSnapshot,
+  RoutePlan,
+  SimulationResult,
+  SimulationScenario,
+} from '@keeta-agent-sdk/types';
 import { sleep } from '@keeta-agent-sdk/utils';
 import { randomUUID } from 'node:crypto';
 
@@ -16,7 +22,8 @@ function rng(seed?: string): () => number {
 export async function simulate(
   intent: ExecutionIntent,
   route: RoutePlan,
-  scenario: SimulationScenario
+  scenario: SimulationScenario,
+  keetaSnapshot?: KeetaSimulationSnapshot | null
 ): Promise<SimulationResult> {
   const rand = rng(scenario.seed);
   const latency = Math.floor(scenario.latencyMs * (0.8 + 0.4 * rand()));
@@ -45,6 +52,7 @@ export async function simulate(
       failureReason: 'Scenario failure probability triggered',
       pnlQuote: null,
       pnlNote: 'PnL not yet connected',
+      keetaSnapshot: keetaSnapshot ?? undefined,
       completedAt: now,
     };
   }
@@ -59,6 +67,7 @@ export async function simulate(
     simulatedLatencyMs: latency,
     pnlQuote: null,
     pnlNote: 'PnL not yet connected',
+    keetaSnapshot: keetaSnapshot ?? undefined,
     completedAt: now,
   };
 }

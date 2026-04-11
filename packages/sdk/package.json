@@ -18,6 +18,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@keeta-agent-sdk/policy": "workspace:*",
     "@keeta-agent-sdk/types": "workspace:*"
   },
   "devDependencies": {

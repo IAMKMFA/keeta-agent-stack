@@ -22,7 +22,8 @@
     "@keeta-agent-sdk/adapter-base": "workspace:*",
     "@keeta-agent-sdk/adapter-mock-anchor": "workspace:*",
     "@keeta-agent-sdk/adapter-mock-dex": "workspace:*",
-    "@keeta-agent-sdk/adapter-keeta-transfer": "workspace:*"
+    "@keeta-agent-sdk/adapter-keeta-transfer": "workspace:*",
+    "@keeta-agent-sdk/adapter-oracle-rail": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.3.5",

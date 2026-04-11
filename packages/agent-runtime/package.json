@@ -13,6 +13,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest run",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
@@ -26,7 +27,9 @@
     "@keeta-agent-sdk/wallet": "workspace:*"
   },
   "devDependencies": {
+    "@keeta-agent-sdk/adapter-mock-dex": "workspace:*",
     "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
   }
 }

@@ -1,0 +1,11 @@
+{
+  "adapterId": "mock-dex",
+  "baseAsset": "KTA",
+  "quoteAsset": "KTA",
+  "side": "buy",
+  "sizeIn": "1",
+  "sizeOut": "1",
+  "price": "1",
+  "feeBps": 10,
+  "expectedSlippageBps": 0
+}

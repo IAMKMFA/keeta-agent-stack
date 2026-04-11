@@ -1,10 +1,32 @@
 import { z } from 'zod';
-import { AssetIdSchema, SideSchema } from './common.js';
+import { AssetIdSchema, SideSchema, VenueKindSchema } from './common.js';
 import { QuoteResponseSchema } from './quote.js';
+
+export const RouteScoreAdjustmentSchema = z.object({
+  source: z.string().min(1),
+  value: z.number(),
+});
+
+export const RouteStepRoutingContextSchema = z.object({
+  corridorKey: z.string().optional(),
+  corridorMatch: z.enum(['exact', 'listed', 'unscoped']).optional(),
+  readinessStatus: z.enum(['ready', 'needs_attention', 'blocked']).optional(),
+  commercialVolumeFeeBps: z.number().nonnegative().optional(),
+  operatorPriority: z.number().optional(),
+  operatorSuccessRate: z.number().min(0).max(100).optional(),
+  operatorP95LatencyMs: z.number().min(0).optional(),
+  operatorUnsettledVolume: z.number().min(0).optional(),
+  operatorBondVerified: z.boolean().optional(),
+  scoreAdjustment: z.number(),
+  scoreAdjustments: z.array(RouteScoreAdjustmentSchema).default([]),
+});
 
 export const RouteStepSchema = z.object({
   stepIndex: z.number().int().min(0),
   adapterId: z.string(),
+  venueKind: VenueKindSchema.optional(),
+  paymentAnchorId: z.string().uuid().optional(),
+  routingContext: RouteStepRoutingContextSchema.optional(),
   baseAsset: AssetIdSchema,
   quoteAsset: AssetIdSchema,
   side: SideSchema,
@@ -27,3 +49,5 @@ export const RoutePlanSchema = z.object({
 
 export type RouteStep = z.infer<typeof RouteStepSchema>;
 export type RoutePlan = z.infer<typeof RoutePlanSchema>;
+export type RouteScoreAdjustment = z.infer<typeof RouteScoreAdjustmentSchema>;
+export type RouteStepRoutingContext = z.infer<typeof RouteStepRoutingContextSchema>;

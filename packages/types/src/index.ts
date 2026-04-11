@@ -7,3 +7,7 @@ export * from './schemas/execution-result.js';
 export * from './schemas/adapter.js';
 export * from './schemas/agent.js';
 export * from './schemas/simulation.js';
+export * from './schemas/lifecycle.js';
+export * from './schemas/normalized-receipt.js';
+export * from './schemas/payment-anchor.js';
+export * from './schemas/event-stream.js';

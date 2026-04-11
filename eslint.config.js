@@ -5,7 +5,13 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ['**/dist/**', '**/.next/**', '**/node_modules/**', '**/infrastructure/migrations/**'],
+    ignores: [
+      '**/dist/**',
+      '**/.next/**',
+      '**/node_modules/**',
+      '**/infrastructure/migrations/**',
+      '**/next-env.d.ts',
+    ],
   },
   {
     rules: {

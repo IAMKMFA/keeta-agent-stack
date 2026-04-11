@@ -1,32 +1,52 @@
+import type { ReactNode } from 'react';
+
+type TableColumn = {
+  key: string;
+  label: string;
+  className?: string;
+};
+
 export function DataTable({
   columns,
   rows,
+  emptyMessage = 'No records yet.',
+  rowKey,
 }: {
-  columns: string[];
-  rows: Record<string, string | number>[];
+  columns: TableColumn[];
+  rows: Record<string, ReactNode>[];
+  emptyMessage?: string;
+  rowKey?: (row: Record<string, ReactNode>, index: number) => string;
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-800">
-      <table className="min-w-full divide-y divide-slate-800 text-sm">
-        <thead className="bg-slate-900/80">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--hub-line)] bg-white/70">
+      <table className="hub-table min-w-full text-sm">
+        <thead className="bg-[#f8f8f8]">
           <tr>
             {columns.map((c) => (
-              <th key={c} className="px-4 py-3 text-left font-medium text-slate-400">
-                {c}
+              <th key={c.key} className={`px-4 py-3 text-left font-medium ${c.className ?? ''}`}>
+                {c.label}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800">
-          {rows.map((row, idx) => (
-            <tr key={idx} className="hover:bg-slate-900/40">
-              {columns.map((c) => (
-                <td key={c} className="px-4 py-3 text-slate-200">
-                  {String(row[c] ?? '')}
-                </td>
-              ))}
+        <tbody>
+          {rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-[var(--hub-muted)]">
+                {emptyMessage}
+              </td>
             </tr>
-          ))}
+          ) : (
+            rows.map((row, idx) => (
+              <tr key={rowKey ? rowKey(row, idx) : String(idx)} className="hover:bg-[#f6f7f7]">
+                {columns.map((c) => (
+                  <td key={c.key} className={`px-4 py-3 text-[#343232] ${c.className ?? ''}`}>
+                    {row[c.key] ?? '—'}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

@@ -1,6 +1,8 @@
 import { KeetaTransferAdapter } from '@keeta-agent-sdk/adapter-keeta-transfer';
 import { MockAnchorAdapter } from '@keeta-agent-sdk/adapter-mock-anchor';
 import { MockDexAdapter } from '@keeta-agent-sdk/adapter-mock-dex';
+import { OracleCctpRailAdapter } from '@keeta-agent-sdk/adapter-oracle-rail';
+import { AdapterRegistry } from './registry.js';
 
 export function createDefaultDevAdapters() {
   const spread = Number(process.env.MOCK_DEX_SPREAD_BPS ?? 10);
@@ -20,6 +22,15 @@ export function createDefaultDevAdapters() {
     stateWeights: { completed: 1, failed: 0 },
   });
   const transfer = new KeetaTransferAdapter();
+  const oracleCctp = new OracleCctpRailAdapter();
 
-  return [dex, anchor, transfer] as const;
+  return [dex, anchor, transfer, oracleCctp] as const;
+}
+
+export function createDefaultDevRegistry(): AdapterRegistry {
+  const registry = new AdapterRegistry();
+  for (const adapter of createDefaultDevAdapters()) {
+    registry.register(adapter);
+  }
+  return registry;
 }

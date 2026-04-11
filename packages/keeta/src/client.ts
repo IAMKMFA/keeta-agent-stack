@@ -1,21 +1,51 @@
+import { UserClient } from '@keetanetwork/keetanet-client';
+import type { KeetaNetworkName } from './network-types.js';
+import { readChainHealth } from './chain-reader.js';
+import type { ChainHealthSnapshot } from './chain-reader.js';
+
 /**
- * Placeholder Keeta network client — replace with real Keeta SDK connection.
+ * Thin facade over KeetaNet read-only access. Holds a read-only `UserClient` (signer=null)
+ * for account-scoped queries when connected.
  */
 export class KeetaClient {
-  private endpoint?: string;
+  private readonly net: KeetaNetworkName;
+  private userClient: UserClient | null = null;
 
-  constructor(endpoint?: string) {
-    this.endpoint = endpoint;
+  constructor(network: KeetaNetworkName) {
+    this.net = network;
   }
 
-  async connect(endpoint?: string): Promise<void> {
-    this.endpoint = endpoint ?? this.endpoint;
-    // TODO: wire real Keeta RPC / WebSocket transport
+  async connect(): Promise<void> {
+    if (this.userClient) {
+      await this.userClient.destroy().catch(() => undefined);
+    }
+    this.userClient = UserClient.fromNetwork(this.net, null);
   }
 
-  async getNetworkInfo(): Promise<{ chainId: string; name: string }> {
-    void this.endpoint;
-    // TODO: return network metadata from Keeta node
-    return { chainId: 'keeta-dev', name: 'keeta-devnet' };
+  async destroy(): Promise<void> {
+    if (this.userClient) {
+      await this.userClient.destroy().catch(() => undefined);
+      this.userClient = null;
+    }
+  }
+
+  async getNetworkInfo(): Promise<{ chainId: string; name: string; baseToken: string }> {
+    if (!this.userClient) {
+      await this.connect();
+    }
+    const uc = this.userClient!;
+    return {
+      chainId: String(this.net),
+      name: `keeta-${this.net}`,
+      baseToken: String(uc.baseToken),
+    };
+  }
+
+  async getChainHealth(): Promise<ChainHealthSnapshot> {
+    return readChainHealth(this.net);
+  }
+
+  getNetwork(): KeetaNetworkName {
+    return this.net;
   }
 }

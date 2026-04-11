@@ -5,14 +5,19 @@
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "dev": "turbo run dev --filter=@keeta-agent-sdk/api --filter=@keeta-agent-sdk/worker --filter=@keeta-agent-sdk/dashboard",
+    "dev:all": "turbo run dev --filter=@keeta-agent-sdk/api --filter=@keeta-agent-sdk/worker --filter=@keeta-agent-sdk/dashboard --filter=@keeta-agent-sdk/mcp",
+    "dev:mcp": "pnpm --filter @keeta-agent-sdk/mcp dev",
     "build": "turbo run build",
     "test": "turbo run test",
+    "test:integration": "RUN_INTEGRATION_TESTS=true pnpm --filter @keeta-agent-sdk/integration-tests test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean && rm -rf node_modules",
     "db:generate": "pnpm --filter @keeta-agent-sdk/storage exec drizzle-kit generate",
     "db:migrate": "pnpm --filter @keeta-agent-sdk/storage exec tsx src/migrate.ts",
-    "db:seed": "pnpm --filter @keeta-agent-sdk/storage exec tsx src/seed.ts"
+    "db:migrate:down": "pnpm --filter @keeta-agent-sdk/storage exec tsx src/migrate-down.ts",
+    "db:seed": "pnpm --filter @keeta-agent-sdk/storage exec tsx src/seed.ts",
+    "demo": "bash scripts/demo.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

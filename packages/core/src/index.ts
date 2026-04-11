@@ -1,5 +1,14 @@
 import type { ExecutionIntent, RoutePlan } from '@keeta-agent-sdk/types';
 
+export type {
+  VerifiableExecutionJournal,
+  JournalEntry,
+  VaultOrchestrator,
+  OperatorCockpit,
+  IntentCopilot,
+} from './future-hooks.js';
+export { InMemoryVaultOrchestrator } from './vault-orchestrator.js';
+
 /** Bump when pipeline semantics change (for consumers / migrations). */
 export const PIPELINE_SCHEMA_VERSION = 1;
 

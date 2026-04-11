@@ -1,5 +1,4 @@
 import { runAdapterContractSuite } from '@keeta-agent-sdk/adapter-base/contract';
-import { describe } from 'vitest';
 import { MockDexAdapter } from './mock-dex.js';
 
 const adapter = new MockDexAdapter({

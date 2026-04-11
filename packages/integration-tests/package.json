@@ -1,0 +1,29 @@
+{
+  "name": "@keeta-agent-sdk/integration-tests",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "mkdir -p dist && printf 'integration-tests\\n' > dist/.keep",
+    "test": "vitest run --config vitest.config.ts",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@keeta-agent-sdk/adapter-registry": "workspace:*",
+    "@keeta-agent-sdk/storage": "workspace:*",
+    "@keeta-agent-sdk/types": "workspace:*",
+    "drizzle-orm": "^0.38.3",
+    "ioredis": "^5.4.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@keeta-agent-sdk/adapter-mock-dex": "workspace:*",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "jose": "^5.9.6",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
+  }
+}

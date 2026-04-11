@@ -2,15 +2,23 @@ import { describe, expect, it } from 'vitest';
 import {
   AdapterHealthSchema,
   AgentProposalSchema,
+  canTransitionPaymentAnchorStatus,
   CapabilityMapSchema,
+  evaluatePaymentAnchorOnboarding,
+  evaluatePaymentAnchorReadiness,
   ExecutionIntentSchema,
   ExecutionResultSchema,
+  EventStreamEventSchema,
+  PaymentAnchorDetailSchema,
   PolicyDecisionSchema,
+  PaymentAnchorWithBondSchema,
   QuoteRequestSchema,
   QuoteResponseSchema,
   RoutePlanSchema,
   SimulationResultSchema,
   SimulationScenarioSchema,
+  WebhookDeliverySchema,
+  WebhookSubscriptionSchema,
 } from '../../index.js';
 
 describe('Zod schemas', () => {
@@ -62,6 +70,15 @@ describe('Zod schemas', () => {
         {
           stepIndex: 0,
           adapterId: 'mock-dex',
+          venueKind: 'dex' as const,
+          routingContext: {
+            operatorSuccessRate: 99.5,
+            operatorP95LatencyMs: 240,
+            operatorUnsettledVolume: 1,
+            operatorBondVerified: true,
+            scoreAdjustment: 0,
+            scoreAdjustments: [],
+          },
           baseAsset: 'KTA',
           quoteAsset: 'USDC',
           side: 'sell' as const,
@@ -77,6 +94,220 @@ describe('Zod schemas', () => {
       createdAt: now,
     };
     expect(RoutePlanSchema.parse(plan)).toEqual(plan);
+  });
+
+  it('round-trips event-stream webhook models', () => {
+    const event = {
+      id: '550e8400-e29b-41d4-a716-446655440020',
+      source: 'anchor' as const,
+      eventType: 'execution.completed',
+      paymentAnchorId: '550e8400-e29b-41d4-a716-446655440024',
+      executionId: '550e8400-e29b-41d4-a716-446655440021',
+      payload: { hopCount: 2 },
+      correlationId: 'job-123',
+      createdAt: now,
+    };
+    expect(EventStreamEventSchema.parse(event)).toEqual(event);
+
+    const subscription = {
+      id: '550e8400-e29b-41d4-a716-446655440022',
+      targetUrl: 'https://example.com/webhook',
+      eventTypes: ['execution.completed', 'policy.evaluated'],
+      status: 'active' as const,
+      secretPresent: true,
+      createdAt: now,
+      updatedAt: now,
+    };
+    expect(WebhookSubscriptionSchema.parse(subscription)).toEqual(subscription);
+
+    const delivery = {
+      id: '550e8400-e29b-41d4-a716-446655440023',
+      subscriptionId: subscription.id,
+      eventSource: 'audit' as const,
+      eventId: event.id,
+      auditEventId: event.id,
+      status: 'delivered' as const,
+      attemptCount: 1,
+      responseStatus: 202,
+      responseBody: 'accepted',
+      deliveredAt: now,
+      createdAt: now,
+      updatedAt: now,
+    };
+    expect(WebhookDeliverySchema.parse(delivery)).toEqual(delivery);
+  });
+
+  it('round-trips PaymentAnchor with current bond', () => {
+    const anchor = {
+      id: '550e8400-e29b-41d4-a716-446655440010',
+      adapterId: 'mock-anchor',
+      label: 'Demo AED Anchor',
+      status: 'active' as const,
+      corridorKey: 'USD:AED',
+      operatorRef: 'demo-operator',
+      publicLabel: true,
+      corridorConfig: { region: 'AE' },
+      supportedAssets: ['USD', 'AED', 'KTA'],
+      commercialTerms: {
+        setupFeeNote: 'Operator configured',
+        volumeFeeBps: 18,
+      },
+      metadata: {},
+      createdAt: now,
+      updatedAt: now,
+      currentBond: {
+        id: '550e8400-e29b-41d4-a716-446655440011',
+        paymentAnchorId: '550e8400-e29b-41d4-a716-446655440010',
+        amountAtomic: '5000000000',
+        assetId: 'KTA',
+        delayDays: 90 as const,
+        status: 'active' as const,
+        lockTxHash: 'bond_tx_hash',
+        lockAccount: 'kta_anchor_bond_demo',
+        verified: true,
+        verificationSource: 'database' as const,
+        verificationDetails: { source: 'seed' },
+        createdAt: now,
+        updatedAt: now,
+      },
+    };
+    expect(PaymentAnchorWithBondSchema.parse(anchor)).toEqual(anchor);
+  });
+
+  it('enforces sensible payment anchor lifecycle transitions', () => {
+    expect(canTransitionPaymentAnchorStatus('draft', 'commercial_defined')).toBe(true);
+    expect(canTransitionPaymentAnchorStatus('active', 'withdrawal_requested')).toBe(true);
+    expect(canTransitionPaymentAnchorStatus('draft', 'active')).toBe(false);
+  });
+
+  it('evaluates payment anchor readiness for activation and live traffic', () => {
+    const readiness = evaluatePaymentAnchorReadiness(
+      {
+        status: 'bond_pending_lock',
+        commercialTerms: {
+          setupFeeNote: 'Signed',
+          volumeFeeBps: 12,
+        },
+        currentBond: {
+          id: '550e8400-e29b-41d4-a716-446655440011',
+          paymentAnchorId: '550e8400-e29b-41d4-a716-446655440010',
+          amountAtomic: '5000000000',
+          assetId: 'KTA',
+          delayDays: 90,
+          status: 'active',
+          lockTxHash: 'bond_tx_hash',
+          lockAccount: 'kta_anchor_bond_demo',
+          verified: true,
+          verificationSource: 'database',
+          verificationDetails: { source: 'seed' },
+          createdAt: now,
+          updatedAt: now,
+        },
+      },
+      { strictBondVerification: true }
+    );
+
+    expect(readiness.canActivate).toBe(true);
+    expect(readiness.canServeLiveTraffic).toBe(false);
+    expect(readiness.nextRecommendedStatus).toBe('active');
+    expect(readiness.issues.some((issue) => issue.code === 'anchor_not_active')).toBe(true);
+  });
+
+  it('round-trips PaymentAnchor detail with readiness', () => {
+    const detail = {
+      id: '550e8400-e29b-41d4-a716-446655440010',
+      adapterId: 'mock-anchor',
+      label: 'Demo AED Anchor',
+      status: 'active' as const,
+      corridorKey: 'USD:AED',
+      operatorRef: 'demo-operator',
+      publicLabel: true,
+      corridorConfig: { region: 'AE' },
+      supportedAssets: ['USD', 'AED', 'KTA'],
+      commercialTerms: {
+        setupFeeNote: 'Operator configured',
+        volumeFeeBps: 18,
+      },
+      metadata: {},
+      createdAt: now,
+      updatedAt: now,
+      currentBond: {
+        id: '550e8400-e29b-41d4-a716-446655440011',
+        paymentAnchorId: '550e8400-e29b-41d4-a716-446655440010',
+        amountAtomic: '5000000000',
+        assetId: 'KTA',
+        delayDays: 90 as const,
+        status: 'active' as const,
+        lockTxHash: 'bond_tx_hash',
+        lockAccount: 'kta_anchor_bond_demo',
+        verified: true,
+        verificationSource: 'database' as const,
+        verificationDetails: { source: 'seed' },
+        createdAt: now,
+        updatedAt: now,
+      },
+      readiness: {
+        status: 'ready' as const,
+        canActivate: true,
+        canServeLiveTraffic: true,
+        issues: [],
+      },
+      onboarding: {
+        status: 'stable' as const,
+        currentStatus: 'active' as const,
+        reason: 'Anchor is active and eligible for live traffic.',
+      },
+      operatorMetrics: {
+        successRate: 99.2,
+        p50LatencyMs: 180,
+        p95LatencyMs: 450,
+        unsettledVolume: 2,
+        bondAgeDays: 14.5,
+        bondVerified: true,
+        sampledAt: now,
+      },
+      events: [
+        {
+          id: '550e8400-e29b-41d4-a716-446655440012',
+          paymentAnchorId: '550e8400-e29b-41d4-a716-446655440010',
+          eventType: 'payment_anchor.created',
+          payload: {},
+          createdAt: now,
+        },
+      ],
+    };
+    expect(PaymentAnchorDetailSchema.parse(detail)).toEqual(detail);
+  });
+
+  it('evaluates payment anchor onboarding progression', () => {
+    const onboarding = evaluatePaymentAnchorOnboarding(
+      {
+        status: 'bond_pending_lock',
+        commercialTerms: {
+          setupFeeNote: 'Signed',
+          volumeFeeBps: 12,
+        },
+        currentBond: {
+          id: '550e8400-e29b-41d4-a716-446655440011',
+          paymentAnchorId: '550e8400-e29b-41d4-a716-446655440010',
+          amountAtomic: '5000000000',
+          assetId: 'KTA',
+          delayDays: 90,
+          status: 'active',
+          lockTxHash: 'bond_tx_hash',
+          lockAccount: 'kta_anchor_bond_demo',
+          verified: true,
+          verificationSource: 'database',
+          verificationDetails: { source: 'seed' },
+          createdAt: now,
+          updatedAt: now,
+        },
+      },
+      { strictBondVerification: true }
+    );
+
+    expect(onboarding.status).toBe('advance');
+    expect(onboarding.nextStatus).toBe('active');
   });
 
   it('round-trips PolicyDecision', () => {

@@ -1,5 +1,6 @@
 import type { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import type { ExecutionIntent, RoutePlan, RouteStep } from '@keeta-agent-sdk/types';
+import type { VenueAdapter } from '@keeta-agent-sdk/adapter-base';
+import type { AdapterHealth, CapabilityMap, ExecutionIntent, QuoteRequest, QuoteResponse, RoutePlan, RouteStep } from '@keeta-agent-sdk/types';
 import { randomUUID } from 'node:crypto';
 
 export interface RouterOptions {
@@ -13,6 +14,25 @@ export interface RouterOptions {
   };
 }
 
+export interface RouteBuildOptions {
+  canUseAdapter?: (adapter: VenueAdapter) => boolean | Promise<boolean>;
+  describeAdapter?: (
+    adapter: VenueAdapter
+  ) =>
+    | Partial<Pick<RouteStep, 'paymentAnchorId' | 'routingContext'>>
+    | Promise<Partial<Pick<RouteStep, 'paymentAnchorId' | 'routingContext'>> | undefined>
+    | undefined;
+  scoreAdapter?: (
+    adapter: VenueAdapter,
+    context: {
+      intent: ExecutionIntent;
+      request: QuoteRequest;
+      quote: QuoteResponse;
+      health: AdapterHealth;
+    }
+  ) => number | Promise<number>;
+}
+
 const defaultWeights = {
   fee: 1,
   slippage: 1,
@@ -20,18 +40,20 @@ const defaultWeights = {
   reliability: 0.25,
 };
 
-function scoreRoute(input: {
+export function scoreRoute(input: {
   totalFeeBps: number;
   expectedSlippageBps: number;
   hopCount: number;
   healthOk: boolean;
+  adapterScoreAdjustment?: number;
 }, w = defaultWeights): number {
   const reliability = input.healthOk ? 1 : 0;
   return (
     w.fee * -input.totalFeeBps +
     w.slippage * -input.expectedSlippageBps +
     w.hops * -input.hopCount +
-    w.reliability * reliability
+    w.reliability * reliability +
+    (input.adapterScoreAdjustment ?? 0)
   );
 }
 
@@ -41,64 +63,153 @@ export class Router {
     private readonly opts: RouterOptions = { maxQuotes: 8, maxHops: 3 }
   ) {}
 
-  async buildPlans(intent: ExecutionIntent): Promise<{ best: RoutePlan; alternates: RoutePlan[] }> {
+  async buildPlans(
+    intent: ExecutionIntent,
+    buildOpts: RouteBuildOptions = {}
+  ): Promise<{ best: RoutePlan; alternates: RoutePlan[] }> {
     const adapters = this.registry.list().slice(0, this.opts.maxQuotes);
-    const quotes = await Promise.all(
-      adapters
-        .filter((a) => a.supportsPair(intent.baseAsset, intent.quoteAsset))
-        .map(async (adapter) => {
-          const q = await adapter.getQuote({
-            adapterId: adapter.id,
-            baseAsset: intent.baseAsset,
-            quoteAsset: intent.quoteAsset,
-            side: intent.side,
-            size: intent.size,
-            intentId: intent.id,
-          });
-          return { adapter, q };
-        })
-    );
-
-    const ok = quotes.filter((x) => x.q.success);
-    const plans: RoutePlan[] = [];
+    const eligibleAdapters: Array<{ adapter: VenueAdapter; capabilities: CapabilityMap }> = [];
+    for (const adapter of adapters) {
+      if (buildOpts.canUseAdapter && !(await buildOpts.canUseAdapter(adapter))) continue;
+      const capabilities = await adapter.getCapabilities();
+      if (!capabilities.pairs.some((pair) => adapter.supportsPair(pair.base, pair.quote))) continue;
+      eligibleAdapters.push({ adapter, capabilities });
+    }
     const w = this.opts.weights ?? defaultWeights;
+    const pairIndex = new Map<string, Array<{ adapter: VenueAdapter; pair: CapabilityMap['pairs'][number] }>>();
+    const knownAssets = new Set<string>([intent.baseAsset, intent.quoteAsset]);
+    for (const { adapter, capabilities } of eligibleAdapters) {
+      for (const pair of capabilities.pairs) {
+        if (!adapter.supportsPair(pair.base, pair.quote)) continue;
+        knownAssets.add(pair.base);
+        knownAssets.add(pair.quote);
+        const key = `${pair.base}:${pair.quote}`;
+        const entries = pairIndex.get(key) ?? [];
+        entries.push({ adapter, pair });
+        pairIndex.set(key, entries);
+      }
+    }
 
-    for (const { adapter, q } of ok) {
-      if (!q.success) continue;
-      const health = await adapter.healthCheck();
-      const step: RouteStep = {
-        stepIndex: 0,
-        adapterId: adapter.id,
-        baseAsset: intent.baseAsset,
-        quoteAsset: intent.quoteAsset,
-        side: intent.side,
-        sizeIn: intent.size,
-        sizeOutEstimate: q.data.sizeOut,
-        feeBps: q.data.feeBps,
-        quote: q.data,
-      };
-      const hopCount = 1;
-      if (hopCount > this.opts.maxHops) continue;
+    const candidatePaths: Array<Array<{ adapter: VenueAdapter; baseAsset: string; quoteAsset: string }>> = [];
+    const maxHops = Math.max(1, this.opts.maxHops);
+    const visit = (
+      currentAsset: string,
+      depth: number,
+      path: Array<{ adapter: VenueAdapter; baseAsset: string; quoteAsset: string }>,
+      seenAssets: Set<string>
+    ) => {
+      if (depth >= maxHops) return;
+      for (const nextAsset of knownAssets) {
+        const edgeKey = `${currentAsset}:${nextAsset}`;
+        const edges = pairIndex.get(edgeKey);
+        if (!edges?.length) continue;
+        for (const edge of edges) {
+          const nextPath = [...path, { adapter: edge.adapter, baseAsset: currentAsset, quoteAsset: nextAsset }];
+          if (nextAsset === intent.quoteAsset) {
+            candidatePaths.push(nextPath);
+            continue;
+          }
+          if (seenAssets.has(nextAsset)) continue;
+          const nextSeen = new Set(seenAssets);
+          nextSeen.add(nextAsset);
+          visit(nextAsset, depth + 1, nextPath, nextSeen);
+        }
+      }
+    };
+    visit(intent.baseAsset, 0, [], new Set([intent.baseAsset]));
 
-      const plan: RoutePlan = {
+    const plans: RoutePlan[] = [];
+    const dedupe = new Set<string>();
+    for (const candidatePath of candidatePaths) {
+      const signature = candidatePath
+        .map((step) => `${step.adapter.id}:${step.baseAsset}:${step.quoteAsset}`)
+        .join('>');
+      if (dedupe.has(signature)) continue;
+      dedupe.add(signature);
+
+      let currentSize = intent.size;
+      const steps: RouteStep[] = [];
+      let totalFeeBps = 0;
+      let expectedSlippageBps = 0;
+      let adapterScoreAdjustmentTotal = 0;
+      let healthOk = true;
+      let failed = false;
+
+      for (let stepIndex = 0; stepIndex < candidatePath.length; stepIndex++) {
+        const candidateStep = candidatePath[stepIndex]!;
+        const request: QuoteRequest = {
+          adapterId: candidateStep.adapter.id,
+          baseAsset: candidateStep.baseAsset,
+          quoteAsset: candidateStep.quoteAsset,
+          side: intent.side,
+          size: currentSize,
+          intentId: intent.id,
+        };
+        const q = await candidateStep.adapter.getQuote(request);
+        if (!q.success) {
+          failed = true;
+          break;
+        }
+        const health = await candidateStep.adapter.healthCheck();
+        if (!health.ok) healthOk = false;
+        const adapterDescription = (await buildOpts.describeAdapter?.(candidateStep.adapter)) ?? {};
+        const adapterScoreAdjustment =
+          (await buildOpts.scoreAdapter?.(candidateStep.adapter, {
+            intent,
+            request,
+            quote: q.data,
+            health,
+          })) ?? 0;
+        const mergedRoutingContext =
+          adapterDescription.routingContext !== undefined || adapterScoreAdjustment !== 0
+            ? {
+                scoreAdjustment: adapterScoreAdjustment,
+                scoreAdjustments: [],
+                ...adapterDescription.routingContext,
+              }
+            : undefined;
+        steps.push({
+          stepIndex,
+          adapterId: candidateStep.adapter.id,
+          venueKind: candidateStep.adapter.kind,
+          ...adapterDescription,
+          ...(mergedRoutingContext ? { routingContext: mergedRoutingContext } : {}),
+          baseAsset: candidateStep.baseAsset,
+          quoteAsset: candidateStep.quoteAsset,
+          side: intent.side,
+          sizeIn: currentSize,
+          sizeOutEstimate: q.data.sizeOut,
+          feeBps: q.data.feeBps,
+          quote: q.data,
+        });
+        currentSize = q.data.sizeOut;
+        totalFeeBps += q.data.feeBps;
+        expectedSlippageBps += q.data.expectedSlippageBps;
+        adapterScoreAdjustmentTotal += adapterScoreAdjustment;
+      }
+
+      if (failed || steps.length === 0) continue;
+      const hopCount = steps.length;
+      if (hopCount > maxHops) continue;
+      plans.push({
         id: randomUUID(),
         intentId: intent.id,
-        steps: [step],
-        totalFeeBps: q.data.feeBps,
-        expectedSlippageBps: q.data.expectedSlippageBps,
+        steps,
+        totalFeeBps,
+        expectedSlippageBps,
         hopCount,
         score: scoreRoute(
           {
-            totalFeeBps: q.data.feeBps,
-            expectedSlippageBps: q.data.expectedSlippageBps,
+            totalFeeBps,
+            expectedSlippageBps,
             hopCount,
-            healthOk: health.ok,
+            healthOk,
+            adapterScoreAdjustment: adapterScoreAdjustmentTotal,
           },
           w
         ),
         createdAt: new Date().toISOString(),
-      };
-      plans.push(plan);
+      });
     }
 
     plans.sort((a, b) => b.score - a.score);

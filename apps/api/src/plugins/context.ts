@@ -1,9 +1,12 @@
 import fp from 'fastify-plugin';
 import type { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
+import type { AppEnv } from '@keeta-agent-sdk/config';
 import type { Database } from '@keeta-agent-sdk/storage';
 import type { Queue } from 'bullmq';
 import type { TelemetryEmitter } from '@keeta-agent-sdk/telemetry';
-import type Redis from 'ioredis';
+import { Redis as RedisClass } from 'ioredis';
+
+type RedisConnection = InstanceType<typeof RedisClass>;
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -11,7 +14,8 @@ declare module 'fastify' {
     db: Database;
     queues: Record<string, Queue>;
     telemetry: TelemetryEmitter;
-    redis: Redis;
+    redis: RedisConnection;
+    env: AppEnv;
   }
 }
 
@@ -23,7 +27,8 @@ export const contextPlugin = fp(
       db: Database;
       queues: Record<string, Queue>;
       telemetry: TelemetryEmitter;
-      redis: Redis;
+      redis: RedisConnection;
+      env: AppEnv;
     }
   ) => {
     app.decorate('registry', opts.registry);
@@ -31,5 +36,6 @@ export const contextPlugin = fp(
     app.decorate('queues', opts.queues);
     app.decorate('telemetry', opts.telemetry);
     app.decorate('redis', opts.redis);
+    app.decorate('env', opts.env);
   }
 );
