@@ -188,7 +188,7 @@ The integration suite runs the real API and worker against Postgres and Redis.
 - This repo is strongest at execution infrastructure, not marketing polish.
 - The architecture is already shaped like a serious SDK platform: shared contracts, durable pipeline, adapter model, policy engine, control plane, and operator surfaces.
 - The main frontier work is packaging and deeper production maturity, not rebuilding the core design.
-- The current `v2` branch is meant to be understandable, extensible, and operationally credible before it is declared final.
+- Development on `main` is meant to be understandable, extensible, and operationally credible before a stable release is declared.
 
 ## License
 
