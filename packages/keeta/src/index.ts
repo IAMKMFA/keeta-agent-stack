@@ -37,6 +37,12 @@ export {
 export { signPayload } from './signer-bridge.js';
 export { createReadOnlyUserClient, createSigningUserClient } from './worker-bridge.js';
 export {
+  createKeetaWallet,
+  type CreateKeetaWalletOptions,
+  type CreatedKeetaWallet,
+  type KeetaWalletKeyAlgorithm,
+} from './wallet.js';
+export {
   createAnchorBondVerifier,
   type AnchorBondInspectionResult,
   type AnchorBondVerificationInput,

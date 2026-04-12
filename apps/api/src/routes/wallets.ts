@@ -1,7 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import { balanceRepo, walletRepo } from '@keeta-agent-sdk/storage';
-import { getBalances, KeetaConnectionError } from '@keeta-agent-sdk/keeta';
+import { createKeetaWallet, getBalances, KeetaConnectionError } from '@keeta-agent-sdk/keeta';
 import { requireOperatorAccess, requireViewerAccess } from '../lib/auth.js';
 
 const importBody = z.object({
@@ -9,7 +9,100 @@ const importBody = z.object({
   address: z.string().min(1),
 });
 
+const createBody = z.object({
+  label: z.string().min(1),
+  index: z.number().int().min(0).optional(),
+  algorithm: z.enum(['SECP256K1', 'SECP256R1', 'ED25519']).optional(),
+  includeSeed: z.boolean().optional(),
+});
+
+const importOrCreateBody = z.discriminatedUnion('mode', [
+  z.object({
+    mode: z.literal('import'),
+    label: z.string().min(1),
+    address: z.string().min(1),
+  }),
+  z.object({
+    mode: z.literal('create'),
+    label: z.string().min(1),
+    index: z.number().int().min(0).optional(),
+    algorithm: z.enum(['SECP256K1', 'SECP256R1', 'ED25519']).optional(),
+    includeSeed: z.boolean().optional(),
+  }),
+]);
+
 export const walletsRoutes: FastifyPluginAsync = async (app) => {
+  app.post('/wallets', async (req, reply) => {
+    if (!(await requireOperatorAccess(app, req, reply))) {
+      return;
+    }
+    const parsed = createBody.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid body', details: parsed.error.flatten() },
+      });
+    }
+    const created = createKeetaWallet({
+      index: parsed.data.index,
+      algorithm: parsed.data.algorithm,
+    });
+    const row = await walletRepo.insertWallet(app.db, {
+      label: parsed.data.label,
+      address: created.address,
+    });
+    return reply.status(201).send({
+      ...row,
+      derivation: {
+        index: created.index,
+        algorithm: created.algorithm,
+      },
+      ...(parsed.data.includeSeed ? { seed: created.seed } : {}),
+    });
+  });
+
+  app.post('/wallets/import-or-create', async (req, reply) => {
+    if (!(await requireOperatorAccess(app, req, reply))) {
+      return;
+    }
+    const parsed = importOrCreateBody.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid body', details: parsed.error.flatten() },
+      });
+    }
+
+    if (parsed.data.mode === 'import') {
+      const row = await walletRepo.insertWallet(app.db, {
+        label: parsed.data.label,
+        address: parsed.data.address,
+      });
+      return reply.status(201).send({
+        mode: 'import',
+        wallet: row,
+      });
+    }
+
+    const created = createKeetaWallet({
+      index: parsed.data.index,
+      algorithm: parsed.data.algorithm,
+    });
+    const row = await walletRepo.insertWallet(app.db, {
+      label: parsed.data.label,
+      address: created.address,
+    });
+    return reply.status(201).send({
+      mode: 'create',
+      wallet: {
+        ...row,
+        derivation: {
+          index: created.index,
+          algorithm: created.algorithm,
+        },
+        ...(parsed.data.includeSeed ? { seed: created.seed } : {}),
+      },
+    });
+  });
+
   app.post('/wallets/import', async (req, reply) => {
     if (!(await requireOperatorAccess(app, req, reply))) {
       return;

@@ -8,6 +8,7 @@ import { registerExecuteTools } from './tools/execute.js';
 import { registerOracleTools } from './tools/oracle.js';
 import { registerAgentPlaybookTools } from './tools/agent-playbook.js';
 import { registerAnchorTools } from './tools/anchors.js';
+import { registerControlPlaneTools } from './tools/control-plane.js';
 
 const KEETA_DOCS_MCP = 'https://docs.keeta.com/~gitbook/mcp';
 const ORACLE_BASE_URL = process.env.KTA_ORACLE_BASE_URL ?? 'https://kta-oracle.vercel.app';
@@ -26,6 +27,7 @@ registerExecuteTools(server);
 registerOracleTools(server);
 registerAgentPlaybookTools(server);
 registerAnchorTools(server);
+registerControlPlaneTools(server);
 
 server.resource(
   'keeta-docs-mcp',

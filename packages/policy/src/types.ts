@@ -6,7 +6,7 @@ import type {
   PaymentAnchorStatus,
   RoutePlan,
 } from '@keeta-agent-sdk/types';
-import type { ZodType } from 'zod';
+import { z, type ZodType } from 'zod';
 
 export interface PolicyConfig {
   maxOrderSize: number;
@@ -143,3 +143,86 @@ export interface PolicyEngineOptions {
   compositions?: PolicyRuleCompositionDefinition[];
   disabledRuleIds?: string[];
 }
+
+export interface PolicyRule {
+  ruleId: string;
+  priority?: number;
+  configKey?: string;
+  description?: string;
+  enabled?: boolean;
+  config?: Record<string, unknown>;
+}
+
+export interface PolicyComposition {
+  ruleId: string;
+  priority?: number;
+  description?: string;
+  operator: PolicyCompositionOperator;
+  children: string[];
+  enabled?: boolean;
+}
+
+export interface PolicyPack {
+  id: string;
+  name: string;
+  description?: string | null;
+  rules: PolicyRule[];
+  compositions: PolicyComposition[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const PolicyCompositionOperatorSchema = z.enum(['allOf', 'anyOf', 'not']);
+
+export const PolicyRuleSchema = z.object({
+  ruleId: z.string().min(1),
+  priority: z.number().int().optional(),
+  configKey: z.string().min(1).optional(),
+  description: z.string().min(1).optional(),
+  enabled: z.boolean().optional(),
+  config: z.record(z.unknown()).optional(),
+});
+
+export const PolicyCompositionSchema = z
+  .object({
+    ruleId: z.string().min(1),
+    priority: z.number().int().optional(),
+    description: z.string().min(1).optional(),
+    operator: PolicyCompositionOperatorSchema,
+    children: z.array(z.string().min(1)).min(1),
+    enabled: z.boolean().optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.operator === 'not' && value.children.length !== 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['children'],
+        message: 'Policy composition "not" requires exactly one child rule',
+      });
+    }
+  });
+
+export const PolicyPackSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1),
+  description: z.string().min(1).nullable().optional(),
+  rules: z.array(PolicyRuleSchema).default([]),
+  compositions: z.array(PolicyCompositionSchema).default([]),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export const CreatePolicyPackSchema = PolicyPackSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const UpdatePolicyPackSchema = CreatePolicyPackSchema.partial().superRefine((value, ctx) => {
+  if (Object.keys(value).length === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'At least one field must be provided',
+    });
+  }
+});

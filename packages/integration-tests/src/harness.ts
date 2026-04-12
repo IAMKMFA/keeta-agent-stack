@@ -9,6 +9,7 @@ import {
   intentRepo,
   routeRepo,
   simulationRepo,
+  strategyRepo,
   webhookRepo,
 } from '@keeta-agent-sdk/storage';
 import type { ExecutionIntent, IntentPipelineState } from '@keeta-agent-sdk/types';
@@ -128,6 +129,7 @@ export async function createIntegrationTestRuntime(
   }>;
   pauseWebhook: (id: string) => Promise<void>;
   createWallet: (input?: CreateWalletInput) => Promise<{ id: string }>;
+  createStrategy: (input?: { name?: string; config?: Record<string, unknown> }) => Promise<{ id: string }>;
   createIntent: (input: CreateIntentInput) => Promise<ExecutionIntent>;
   queueIntentStep: (intentId: string, step: 'quote' | 'route' | 'policy' | 'execute') => Promise<void>;
   driveIntentPipeline: (
@@ -300,6 +302,16 @@ export async function createIntegrationTestRuntime(
       });
       assertStatus(response.statusCode, 201, response.body);
       return parseJson<{ id: string }>(response.body);
+    },
+    createStrategy: async (input = {}) => {
+      const row = await strategyRepo.createStrategy(db, {
+        name: input.name ?? 'Integration Strategy',
+        config: input.config ?? {},
+      });
+      if (!row) {
+        throw new Error('Failed to create integration strategy');
+      }
+      return { id: row.id };
     },
     createIntent: async (input) => {
       const response = await app.inject({

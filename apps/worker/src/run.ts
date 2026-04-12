@@ -33,11 +33,13 @@ import {
 import { createDefaultDevRegistry, type AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
 import { Router } from '@keeta-agent-sdk/routing';
 import {
+  applyPolicyPack,
   PolicyEngine,
   type PolicyAnchorBondHint,
   type PolicyConfig,
   type PolicyIdentityHints,
   type PolicyKeetaHints,
+  type PolicyPack,
   type PolicyPortfolioStats,
 } from '@keeta-agent-sdk/policy';
 import { simulate } from '@keeta-agent-sdk/simulator';
@@ -942,8 +944,117 @@ async function closeWithTimeout(
   }
 }
 
-function policyConfigHash(cfg: PolicyConfig): string {
-  return createHash('sha256').update(JSON.stringify(cfg)).digest('hex').slice(0, 24);
+type RuntimePolicyPackSummary = {
+  id: string;
+  name: string;
+  source: 'intent_metadata' | 'strategy_config';
+};
+
+type ResolvedRuntimePolicyPack =
+  | { policyPack: null }
+  | { policyPack: PolicyPack; source: RuntimePolicyPackSummary['source'] }
+  | {
+      error: string;
+      source: RuntimePolicyPackSummary['source'];
+      policyPackId: string;
+    };
+
+function policyVersionHash(cfg: PolicyConfig, policyPack: RuntimePolicyPackSummary | null): string {
+  return createHash('sha256')
+    .update(
+      JSON.stringify({
+        config: cfg,
+        policyPackId: policyPack?.id ?? null,
+      })
+    )
+    .digest('hex')
+    .slice(0, 24);
+}
+
+function intentMetadataPolicyPackId(intent: ExecutionIntent): string | undefined {
+  const value = intent.metadata?.policyPackId;
+  return typeof value === 'string' ? value : undefined;
+}
+
+function strategyPolicyPackId(config: unknown): string | undefined {
+  if (!config || typeof config !== 'object') {
+    return undefined;
+  }
+  const value = (config as Record<string, unknown>).policyPackId;
+  return typeof value === 'string' ? value : undefined;
+}
+
+function serializeRuntimePolicyPack(row: Awaited<ReturnType<typeof policyRepo.getPolicyPackById>>): PolicyPack | null {
+  if (!row) {
+    return null;
+  }
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description ?? null,
+    rules: row.rules ?? [],
+    compositions: row.compositions ?? [],
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+async function resolveRuntimePolicyPack(
+  db: Database,
+  intent: ExecutionIntent
+): Promise<ResolvedRuntimePolicyPack> {
+  const directPolicyPackId = intentMetadataPolicyPackId(intent);
+  if (directPolicyPackId) {
+    const pack = serializeRuntimePolicyPack(await policyRepo.getPolicyPackById(db, directPolicyPackId));
+    return pack
+      ? { policyPack: pack, source: 'intent_metadata' }
+      : {
+          error: `Policy pack not found: ${directPolicyPackId}`,
+          source: 'intent_metadata',
+          policyPackId: directPolicyPackId,
+        };
+  }
+
+  if (!intent.strategyId) {
+    return { policyPack: null };
+  }
+
+  const strategy = await strategyRepo.getStrategyById(db, intent.strategyId);
+  const strategyPackId = strategyPolicyPackId(strategy?.config);
+  if (!strategyPackId) {
+    return { policyPack: null };
+  }
+
+  const pack = serializeRuntimePolicyPack(await policyRepo.getPolicyPackById(db, strategyPackId));
+  return pack
+    ? { policyPack: pack, source: 'strategy_config' }
+    : {
+        error: `Policy pack not found: ${strategyPackId}`,
+        source: 'strategy_config',
+        policyPackId: strategyPackId,
+      };
+}
+
+function blockedPolicyDecision(intentId: string, reason: string): {
+  intentId: string;
+  allowed: false;
+  summary: string;
+  contributions: Array<{ ruleId: string; passed: false; reason: string }>;
+  evaluatedAt: string;
+} {
+  return {
+    intentId,
+    allowed: false,
+    summary: reason,
+    contributions: [
+      {
+        ruleId: 'policy_pack_resolution',
+        passed: false,
+        reason,
+      },
+    ],
+    evaluatedAt: new Date().toISOString(),
+  };
 }
 
 function buildIdentityHints(intent: ExecutionIntent): PolicyIdentityHints {
@@ -976,7 +1087,6 @@ export async function runWorkerApp(options: WorkerAppOptions = {}): Promise<() =
   activeRegistry = registry;
 
   const router = new Router(registry);
-  const policyEngine = new PolicyEngine();
   const policyCfg = defaultPolicy(env);
   const anchorBondVerifier = createAnchorBondVerifier(env);
 
@@ -1256,28 +1366,61 @@ async function withDatabaseTransaction<T>(
         openExposureByVenue: {},
         walletExposure: 0,
       };
-      const decision = await withSpan(
-        'worker.policy.evaluate',
-        {
-          tracerName: 'keeta-agent-worker',
-          attributes: {
-            intentId: intent.id,
-            routePlanId: routePlan?.id,
+      const resolvedPolicyPack = await resolveRuntimePolicyPack(db, intent);
+      const policyEngine = new PolicyEngine();
+      const policyPackSummary: RuntimePolicyPackSummary | null =
+        'policyPack' in resolvedPolicyPack && resolvedPolicyPack.policyPack
+          ? {
+              id: resolvedPolicyPack.policyPack.id,
+              name: resolvedPolicyPack.policyPack.name,
+              source: resolvedPolicyPack.source,
+            }
+          : null;
+      let policyPackWarnings: string[] | undefined;
+      let decision: {
+        intentId: string;
+        allowed: boolean;
+        summary: string;
+        contributions: Array<{ ruleId: string; passed: boolean; reason?: string }>;
+        evaluatedAt: string;
+      };
+
+      if ('error' in resolvedPolicyPack) {
+        decision = blockedPolicyDecision(intent.id, resolvedPolicyPack.error);
+      } else {
+        let customRuleConfig: Record<string, unknown> | undefined;
+        if (resolvedPolicyPack.policyPack) {
+          const applied = applyPolicyPack(policyEngine, resolvedPolicyPack.policyPack);
+          customRuleConfig = applied.customRuleConfig;
+          if (applied.warnings.length > 0) {
+            policyPackWarnings = applied.warnings;
+          }
+        }
+        decision = await withSpan(
+          'worker.policy.evaluate',
+          {
+            tracerName: 'keeta-agent-worker',
+            attributes: {
+              intentId: intent.id,
+              routePlanId: routePlan?.id,
+              ...(policyPackSummary ? { policyPackId: policyPackSummary.id } : {}),
+            },
           },
-        },
-        () =>
-          Promise.resolve(
-            policyEngine.evaluate({
-              intent,
-              routePlan,
-              config: policyCfg,
-              keetaHints,
-              anchorBonds,
-              portfolioStats,
-              identityHints,
-            })
-          )
-      );
+          () =>
+            Promise.resolve(
+              policyEngine.evaluate({
+                intent,
+                routePlan,
+                config: policyCfg,
+                keetaHints,
+                anchorBonds,
+                portfolioStats,
+                identityHints,
+                customRuleConfig,
+              })
+            )
+        );
+      }
       const w = await walletRepo.getWallet(db, intent.walletId);
       await withDatabaseTransaction(db, async (txDb) => {
         await policyRepo.insertPolicyDecision(txDb, {
@@ -1287,8 +1430,13 @@ async function withDatabaseTransaction<T>(
         });
         await snapshotRepo.insertPolicySnapshot(txDb, {
           intentId,
-          policyConfigHash: policyConfigHash(policyCfg),
-          payload: { config: policyCfg, evaluatedAt: decision.evaluatedAt },
+          policyConfigHash: policyVersionHash(policyCfg, policyPackSummary),
+          payload: {
+            config: policyCfg,
+            evaluatedAt: decision.evaluatedAt,
+            ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
+            ...(policyPackWarnings ? { policyPackWarnings } : {}),
+          },
         });
         await transitionIntent(txDb, intentId, row.status, 'policy_checked');
         if (!decision.allowed) {
@@ -1309,6 +1457,8 @@ async function withDatabaseTransaction<T>(
             payload: {
               summary: decision.summary,
               failedRuleIds: decision.contributions.filter((c) => !c.passed).map((c) => c.ruleId),
+              ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
+              ...(policyPackWarnings ? { policyPackWarnings } : {}),
             },
             correlationId: job.id,
           });
@@ -1322,7 +1472,12 @@ async function withDatabaseTransaction<T>(
         await auditRepo.insertAuditEvent(txDb, {
           intentId,
           eventType: 'policy.evaluated',
-          payload: { allowed: decision.allowed, summary: decision.summary },
+          payload: {
+            allowed: decision.allowed,
+            summary: decision.summary,
+            ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
+            ...(policyPackWarnings ? { policyPackWarnings } : {}),
+          },
           correlationId: job.id,
         });
       });
@@ -1597,11 +1752,12 @@ async function withDatabaseTransaction<T>(
         const intentHash = createHash('sha256')
           .update(JSON.stringify({ id: intent.id, createdAt: intent.createdAt }))
           .digest('hex');
+        const latestPolicySnapshot = await snapshotRepo.getLatestPolicySnapshotForIntent(db, intent.id);
         await journalRepo
           .createVerifiableExecutionJournal(db, { intentId: intent.id, executionId: lastExecutionId })
           .appendEntry({
             intentHash,
-            policyVersion: policyConfigHash(policyCfg),
+            policyVersion: latestPolicySnapshot?.policyConfigHash ?? policyVersionHash(policyCfg, null),
             routeId: plan.id,
             receiptRef: lastReceiptRef ?? 'unknown',
           });

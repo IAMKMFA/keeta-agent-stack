@@ -120,6 +120,32 @@ integration('jwt auth and rbac', () => {
         code: 'FORBIDDEN',
       },
     });
+
+    const createGeneratedResponse = await activeRuntime.app.inject({
+      method: 'POST',
+      url: '/wallets',
+      headers: {
+        authorization: `Bearer ${viewerToken}`,
+      },
+      payload: {
+        label: 'Viewer Generated Wallet',
+      },
+    });
+    expect(createGeneratedResponse.statusCode).toBe(403);
+
+    const createOrImportResponse = await activeRuntime.app.inject({
+      method: 'POST',
+      url: '/wallets/import-or-create',
+      headers: {
+        authorization: `Bearer ${viewerToken}`,
+      },
+      payload: {
+        mode: 'import',
+        label: 'Viewer Import Wallet',
+        address: 'keeta_viewer_import_wallet',
+      },
+    });
+    expect(createOrImportResponse.statusCode).toBe(403);
   });
 
   it('allows operator writes but reserves admin-only routes for admins', async () => {
@@ -134,20 +160,35 @@ integration('jwt auth and rbac', () => {
 
     const operatorToken = await activeRuntime.issueJwt('operator');
     const adminToken = await activeRuntime.issueJwt('admin');
-    const strategyId = randomUUID();
+    const strategy = await activeRuntime.createStrategy({ name: 'Auth Test Strategy' });
+    const strategyId = strategy.id;
 
     const walletResponse = await activeRuntime.app.inject({
       method: 'POST',
-      url: '/wallets/import',
+      url: '/wallets',
       headers: {
         authorization: `Bearer ${operatorToken}`,
       },
       payload: {
         label: 'Operator Wallet',
-        address: 'keeta_operator_wallet',
+        includeSeed: false,
       },
     });
     expect(walletResponse.statusCode).toBe(201);
+
+    const walletImportOrCreateResponse = await activeRuntime.app.inject({
+      method: 'POST',
+      url: '/wallets/import-or-create',
+      headers: {
+        authorization: `Bearer ${operatorToken}`,
+      },
+      payload: {
+        mode: 'import',
+        label: 'Operator Imported Wallet',
+        address: `keeta_${randomUUID().replace(/-/g, '')}`,
+      },
+    });
+    expect(walletImportOrCreateResponse.statusCode).toBe(201);
 
     const blockedPause = await activeRuntime.app.inject({
       method: 'POST',
@@ -158,6 +199,32 @@ integration('jwt auth and rbac', () => {
     });
     expect(blockedPause.statusCode).toBe(403);
 
+    const blockedPolicyPackCreate = await activeRuntime.app.inject({
+      method: 'POST',
+      url: '/policy/packs',
+      headers: {
+        authorization: `Bearer ${operatorToken}`,
+      },
+      payload: {
+        name: 'Operator Policy Pack',
+        rules: [],
+        compositions: [],
+      },
+    });
+    expect(blockedPolicyPackCreate.statusCode).toBe(403);
+
+    const blockedStrategyPolicyPack = await activeRuntime.app.inject({
+      method: 'PUT',
+      url: `/ops/strategies/${strategyId}/policy-pack`,
+      headers: {
+        authorization: `Bearer ${operatorToken}`,
+      },
+      payload: {
+        policyPackId: randomUUID(),
+      },
+    });
+    expect(blockedStrategyPolicyPack.statusCode).toBe(403);
+
     const allowedPause = await activeRuntime.app.inject({
       method: 'POST',
       url: `/ops/strategies/${strategyId}/pause`,
@@ -166,6 +233,33 @@ integration('jwt auth and rbac', () => {
       },
     });
     expect(allowedPause.statusCode).toBe(204);
+
+    const allowedPolicyPackCreate = await activeRuntime.app.inject({
+      method: 'POST',
+      url: '/policy/packs',
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+      },
+      payload: {
+        name: 'Admin Policy Pack',
+        rules: [],
+        compositions: [],
+      },
+    });
+    expect(allowedPolicyPackCreate.statusCode).toBe(201);
+
+    const createdPack = JSON.parse(allowedPolicyPackCreate.body) as { id: string };
+    const allowedStrategyPolicyPack = await activeRuntime.app.inject({
+      method: 'PUT',
+      url: `/ops/strategies/${strategyId}/policy-pack`,
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+      },
+      payload: {
+        policyPackId: createdPack.id,
+      },
+    });
+    expect(allowedStrategyPolicyPack.statusCode).toBe(200);
   });
 
   it('accepts remotely verified tokens from a direct JWKS URL', async () => {

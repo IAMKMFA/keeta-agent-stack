@@ -11,3 +11,4 @@ export * from './schemas/lifecycle.js';
 export * from './schemas/normalized-receipt.js';
 export * from './schemas/payment-anchor.js';
 export * from './schemas/event-stream.js';
+export * from './schemas/control-plane.js';

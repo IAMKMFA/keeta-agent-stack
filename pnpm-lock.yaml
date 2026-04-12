@@ -144,6 +144,12 @@ importers:
       '@keeta-agent-sdk/keeta':
         specifier: workspace:*
         version: link:../../packages/keeta
+      '@keeta-agent-sdk/policy':
+        specifier: workspace:*
+        version: link:../../packages/policy
+      '@keeta-agent-sdk/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
       '@keetanetwork/anchor':
         specifier: ^0.0.50
         version: 0.0.50(@types/node@22.19.15)(typescript@5.9.3)
@@ -166,6 +172,9 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.19.15)
 
   apps/worker:
     dependencies:
@@ -643,6 +652,12 @@ importers:
 
   packages/sdk:
     dependencies:
+      '@keeta-agent-sdk/adapter-registry':
+        specifier: workspace:*
+        version: link:../adapter-registry
+      '@keeta-agent-sdk/keeta':
+        specifier: workspace:*
+        version: link:../keeta
       '@keeta-agent-sdk/policy':
         specifier: workspace:*
         version: link:../policy
@@ -656,6 +671,9 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.19.15)
 
   packages/simulator:
     dependencies:
@@ -678,6 +696,9 @@ importers:
       '@keeta-agent-sdk/core':
         specifier: workspace:*
         version: link:../core
+      '@keeta-agent-sdk/policy':
+        specifier: workspace:*
+        version: link:../policy
       '@keeta-agent-sdk/types':
         specifier: workspace:*
         version: link:../types

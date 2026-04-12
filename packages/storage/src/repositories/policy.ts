@@ -1,6 +1,6 @@
 import type { Database } from '../db';
 import { desc, eq } from 'drizzle-orm';
-import { policyDecisions } from '../schema/policy';
+import { policyDecisions, policyPacks } from '../schema/policy';
 
 export async function insertPolicyDecision(
   db: Database,
@@ -18,4 +18,39 @@ export async function getLatestPolicyDecisionForIntent(db: Database, intentId: s
     .orderBy(desc(policyDecisions.createdAt))
     .limit(1);
   return rows[0];
+}
+
+export async function listPolicyPacks(db: Database) {
+  return db.select().from(policyPacks).orderBy(desc(policyPacks.updatedAt));
+}
+
+export async function getPolicyPackById(db: Database, id: string) {
+  const rows = await db.select().from(policyPacks).where(eq(policyPacks.id, id)).limit(1);
+  return rows[0];
+}
+
+export async function createPolicyPack(db: Database, row: typeof policyPacks.$inferInsert) {
+  const [created] = await db.insert(policyPacks).values(row).returning();
+  return created;
+}
+
+export async function updatePolicyPack(
+  db: Database,
+  id: string,
+  row: Partial<typeof policyPacks.$inferInsert>
+) {
+  const [updated] = await db
+    .update(policyPacks)
+    .set({
+      ...row,
+      updatedAt: new Date(),
+    })
+    .where(eq(policyPacks.id, id))
+    .returning();
+  return updated;
+}
+
+export async function deletePolicyPack(db: Database, id: string) {
+  const [deleted] = await db.delete(policyPacks).where(eq(policyPacks.id, id)).returning();
+  return deleted;
 }

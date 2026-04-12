@@ -1,14 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AdapterSummarySchema,
   AdapterHealthSchema,
   AgentProposalSchema,
+  AvailableRailSchema,
   canTransitionPaymentAnchorStatus,
   CapabilityMapSchema,
+  ChainHealthResponseSchema,
+  ConfigModesSchema,
   evaluatePaymentAnchorOnboarding,
   evaluatePaymentAnchorReadiness,
   ExecutionIntentSchema,
   ExecutionResultSchema,
   EventStreamEventSchema,
+  KeetaBalanceSchema,
+  OpsMetricSampleSchema,
   PaymentAnchorDetailSchema,
   PolicyDecisionSchema,
   PaymentAnchorWithBondSchema,
@@ -17,6 +23,9 @@ import {
   RoutePlanSchema,
   SimulationResultSchema,
   SimulationScenarioSchema,
+  StrategyTemplateSchema,
+  WalletBalancesResponseSchema,
+  WalletBalanceSnapshotSchema,
   WebhookDeliverySchema,
   WebhookSubscriptionSchema,
 } from '../../index.js';
@@ -135,6 +144,92 @@ describe('Zod schemas', () => {
       updatedAt: now,
     };
     expect(WebhookDeliverySchema.parse(delivery)).toEqual(delivery);
+  });
+
+  it('round-trips control-plane models', () => {
+    const snapshot = {
+      id: '550e8400-e29b-41d4-a716-446655440031',
+      walletId: '550e8400-e29b-41d4-a716-446655440032',
+      assetId: '550e8400-e29b-41d4-a716-446655440033',
+      amount: '1000',
+      capturedAt: now,
+    };
+    expect(WalletBalanceSnapshotSchema.parse(snapshot)).toEqual(snapshot);
+
+    const keetaBalance = {
+      assetId: 'KTA',
+      amount: '500000000',
+    };
+    expect(KeetaBalanceSchema.parse(keetaBalance)).toEqual(keetaBalance);
+
+    const balances = {
+      snapshots: [snapshot],
+      keeta: [keetaBalance],
+      network: 'test',
+    };
+    expect(WalletBalancesResponseSchema.parse(balances)).toEqual(balances);
+
+    const chainHealth = {
+      network: 'test',
+      measuredAt: now,
+      latencyMs: 12,
+      ledger: {
+        blockCount: 10,
+        transactionCount: 20,
+        representativeCount: 3,
+      },
+      ok: true,
+      apiLatencyMs: 14,
+      networkInfo: {
+        baseToken: 'keeta_token',
+        networkAddress: 'keeta_network',
+      },
+    };
+    expect(ChainHealthResponseSchema.parse(chainHealth)).toEqual(chainHealth);
+
+    const modes = {
+      liveMode: false,
+      keetaNetwork: 'test',
+      mockAdapters: true,
+      executionKillSwitch: false,
+    };
+    expect(ConfigModesSchema.parse(modes)).toEqual(modes);
+
+    const template = {
+      id: '550e8400-e29b-41d4-a716-446655440034',
+      name: 'Paper Trader',
+      config: { risk: 'low' },
+      slug: 'paper-trader',
+      description: 'Template',
+      isTemplate: true,
+      paused: false,
+      createdAt: now,
+    };
+    expect(StrategyTemplateSchema.parse(template)).toEqual(template);
+
+    const sample = {
+      id: '550e8400-e29b-41d4-a716-446655440035',
+      name: 'orders_total',
+      labels: { adapterId: 'mock-dex' },
+      value: 42,
+      capturedAt: now,
+    };
+    expect(OpsMetricSampleSchema.parse(sample)).toEqual(sample);
+
+    const adapter = {
+      id: 'mock-dex',
+      kind: 'dex' as const,
+    };
+    expect(AdapterSummarySchema.parse(adapter)).toEqual(adapter);
+
+    const rail = {
+      id: 'mock-dex',
+      name: 'Mock DEX',
+      production: false,
+      kind: 'dex' as const,
+      description: 'Non-production demo adapter.',
+    };
+    expect(AvailableRailSchema.parse(rail)).toEqual(rail);
   });
 
   it('round-trips PaymentAnchor with current bond', () => {

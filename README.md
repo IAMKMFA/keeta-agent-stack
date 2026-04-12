@@ -165,6 +165,12 @@ pnpm test:integration
 
 The integration suite runs the real API and worker against Postgres and Redis.
 
+## Planning Docs
+
+- [Capability Matrix](./docs/capability-matrix.md) — current product-surface coverage across API, SDK, and MCP
+- [Next Steps Roadmap](./docs/next-steps-roadmap.md) — recommended engineering sequence for the next platform phase
+- [Platform Overview](./docs/keeta-agent-sdk.md) — higher-level positioning and architecture summary
+
 ## Repository Map
 
 - `packages/types` — shared Zod schemas and lifecycle types

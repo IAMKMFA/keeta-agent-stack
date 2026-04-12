@@ -166,6 +166,45 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           },
         },
       },
+      '/chain/health': {
+        get: {
+          tags: ['Health'],
+          summary: 'Read Keeta chain health',
+          security,
+          responses: {
+            '200': {
+              description: 'Chain health snapshot',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            },
+          },
+        },
+      },
+      '/config/modes': {
+        get: {
+          tags: ['Health'],
+          summary: 'Read runtime mode configuration',
+          security,
+          responses: {
+            '200': {
+              description: 'Runtime mode flags',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            },
+          },
+        },
+      },
+      '/strategy-templates': {
+        get: {
+          tags: ['Ops'],
+          summary: 'List strategy templates',
+          security,
+          responses: {
+            '200': {
+              description: 'Strategy template rows',
+              content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } },
+            },
+          },
+        },
+      },
       '/adapters': {
         get: {
           tags: ['Adapters'],
@@ -191,6 +230,21 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
         },
       },
       '/wallets': {
+        post: {
+          tags: ['Wallets'],
+          summary: 'Create and register a wallet',
+          description: 'Generates new key material server-side, derives an address, registers it, and optionally returns the seed once.',
+          requestBody: {
+            required: true,
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+          },
+          responses: {
+            '201': {
+              description: 'Wallet created',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            },
+          },
+        },
         get: {
           tags: ['Wallets'],
           summary: 'List wallets',
@@ -213,6 +267,23 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           responses: {
             '201': {
               description: 'Wallet imported',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            },
+          },
+        },
+      },
+      '/wallets/import-or-create': {
+        post: {
+          tags: ['Wallets'],
+          summary: 'Import an existing wallet or create and register a new wallet',
+          description: 'Discriminated union endpoint with mode=import|create to unify wallet registration flows.',
+          requestBody: {
+            required: true,
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+          },
+          responses: {
+            '201': {
+              description: 'Wallet imported or created',
               content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
             },
           },
@@ -360,6 +431,61 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           },
           responses: {
             '200': { description: 'Policy decision preview', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+          },
+        },
+      },
+      '/policy/packs': {
+        get: {
+          tags: ['Policy'],
+          summary: 'List persisted policy packs',
+          security,
+          responses: {
+            '200': {
+              description: 'Persisted policy packs',
+              content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } },
+            },
+          },
+        },
+        post: {
+          tags: ['Policy'],
+          summary: 'Create a persisted policy pack',
+          security,
+          requestBody: {
+            required: true,
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+          },
+          responses: {
+            '201': {
+              description: 'Created policy pack',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            },
+          },
+        },
+      },
+      '/policy/packs/{id}': {
+        patch: {
+          tags: ['Policy'],
+          summary: 'Update a persisted policy pack',
+          security,
+          parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
+          requestBody: {
+            required: true,
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+          },
+          responses: {
+            '200': {
+              description: 'Updated policy pack',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            },
+          },
+        },
+        delete: {
+          tags: ['Policy'],
+          summary: 'Delete a persisted policy pack',
+          security,
+          parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
+          responses: {
+            '204': { description: 'Policy pack deleted' },
           },
         },
       },
@@ -575,6 +701,39 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           security,
           responses: {
             '200': { description: 'Metrics snapshot', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+          },
+        },
+      },
+      '/ops/strategies/{id}/policy-pack': {
+        get: {
+          tags: ['Ops'],
+          summary: 'Read the assigned policy pack for a strategy',
+          security,
+          parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
+          responses: {
+            '200': { description: 'Strategy policy-pack assignment', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+          },
+        },
+        put: {
+          tags: ['Ops'],
+          summary: 'Assign a persisted policy pack to a strategy',
+          security,
+          parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
+          requestBody: {
+            required: true,
+            content: { 'application/json': { schema: objectSchema({ policyPackId: uuidSchema }, ['policyPackId']) } },
+          },
+          responses: {
+            '200': { description: 'Updated strategy policy-pack assignment', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+          },
+        },
+        delete: {
+          tags: ['Ops'],
+          summary: 'Clear the assigned policy pack for a strategy',
+          security,
+          parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
+          responses: {
+            '200': { description: 'Cleared strategy policy-pack assignment', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
           },
         },
       },
