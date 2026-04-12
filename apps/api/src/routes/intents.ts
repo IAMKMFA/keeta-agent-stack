@@ -7,15 +7,42 @@ import { z } from 'zod';
 import { enqueueJobWithTelemetry } from '../lib/job-tracing.js';
 import { requireAdminAccess, requireOperatorAccess, requireViewerAccess } from '../lib/auth.js';
 
-const createIntentBody = ExecutionIntentSchema.omit({ id: true, createdAt: true })
+const createIntentBody = ExecutionIntentSchema.omit({
+  id: true,
+  createdAt: true,
+  effectivePolicyPackId: true,
+  effectivePolicyPackName: true,
+  effectivePolicyPackSource: true,
+})
   .partial({
     strategyId: true,
+    policyPackId: true,
     venueAllowlist: true,
     metadata: true,
   })
   .extend({
     requiresApproval: z.boolean().optional(),
   });
+
+const enqueuePolicyBody = z.object({
+  policyPackId: z.string().uuid().optional(),
+});
+
+function policyPackIdFromIntentPayload(payload: unknown): string | undefined {
+  if (!payload || typeof payload !== 'object') {
+    return undefined;
+  }
+  const topLevel = (payload as Record<string, unknown>).policyPackId;
+  if (typeof topLevel === 'string') {
+    return topLevel;
+  }
+  const metadata = (payload as Record<string, unknown>).metadata;
+  if (!metadata || typeof metadata !== 'object') {
+    return undefined;
+  }
+  const legacy = (metadata as Record<string, unknown>).policyPackId;
+  return typeof legacy === 'string' ? legacy : undefined;
+}
 
 export const intentsRoutes: FastifyPluginAsync = async (app) => {
   app.get('/intents', async (req, reply) => {
@@ -32,7 +59,7 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
       approvalStatus: row.approvalStatus,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
-      payload: row.payload,
+      payload: ExecutionIntentSchema.parse(row.payload),
     }));
   });
 
@@ -63,7 +90,13 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
       requiresApproval,
       approvalStatus: requiresApproval ? 'pending' : 'not_required',
     });
-    app.telemetry.emit({ name: 'intent.created', payload: { intentId: id } });
+    app.telemetry.emit({
+      name: 'intent.created',
+      payload: {
+        intentId: id,
+        ...(full.policyPackId ? { policyPackId: full.policyPackId } : {}),
+      },
+    });
     return reply.status(201).send(full);
   });
 
@@ -94,7 +127,12 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
       spanName: 'api.intent.quote.enqueue',
       attributes: { intentId: id },
     });
-    return reply.status(202).send({ jobId: job.id, queue: QUEUE_NAMES.quoteGeneration });
+    const row = await intentRepo.getIntentById(app.db, id);
+    return reply.status(202).send({
+      jobId: job.id,
+      queue: QUEUE_NAMES.quoteGeneration,
+      ...(row ? { policyPackId: policyPackIdFromIntentPayload(row.payload) ?? null } : {}),
+    });
   });
 
   app.post('/intents/:id/route', async (req, reply) => {
@@ -110,7 +148,12 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
       spanName: 'api.intent.route.enqueue',
       attributes: { intentId: id },
     });
-    return reply.status(202).send({ jobId: job.id, queue: QUEUE_NAMES.routeGeneration });
+    const row = await intentRepo.getIntentById(app.db, id);
+    return reply.status(202).send({
+      jobId: job.id,
+      queue: QUEUE_NAMES.routeGeneration,
+      ...(row ? { policyPackId: policyPackIdFromIntentPayload(row.payload) ?? null } : {}),
+    });
   });
 
   app.post('/intents/:id/policy', async (req, reply) => {
@@ -118,6 +161,22 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
       return;
     }
     const { id } = req.params as { id: string };
+    const parsed = enqueuePolicyBody.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid policy enqueue body', details: parsed.error.flatten() },
+      });
+    }
+    const row = await intentRepo.getIntentById(app.db, id);
+    if (row && parsed.data.policyPackId) {
+      const current = ExecutionIntentSchema.parse(row.payload);
+      await intentRepo.updateIntentFields(app.db, id, {
+        payload: {
+          ...current,
+          policyPackId: parsed.data.policyPackId,
+        } as unknown as Record<string, unknown>,
+      });
+    }
     const job = await enqueueJobWithTelemetry(req, {
       queue: queue(QUEUE_NAMES.policyEvaluation),
       jobName: 'policy',
@@ -126,7 +185,12 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
       spanName: 'api.intent.policy.enqueue',
       attributes: { intentId: id },
     });
-    return reply.status(202).send({ jobId: job.id, queue: QUEUE_NAMES.policyEvaluation });
+    const refreshed = await intentRepo.getIntentById(app.db, id);
+    return reply.status(202).send({
+      jobId: job.id,
+      queue: QUEUE_NAMES.policyEvaluation,
+      ...(refreshed ? { policyPackId: policyPackIdFromIntentPayload(refreshed.payload) ?? null } : {}),
+    });
   });
 
   app.post('/intents/:id/execute', async (req, reply) => {
@@ -142,7 +206,12 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
       spanName: 'api.intent.execute.enqueue',
       attributes: { intentId: id },
     });
-    return reply.status(202).send({ jobId: job.id, queue: QUEUE_NAMES.executionProcessing });
+    const row = await intentRepo.getIntentById(app.db, id);
+    return reply.status(202).send({
+      jobId: job.id,
+      queue: QUEUE_NAMES.executionProcessing,
+      ...(row ? { policyPackId: policyPackIdFromIntentPayload(row.payload) ?? null } : {}),
+    });
   });
 
   app.post('/intents/:id/approve', async (req, reply) => {

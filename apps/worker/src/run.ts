@@ -35,6 +35,7 @@ import { Router } from '@keeta-agent-sdk/routing';
 import {
   applyPolicyPack,
   PolicyEngine,
+  resolvePolicyPackSelection as resolveStoredPolicyPackSelection,
   type PolicyAnchorBondHint,
   type PolicyConfig,
   type PolicyIdentityHints,
@@ -61,7 +62,9 @@ import {
   type ExecutionIntent,
   type ExecutionResult,
   type KeetaSimulationSnapshot,
+  type PolicyDecision,
   PolicyDecisionSchema,
+  type PolicyPackSource,
   type RouteScoreAdjustment,
   type RouteStepRoutingContext,
   type SimulationScenario,
@@ -947,7 +950,7 @@ async function closeWithTimeout(
 type RuntimePolicyPackSummary = {
   id: string;
   name: string;
-  source: 'intent_metadata' | 'strategy_config';
+  source: PolicyPackSource;
 };
 
 type ResolvedRuntimePolicyPack =
@@ -971,16 +974,19 @@ function policyVersionHash(cfg: PolicyConfig, policyPack: RuntimePolicyPackSumma
     .slice(0, 24);
 }
 
-function intentMetadataPolicyPackId(intent: ExecutionIntent): string | undefined {
-  const value = intent.metadata?.policyPackId;
-  return typeof value === 'string' ? value : undefined;
-}
-
 function strategyPolicyPackId(config: unknown): string | undefined {
   if (!config || typeof config !== 'object') {
     return undefined;
   }
   const value = (config as Record<string, unknown>).policyPackId;
+  return typeof value === 'string' ? value : undefined;
+}
+
+function walletDefaultPolicyPackId(settings: unknown): string | undefined {
+  if (!settings || typeof settings !== 'object') {
+    return undefined;
+  }
+  const value = (settings as Record<string, unknown>).defaultPolicyPackId;
   return typeof value === 'string' ? value : undefined;
 }
 
@@ -1001,45 +1007,49 @@ function serializeRuntimePolicyPack(row: Awaited<ReturnType<typeof policyRepo.ge
 
 async function resolveRuntimePolicyPack(
   db: Database,
-  intent: ExecutionIntent
+  intent: ExecutionIntent,
+  env: AppEnv
 ): Promise<ResolvedRuntimePolicyPack> {
-  const directPolicyPackId = intentMetadataPolicyPackId(intent);
-  if (directPolicyPackId) {
-    const pack = serializeRuntimePolicyPack(await policyRepo.getPolicyPackById(db, directPolicyPackId));
-    return pack
-      ? { policyPack: pack, source: 'intent_metadata' }
-      : {
-          error: `Policy pack not found: ${directPolicyPackId}`,
-          source: 'intent_metadata',
-          policyPackId: directPolicyPackId,
-        };
-  }
+  const wallet = await walletRepo.getWallet(db, intent.walletId);
+  const strategy = intent.strategyId ? await strategyRepo.getStrategyById(db, intent.strategyId) : null;
+  const globalDefaultPolicyPackId = (await settingsRepo.getDefaultPolicyPackId(db)) ?? env.DEFAULT_POLICY_PACK_ID ?? null;
+  const resolved = await resolveStoredPolicyPackSelection({
+    intent,
+    walletDefaultPolicyPackId: walletDefaultPolicyPackId(wallet?.settings),
+    strategyPolicyPackId: strategyPolicyPackId(strategy?.config),
+    globalDefaultPolicyPackId,
+    loadPolicyPack: async (id) => serializeRuntimePolicyPack(await policyRepo.getPolicyPackById(db, id)),
+  });
 
-  if (!intent.strategyId) {
+  if ('error' in resolved) {
+    return {
+      error: resolved.error.message,
+      source: resolved.error.source,
+      policyPackId: resolved.error.policyPackId,
+    };
+  }
+  if (!resolved.policyPack) {
     return { policyPack: null };
   }
-
-  const strategy = await strategyRepo.getStrategyById(db, intent.strategyId);
-  const strategyPackId = strategyPolicyPackId(strategy?.config);
-  if (!strategyPackId) {
-    return { policyPack: null };
-  }
-
-  const pack = serializeRuntimePolicyPack(await policyRepo.getPolicyPackById(db, strategyPackId));
-  return pack
-    ? { policyPack: pack, source: 'strategy_config' }
-    : {
-        error: `Policy pack not found: ${strategyPackId}`,
-        source: 'strategy_config',
-        policyPackId: strategyPackId,
-      };
+  return {
+    policyPack: resolved.policyPack,
+    source: resolved.source,
+  };
 }
 
-function blockedPolicyDecision(intentId: string, reason: string): {
+function blockedPolicyDecision(
+  intentId: string,
+  reason: string,
+  policyPackSummary?: { id: string; source: PolicyPackSource; name?: string } | null
+): {
   intentId: string;
   allowed: false;
   summary: string;
   contributions: Array<{ ruleId: string; passed: false; reason: string }>;
+  effectivePolicyPackId?: string;
+  effectivePolicyPackName?: string;
+  effectivePolicyPackSource?: PolicyPackSource;
+  policyPack?: RuntimePolicyPackSummary;
   evaluatedAt: string;
 } {
   return {
@@ -1053,6 +1063,22 @@ function blockedPolicyDecision(intentId: string, reason: string): {
         reason,
       },
     ],
+    ...(policyPackSummary
+      ? {
+          effectivePolicyPackId: policyPackSummary.id,
+          ...(policyPackSummary.name ? { effectivePolicyPackName: policyPackSummary.name } : {}),
+          effectivePolicyPackSource: policyPackSummary.source,
+          ...(policyPackSummary.name
+            ? {
+                policyPack: {
+                  id: policyPackSummary.id,
+                  name: policyPackSummary.name,
+                  source: policyPackSummary.source,
+                },
+              }
+            : {}),
+        }
+      : {}),
     evaluatedAt: new Date().toISOString(),
   };
 }
@@ -1366,7 +1392,7 @@ async function withDatabaseTransaction<T>(
         openExposureByVenue: {},
         walletExposure: 0,
       };
-      const resolvedPolicyPack = await resolveRuntimePolicyPack(db, intent);
+      const resolvedPolicyPack = await resolveRuntimePolicyPack(db, intent, env);
       const policyEngine = new PolicyEngine();
       const policyPackSummary: RuntimePolicyPackSummary | null =
         'policyPack' in resolvedPolicyPack && resolvedPolicyPack.policyPack
@@ -1377,16 +1403,13 @@ async function withDatabaseTransaction<T>(
             }
           : null;
       let policyPackWarnings: string[] | undefined;
-      let decision: {
-        intentId: string;
-        allowed: boolean;
-        summary: string;
-        contributions: Array<{ ruleId: string; passed: boolean; reason?: string }>;
-        evaluatedAt: string;
-      };
+      let decision: PolicyDecision;
 
       if ('error' in resolvedPolicyPack) {
-        decision = blockedPolicyDecision(intent.id, resolvedPolicyPack.error);
+        decision = blockedPolicyDecision(intent.id, resolvedPolicyPack.error, {
+          id: resolvedPolicyPack.policyPackId,
+          source: resolvedPolicyPack.source,
+        });
       } else {
         let customRuleConfig: Record<string, unknown> | undefined;
         if (resolvedPolicyPack.policyPack) {
@@ -1420,6 +1443,21 @@ async function withDatabaseTransaction<T>(
               })
             )
         );
+        if (policyPackSummary) {
+          decision = {
+            ...decision,
+            effectivePolicyPackId: policyPackSummary.id,
+            effectivePolicyPackName: policyPackSummary.name,
+            effectivePolicyPackSource: policyPackSummary.source,
+            policyPack: policyPackSummary,
+          };
+        }
+        if (policyPackWarnings) {
+          decision = {
+            ...decision,
+            policyPackWarnings,
+          };
+        }
       }
       const w = await walletRepo.getWallet(db, intent.walletId);
       await withDatabaseTransaction(db, async (txDb) => {
@@ -1434,9 +1472,28 @@ async function withDatabaseTransaction<T>(
           payload: {
             config: policyCfg,
             evaluatedAt: decision.evaluatedAt,
+            ...(decision.effectivePolicyPackId
+              ? {
+                  effectivePolicyPackId: decision.effectivePolicyPackId,
+                  effectivePolicyPackName: decision.effectivePolicyPackName,
+                  effectivePolicyPackSource: decision.effectivePolicyPackSource,
+                }
+              : {}),
             ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
             ...(policyPackWarnings ? { policyPackWarnings } : {}),
           },
+        });
+        await intentRepo.updateIntentFields(txDb, intentId, {
+          payload: {
+            ...intent,
+            ...(decision.effectivePolicyPackId
+              ? {
+                  effectivePolicyPackId: decision.effectivePolicyPackId,
+                  effectivePolicyPackName: decision.effectivePolicyPackName,
+                  effectivePolicyPackSource: decision.effectivePolicyPackSource,
+                }
+              : {}),
+          } as unknown as Record<string, unknown>,
         });
         await transitionIntent(txDb, intentId, row.status, 'policy_checked');
         if (!decision.allowed) {
@@ -1457,6 +1514,13 @@ async function withDatabaseTransaction<T>(
             payload: {
               summary: decision.summary,
               failedRuleIds: decision.contributions.filter((c) => !c.passed).map((c) => c.ruleId),
+              ...(decision.effectivePolicyPackId
+                ? {
+                    effectivePolicyPackId: decision.effectivePolicyPackId,
+                    effectivePolicyPackName: decision.effectivePolicyPackName,
+                    effectivePolicyPackSource: decision.effectivePolicyPackSource,
+                  }
+                : {}),
               ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
               ...(policyPackWarnings ? { policyPackWarnings } : {}),
             },
@@ -1475,6 +1539,13 @@ async function withDatabaseTransaction<T>(
           payload: {
             allowed: decision.allowed,
             summary: decision.summary,
+            ...(decision.effectivePolicyPackId
+              ? {
+                  effectivePolicyPackId: decision.effectivePolicyPackId,
+                  effectivePolicyPackName: decision.effectivePolicyPackName,
+                  effectivePolicyPackSource: decision.effectivePolicyPackSource,
+                }
+              : {}),
             ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
             ...(policyPackWarnings ? { policyPackWarnings } : {}),
           },
@@ -1527,6 +1598,14 @@ async function withDatabaseTransaction<T>(
         throw new UnrecoverableError('Policy decision missing for execution');
       }
       const policyDecision = PolicyDecisionSchema.parse(latestPolicyDecision.payload);
+      const executionPolicyPackFields =
+        policyDecision.effectivePolicyPackId
+          ? {
+              effectivePolicyPackId: policyDecision.effectivePolicyPackId,
+              effectivePolicyPackName: policyDecision.effectivePolicyPackName,
+              effectivePolicyPackSource: policyDecision.effectivePolicyPackSource,
+            }
+          : {};
       if (!policyDecision.allowed) {
         throw new UnrecoverableError(`Policy blocked execution: ${policyDecision.summary}`);
       }
@@ -1603,6 +1682,7 @@ async function withDatabaseTransaction<T>(
               status: 'failed',
               payload: {
                 ...(res as unknown as Record<string, unknown>),
+                ...executionPolicyPackFields,
                 stepIndex: step.stepIndex,
                 hopCount: plan.hopCount,
               },
@@ -1620,6 +1700,7 @@ async function withDatabaseTransaction<T>(
               payload: {
                 ...(res as unknown as Record<string, unknown>),
                 adapterId: adapter.id,
+                ...executionPolicyPackFields,
                 stepIndex: step.stepIndex,
                 hopCount: plan.hopCount,
               },
@@ -1646,7 +1727,10 @@ async function withDatabaseTransaction<T>(
         }
         const data = res.data;
         const settlementLatencyMs = Date.now() - execStartedAt.getTime();
-        const rowInsert = executionToRow(intent.id, adapter.id, data);
+        const rowInsert = executionToRow(intent.id, adapter.id, {
+          ...data,
+          ...executionPolicyPackFields,
+        });
         const executionPayload = {
           ...rowInsert.payload,
           stepIndex: step.stepIndex,
@@ -1671,6 +1755,7 @@ async function withDatabaseTransaction<T>(
                 adapterId: adapter.id,
                 status: data.status,
                 settlementState: data.settlementState,
+                ...executionPolicyPackFields,
                 stepIndex: step.stepIndex,
                 hopCount: plan.hopCount,
               },
@@ -1686,6 +1771,7 @@ async function withDatabaseTransaction<T>(
                 adapterId: adapter.id,
                 status: data.status,
                 settlementState: data.settlementState,
+                ...executionPolicyPackFields,
                 stepIndex: step.stepIndex,
                 hopCount: plan.hopCount,
               },
@@ -1742,6 +1828,7 @@ async function withDatabaseTransaction<T>(
           eventType: 'execution.completed',
           payload: {
             executionId: lastExecutionId,
+            ...executionPolicyPackFields,
             hopCount: plan.hopCount,
             stepCount: plan.steps.length,
           },

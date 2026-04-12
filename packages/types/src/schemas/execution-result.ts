@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { NormalizedReceiptSchema } from './normalized-receipt.js';
+import { PolicyPackSourceSchema } from './policy.js';
 
 export const ExecutionStatusSchema = z.enum(['pending', 'submitted', 'confirmed', 'failed']);
 
@@ -8,6 +9,9 @@ export const ExecutionResultSchema = z.object({
   intentId: z.string().uuid(),
   adapterId: z.string(),
   status: ExecutionStatusSchema,
+  effectivePolicyPackId: z.string().uuid().optional(),
+  effectivePolicyPackName: z.string().min(1).optional(),
+  effectivePolicyPackSource: PolicyPackSourceSchema.optional(),
   /** Primary on-chain reference (e.g. vote-staple block hash) */
   txId: z.string().optional(),
   blockHeight: z.string().optional(),

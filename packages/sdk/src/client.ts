@@ -8,12 +8,14 @@ import type {
   PaymentAnchorStatus,
   PaymentAnchorSummary,
   PolicyDecision,
+  PolicyPackSource,
   RoutePlan,
   SimulationResult,
   EventStreamEvent,
   OpsMetricSample,
   StrategyTemplate,
   WalletBalancesResponse,
+  WalletSettings,
   WebhookDelivery,
   WebhookSubscription,
 } from '@keeta-agent-sdk/types';
@@ -108,7 +110,7 @@ export interface PolicyEvaluateRequest {
 export interface PolicyEvaluateAppliedPack {
   id: string;
   name: string;
-  source: 'request' | 'intent_metadata' | 'strategy_config';
+  source: PolicyPackSource;
 }
 
 export interface PolicyEvaluateResponse {
@@ -133,13 +135,21 @@ export interface UpdatePolicyPackRequest {
   compositions?: PolicyComposition[];
 }
 
-export type CreateIntentRequest = Omit<ExecutionIntent, 'id' | 'createdAt'> & {
+export type CreateIntentRequest = Omit<
+  ExecutionIntent,
+  'id' | 'createdAt' | 'effectivePolicyPackId' | 'effectivePolicyPackName' | 'effectivePolicyPackSource'
+> & {
   requiresApproval?: boolean;
 };
 
 export interface IntentJobResult {
   jobId: string;
   queue: string;
+  policyPackId?: string | null;
+}
+
+export interface PolicyIntentRequest {
+  policyPackId?: string;
 }
 
 export interface RouteOverrideRequest {
@@ -188,6 +198,7 @@ export interface WalletSummary {
   label: string;
   address: string;
   createdAt: string;
+  settings?: WalletSettings;
 }
 
 export interface CreateServerWalletRequest {
@@ -195,6 +206,7 @@ export interface CreateServerWalletRequest {
   index?: number;
   algorithm?: KeetaWalletKeyAlgorithm;
   includeSeed?: boolean;
+  settings?: WalletSettings;
 }
 
 export interface CreatedServerWallet extends WalletSummary {
@@ -216,6 +228,7 @@ export type ImportOrCreateServerWalletResult =
 export interface ImportWalletRequest {
   label: string;
   address: string;
+  settings?: WalletSettings;
 }
 
 export interface CreateWalletRequest {
@@ -223,6 +236,7 @@ export interface CreateWalletRequest {
   register?: boolean;
   index?: number;
   algorithm?: KeetaWalletKeyAlgorithm;
+  settings?: WalletSettings;
 }
 
 export interface CreateWalletResult {
@@ -378,6 +392,8 @@ export function createClient(opts: SdkClientOptions) {
         signal: options.signal,
       })
     );
+  const isRequestOptions = (value: unknown): value is RequestOptions =>
+    !!value && typeof value === 'object' && 'signal' in (value as Record<string, unknown>) && !('policyPackId' in (value as Record<string, unknown>));
   const createServerWallet = (body: CreateServerWalletRequest) => postJson<CreatedServerWallet>('/wallets', body);
   const createOrImportServerWallet = (body: ImportOrCreateServerWalletRequest) =>
     postJson<ImportOrCreateServerWalletResult>('/wallets/import-or-create', body);
@@ -397,6 +413,7 @@ export function createClient(opts: SdkClientOptions) {
     const wallet = await importWallet({
       label: body.label,
       address: created.address,
+      settings: body.settings,
     });
     return { created, wallet };
   };
@@ -405,6 +422,7 @@ export function createClient(opts: SdkClientOptions) {
       const wallet = await importWallet({
         label: body.label,
         address: body.address,
+        settings: body.settings,
       });
       return { mode: 'import', wallet };
     }
@@ -414,6 +432,7 @@ export function createClient(opts: SdkClientOptions) {
       register: body.register,
       index: body.index,
       algorithm: body.algorithm,
+      settings: body.settings,
     });
     return {
       mode: 'create',
@@ -547,10 +566,26 @@ export function createClient(opts: SdkClientOptions) {
         request(`/intents/${id}/route`, { method: 'POST', signal: options.signal })
       ),
 
-    policyIntent: (id: string, options: RequestOptions = {}) =>
-      parseJson<IntentJobResult>(
-        request(`/intents/${id}/policy`, { method: 'POST', signal: options.signal })
-      ),
+    policyIntent: (
+      id: string,
+      bodyOrOptions: PolicyIntentRequest | RequestOptions = {},
+      options: RequestOptions = {}
+    ) => {
+      const body = isRequestOptions(bodyOrOptions) ? {} : bodyOrOptions;
+      const requestOptions = isRequestOptions(bodyOrOptions) ? bodyOrOptions : options;
+      return parseJson<IntentJobResult>(
+        request(`/intents/${id}/policy`, {
+          method: 'POST',
+          signal: requestOptions.signal,
+          ...(body.policyPackId
+            ? {
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+              }
+            : {}),
+        })
+      );
+    },
 
     executeIntent: (id: string, options: RequestOptions = {}) =>
       parseJson<IntentJobResult>(

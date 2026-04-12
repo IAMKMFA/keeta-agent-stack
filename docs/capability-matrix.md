@@ -53,7 +53,7 @@ It is intentionally precise. It describes what is first-class today, what is par
 | Evaluate policy preview | Yes | Yes | No dedicated preview tool | Good | Separate from pipeline policy-stage enqueue |
 | Persist policy packs | Yes | Yes | No | Good | CRUD now exists |
 | `allOf` / `anyOf` / `not` composition | Yes | Yes | No | Strong | Reuses engine semantics |
-| Load persisted packs into runtime enforcement | No | No | No | Not Yet Surfaced | Biggest remaining policy gap |
+| Load persisted packs into runtime enforcement | Yes | Yes | Indirect | Strong | Worker now resolves intent, wallet, strategy-compat, and global defaults before policy evaluation |
 
 ## Events and Webhooks Coverage
 
@@ -120,7 +120,7 @@ The platform is strongest in these areas:
 
 ## What Is Real But Still Needs Productization
 
-- persisted policy packs need runtime activation/enforcement
+- richer operator controls around global default policy-pack management can still improve usability
 - richer adapter metadata should eventually come from the backend, not only SDK-local mapping
 - more Keeta-native primitives should graduate from dynamic MCP execution into typed SDK methods
 - worker-scoped signing needs a clearer long-term custody story if the platform expands beyond the current model
@@ -133,4 +133,4 @@ Use this wording when describing the platform publicly:
 
 Use this wording internally when discussing the frontier:
 
-> The current platform is feature-complete for the main control-plane product surface, while deeper first-class coverage of lower-level Keeta network primitives and runtime policy-pack enforcement remain the next major upgrades.
+> The current platform is feature-complete for the main control-plane product surface, while deeper first-class coverage of lower-level Keeta network primitives and expanded operator controls remain the next major upgrades.

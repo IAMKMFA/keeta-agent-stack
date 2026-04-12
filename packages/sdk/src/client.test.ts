@@ -270,6 +270,67 @@ describe('createClient control-plane parity', () => {
     expect(calls[0]?.init?.body).toContain('"policyPackId":"550e8400-e29b-41d4-a716-446655440053"');
   });
 
+  it('passes wallet default policy-pack settings through wallet create/import calls', async () => {
+    const now = new Date().toISOString();
+    const { calls, fetchImpl } = createFetchStub((url, init) => {
+      if (url.endsWith('/wallets/import') && init?.method === 'POST') {
+        return jsonResponse({
+          id: '550e8400-e29b-41d4-a716-446655440056',
+          label: 'Desk Wallet',
+          address: 'keeta_abc',
+          settings: {
+            defaultPolicyPackId: '550e8400-e29b-41d4-a716-446655440057',
+          },
+          createdAt: now,
+        }, 201);
+      }
+      throw new Error(`Unexpected URL: ${url}`);
+    });
+    const client = createClient({ baseUrl: 'https://api.example.com', fetchImpl });
+
+    await expect(
+      client.wallets.import({
+        label: 'Desk Wallet',
+        address: 'keeta_abc',
+        settings: {
+          defaultPolicyPackId: '550e8400-e29b-41d4-a716-446655440057',
+        },
+      })
+    ).resolves.toMatchObject({
+      settings: {
+        defaultPolicyPackId: '550e8400-e29b-41d4-a716-446655440057',
+      },
+    });
+
+    expect(calls[0]?.init?.body).toContain('"defaultPolicyPackId":"550e8400-e29b-41d4-a716-446655440057"');
+  });
+
+  it('includes the selected policyPackId on policy enqueue responses', async () => {
+    const { calls, fetchImpl } = createFetchStub((url, init) => {
+      if (url.endsWith('/intents/intent-2/policy') && init?.method === 'POST') {
+        return jsonResponse({
+          jobId: 'policy-intent-2',
+          queue: 'policy-evaluation',
+          policyPackId: '550e8400-e29b-41d4-a716-446655440058',
+        }, 202);
+      }
+      throw new Error(`Unexpected URL: ${url}`);
+    });
+    const client = createClient({ baseUrl: 'https://api.example.com', fetchImpl });
+
+    await expect(
+      client.policyIntent('intent-2', {
+        policyPackId: '550e8400-e29b-41d4-a716-446655440058',
+      })
+    ).resolves.toEqual({
+      jobId: 'policy-intent-2',
+      queue: 'policy-evaluation',
+      policyPackId: '550e8400-e29b-41d4-a716-446655440058',
+    });
+    expect(calls[0]?.init?.method).toBe('POST');
+    expect(calls[0]?.init?.body).toBe(JSON.stringify({ policyPackId: '550e8400-e29b-41d4-a716-446655440058' }));
+  });
+
   it('gets, sets, and clears a strategy policy pack assignment', async () => {
     const { calls, fetchImpl } = createFetchStub((url, init) => {
       if (url.endsWith('/ops/strategies/strategy-1/policy-pack') && init?.method === undefined) {

@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { VenueKindSchema } from './common.js';
 
+export const WalletSettingsSchema = z.object({
+  defaultPolicyPackId: z.string().uuid().nullable().optional(),
+});
+
 export const WalletBalanceSnapshotSchema = z.object({
   id: z.string().uuid(),
   walletId: z.string().uuid(),
@@ -98,6 +102,7 @@ export const AvailableRailSchema = z.object({
 });
 
 export type WalletBalanceSnapshot = z.infer<typeof WalletBalanceSnapshotSchema>;
+export type WalletSettings = z.infer<typeof WalletSettingsSchema>;
 export type KeetaBalance = z.infer<typeof KeetaBalanceSchema>;
 export type WalletBalancesError = z.infer<typeof WalletBalancesErrorSchema>;
 export type WalletBalancesSuccess = z.infer<typeof WalletBalancesSuccessSchema>;

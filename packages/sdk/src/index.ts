@@ -25,6 +25,7 @@ export {
   type PolicyEvaluateAppliedPack,
   type PolicyEvaluateRequest,
   type PolicyEvaluateResponse,
+  type PolicyIntentRequest,
   type RequestOptions,
   type RouteOverrideRequest,
   type RouteOverrideResult,

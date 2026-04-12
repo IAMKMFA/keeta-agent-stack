@@ -1,12 +1,16 @@
-import type { FastifyPluginAsync } from 'fastify';
+import type { FastifyInstance, FastifyPluginAsync, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { balanceRepo, walletRepo } from '@keeta-agent-sdk/storage';
+import { WalletSettingsSchema } from '@keeta-agent-sdk/types';
+import { balanceRepo, policyRepo, walletRepo } from '@keeta-agent-sdk/storage';
 import { createKeetaWallet, getBalances, KeetaConnectionError } from '@keeta-agent-sdk/keeta';
 import { requireOperatorAccess, requireViewerAccess } from '../lib/auth.js';
+
+const walletSettingsBody = WalletSettingsSchema.optional();
 
 const importBody = z.object({
   label: z.string().min(1),
   address: z.string().min(1),
+  settings: walletSettingsBody,
 });
 
 const createBody = z.object({
@@ -14,6 +18,7 @@ const createBody = z.object({
   index: z.number().int().min(0).optional(),
   algorithm: z.enum(['SECP256K1', 'SECP256R1', 'ED25519']).optional(),
   includeSeed: z.boolean().optional(),
+  settings: walletSettingsBody,
 });
 
 const importOrCreateBody = z.discriminatedUnion('mode', [
@@ -21,6 +26,7 @@ const importOrCreateBody = z.discriminatedUnion('mode', [
     mode: z.literal('import'),
     label: z.string().min(1),
     address: z.string().min(1),
+    settings: walletSettingsBody,
   }),
   z.object({
     mode: z.literal('create'),
@@ -28,8 +34,34 @@ const importOrCreateBody = z.discriminatedUnion('mode', [
     index: z.number().int().min(0).optional(),
     algorithm: z.enum(['SECP256K1', 'SECP256R1', 'ED25519']).optional(),
     includeSeed: z.boolean().optional(),
+    settings: walletSettingsBody,
   }),
 ]);
+
+function normalizeWalletSettings(settings: z.infer<typeof WalletSettingsSchema> | undefined) {
+  if (!settings || typeof settings.defaultPolicyPackId !== 'string') {
+    return {};
+  }
+  return {
+    defaultPolicyPackId: settings.defaultPolicyPackId,
+  };
+}
+
+async function ensurePolicyPackExists(
+  app: FastifyInstance,
+  reply: FastifyReply,
+  policyPackId: string | undefined | null
+) {
+  if (!policyPackId) {
+    return true;
+  }
+  const pack = await policyRepo.getPolicyPackById(app.db, policyPackId);
+  if (pack) {
+    return true;
+  }
+  await reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Policy pack not found' } });
+  return false;
+}
 
 export const walletsRoutes: FastifyPluginAsync = async (app) => {
   app.post('/wallets', async (req, reply) => {
@@ -42,6 +74,9 @@ export const walletsRoutes: FastifyPluginAsync = async (app) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid body', details: parsed.error.flatten() },
       });
     }
+    if (!(await ensurePolicyPackExists(app, reply, parsed.data.settings?.defaultPolicyPackId))) {
+      return;
+    }
     const created = createKeetaWallet({
       index: parsed.data.index,
       algorithm: parsed.data.algorithm,
@@ -49,6 +84,7 @@ export const walletsRoutes: FastifyPluginAsync = async (app) => {
     const row = await walletRepo.insertWallet(app.db, {
       label: parsed.data.label,
       address: created.address,
+      settings: normalizeWalletSettings(parsed.data.settings),
     });
     return reply.status(201).send({
       ...row,
@@ -70,11 +106,15 @@ export const walletsRoutes: FastifyPluginAsync = async (app) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid body', details: parsed.error.flatten() },
       });
     }
+    if (!(await ensurePolicyPackExists(app, reply, parsed.data.settings?.defaultPolicyPackId))) {
+      return;
+    }
 
     if (parsed.data.mode === 'import') {
       const row = await walletRepo.insertWallet(app.db, {
         label: parsed.data.label,
         address: parsed.data.address,
+        settings: normalizeWalletSettings(parsed.data.settings),
       });
       return reply.status(201).send({
         mode: 'import',
@@ -89,6 +129,7 @@ export const walletsRoutes: FastifyPluginAsync = async (app) => {
     const row = await walletRepo.insertWallet(app.db, {
       label: parsed.data.label,
       address: created.address,
+      settings: normalizeWalletSettings(parsed.data.settings),
     });
     return reply.status(201).send({
       mode: 'create',
@@ -113,9 +154,13 @@ export const walletsRoutes: FastifyPluginAsync = async (app) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid body', details: parsed.error.flatten() },
       });
     }
+    if (!(await ensurePolicyPackExists(app, reply, parsed.data.settings?.defaultPolicyPackId))) {
+      return;
+    }
     const row = await walletRepo.insertWallet(app.db, {
       label: parsed.data.label,
       address: parsed.data.address,
+      settings: normalizeWalletSettings(parsed.data.settings),
     });
     return reply.status(201).send(row);
   });

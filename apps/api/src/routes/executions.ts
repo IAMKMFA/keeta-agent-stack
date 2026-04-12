@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
+import { ExecutionResultSchema } from '@keeta-agent-sdk/types';
 import { executionRepo } from '@keeta-agent-sdk/storage';
 import { requireViewerAccess } from '../lib/auth.js';
 
@@ -7,6 +8,10 @@ export const executionsRoutes: FastifyPluginAsync = async (app) => {
     if (!(await requireViewerAccess(app, req, reply))) {
       return;
     }
-    return executionRepo.listExecutions(app.db, 200);
+    const rows = await executionRepo.listExecutions(app.db, 200);
+    return rows.map((row) => ({
+      ...row,
+      payload: ExecutionResultSchema.parse(row.payload),
+    }));
   });
 };

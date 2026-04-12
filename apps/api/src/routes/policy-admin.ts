@@ -14,8 +14,9 @@ import {
   UpdatePolicyPackSchema,
   type PolicyConfig,
   type PolicyPack,
+  resolvePolicyPackSelection as resolveStoredPolicyPackSelection,
 } from '@keeta-agent-sdk/policy';
-import { intentRepo, routeRepo, auditRepo, policyRepo, strategyRepo } from '@keeta-agent-sdk/storage';
+import { intentRepo, routeRepo, auditRepo, policyRepo, settingsRepo, strategyRepo, walletRepo } from '@keeta-agent-sdk/storage';
 import { requireAdminAccess } from '../lib/auth.js';
 
 const policyConfigOverrideSchema = z.object({
@@ -135,7 +136,7 @@ function numEnv(key: string, defaultVal?: number): number | undefined {
 type AppliedPolicyPackResponse = {
   id: string;
   name: string;
-  source: 'request' | 'intent_metadata' | 'strategy_config';
+  source: 'request' | 'intent' | 'intent_metadata' | 'wallet_default' | 'strategy_config' | 'global_default';
 };
 
 type ResolvedPolicyPackSelection =
@@ -146,11 +147,6 @@ type ResolvedPolicyPackSelection =
         code: 'NOT_FOUND';
         message: string;
       };
-    };
-
-function metadataPolicyPackId(intent: z.infer<typeof ExecutionIntentSchema>): string | undefined {
-  const value = intent.metadata?.policyPackId;
-  return typeof value === 'string' ? value : undefined;
 }
 
 function strategyConfigPolicyPackId(config: unknown): string | undefined {
@@ -158,6 +154,14 @@ function strategyConfigPolicyPackId(config: unknown): string | undefined {
     return undefined;
   }
   const value = (config as Record<string, unknown>).policyPackId;
+  return typeof value === 'string' ? value : undefined;
+}
+
+function walletDefaultPolicyPackId(settings: unknown): string | undefined {
+  if (!settings || typeof settings !== 'object') {
+    return undefined;
+  }
+  const value = (settings as Record<string, unknown>).defaultPolicyPackId;
   return typeof value === 'string' ? value : undefined;
 }
 
@@ -181,47 +185,34 @@ function serializePolicyPack(
 async function resolvePolicyPackSelection(
   db: Parameters<typeof policyRepo.getPolicyPackById>[0],
   intent: z.infer<typeof ExecutionIntentSchema>,
+  env: AppEnv,
   explicitPolicyPackId?: string
 ): Promise<ResolvedPolicyPackSelection> {
-  const directPolicyPackId = explicitPolicyPackId ?? metadataPolicyPackId(intent);
-  if (directPolicyPackId) {
-    const pack = serializePolicyPack(await policyRepo.getPolicyPackById(db, directPolicyPackId));
-    if (!pack) {
-      return {
-        error: {
-          code: 'NOT_FOUND',
-          message: `Policy pack not found: ${directPolicyPackId}`,
-        },
-      };
-    }
-    return {
-      policyPack: pack,
-      source: explicitPolicyPackId ? 'request' : 'intent_metadata',
-    };
-  }
-
-  if (!intent.strategyId) {
-    return { policyPack: null };
-  }
-
-  const strategy = await strategyRepo.getStrategyById(db, intent.strategyId);
-  const strategyPolicyPackId = strategyConfigPolicyPackId(strategy?.config);
-  if (!strategyPolicyPackId) {
-    return { policyPack: null };
-  }
-
-  const pack = serializePolicyPack(await policyRepo.getPolicyPackById(db, strategyPolicyPackId));
-  if (!pack) {
+  const wallet = await walletRepo.getWallet(db, intent.walletId);
+  const strategy = intent.strategyId ? await strategyRepo.getStrategyById(db, intent.strategyId) : null;
+  const globalDefaultPolicyPackId = (await settingsRepo.getDefaultPolicyPackId(db)) ?? env.DEFAULT_POLICY_PACK_ID ?? null;
+  const resolved = await resolveStoredPolicyPackSelection({
+    intent,
+    explicitPolicyPackId,
+    walletDefaultPolicyPackId: walletDefaultPolicyPackId(wallet?.settings),
+    strategyPolicyPackId: strategyConfigPolicyPackId(strategy?.config),
+    globalDefaultPolicyPackId,
+    loadPolicyPack: async (id) => serializePolicyPack(await policyRepo.getPolicyPackById(db, id)),
+  });
+  if ('error' in resolved) {
     return {
       error: {
         code: 'NOT_FOUND',
-        message: `Policy pack not found: ${strategyPolicyPackId}`,
+        message: resolved.error.message,
       },
     };
   }
+  if (!resolved.policyPack) {
+    return { policyPack: null };
+  }
   return {
-    policyPack: pack,
-    source: 'strategy_config',
+    policyPack: resolved.policyPack,
+    source: resolved.source,
   };
 }
 
@@ -259,7 +250,7 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
       const routeRow = await routeRepo.getRoutePlanForIntent(app.db, intentId);
       routePlan = routeRow ? RoutePlanSchema.parse(routeRow.payload) : undefined;
     }
-    const resolvedPolicyPack = await resolvePolicyPackSelection(app.db, intent, policyPackId);
+    const resolvedPolicyPack = await resolvePolicyPackSelection(app.db, intent, app.env, policyPackId);
     if ('error' in resolvedPolicyPack) {
       return reply.status(404).send({ error: resolvedPolicyPack.error });
     }
@@ -281,7 +272,7 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
       ...defaultPolicyConfig(app.env),
       ...configOverrides,
     };
-    const decision = engine.evaluate({
+    const baseDecision = engine.evaluate({
       intent,
       routePlan,
       config: effectiveConfig,
@@ -291,6 +282,20 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
       anchorBonds: contextOverrides?.anchorBonds,
       customRuleConfig: mergedCustomRuleConfig,
     });
+    const decision = resolvedPolicyPack.policyPack
+      ? {
+          ...baseDecision,
+          effectivePolicyPackId: resolvedPolicyPack.policyPack.id,
+          effectivePolicyPackName: resolvedPolicyPack.policyPack.name,
+          effectivePolicyPackSource: resolvedPolicyPack.source,
+          policyPack: {
+            id: resolvedPolicyPack.policyPack.id,
+            name: resolvedPolicyPack.policyPack.name,
+            source: resolvedPolicyPack.source,
+          },
+          ...(policyPackWarnings ? { policyPackWarnings } : {}),
+        }
+      : baseDecision;
     await auditRepo.insertAuditEvent(app.db, {
       intentId: intent.id,
       eventType: 'policy.admin_evaluate',
@@ -299,6 +304,13 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
         decision,
         effectiveConfig,
         source: 'api',
+        ...(resolvedPolicyPack.policyPack
+          ? {
+              effectivePolicyPackId: resolvedPolicyPack.policyPack.id,
+              effectivePolicyPackName: resolvedPolicyPack.policyPack.name,
+              effectivePolicyPackSource: resolvedPolicyPack.source,
+            }
+          : {}),
         ...(resolvedPolicyPack.policyPack
           ? {
               policyPack: {

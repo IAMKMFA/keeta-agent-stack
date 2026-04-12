@@ -9,7 +9,7 @@ function buildFakeClient() {
     createIntent: [] as unknown[],
     quoteIntent: [] as string[],
     routeIntent: [] as string[],
-    policyIntent: [] as string[],
+    policyIntent: [] as Array<{ intentId: string; body?: unknown }>,
     executeIntent: [] as string[],
     holdIntent: [] as string[],
     releaseIntent: [] as string[],
@@ -53,8 +53,8 @@ function buildFakeClient() {
       calls.routeIntent.push(intentId);
       return { jobId: 'job-route', queue: 'route-generation' };
     },
-    policyIntent: async (intentId: string) => {
-      calls.policyIntent.push(intentId);
+    policyIntent: async (intentId: string, body?: unknown) => {
+      calls.policyIntent.push({ intentId, body });
       return { jobId: 'job-policy', queue: 'policy-evaluation' };
     },
     executeIntent: async (intentId: string) => {
@@ -405,7 +405,10 @@ describe('control-plane MCP tools', () => {
     });
     await tool('keeta_quote_intent')({ intentId: '550e8400-e29b-41d4-a716-446655440112' });
     await tool('keeta_route_intent')({ intentId: '550e8400-e29b-41d4-a716-446655440113' });
-    await tool('keeta_evaluate_policy')({ intentId: '550e8400-e29b-41d4-a716-446655440114' });
+    await tool('keeta_evaluate_policy')({
+      intentId: '550e8400-e29b-41d4-a716-446655440114',
+      policyPackId: '550e8400-e29b-41d4-a716-446655440141',
+    });
     await tool('keeta_execute_intent')({ intentId: '550e8400-e29b-41d4-a716-446655440115' });
     await tool('keeta_hold_intent')({ intentId: '550e8400-e29b-41d4-a716-446655440116' });
     await tool('keeta_release_intent')({ intentId: '550e8400-e29b-41d4-a716-446655440117' });
@@ -472,7 +475,12 @@ describe('control-plane MCP tools', () => {
     expect(calls.createIntent).toHaveLength(1);
     expect(calls.quoteIntent).toEqual(['550e8400-e29b-41d4-a716-446655440112']);
     expect(calls.routeIntent).toEqual(['550e8400-e29b-41d4-a716-446655440113']);
-    expect(calls.policyIntent).toEqual(['550e8400-e29b-41d4-a716-446655440114']);
+    expect(calls.policyIntent).toEqual([
+      {
+        intentId: '550e8400-e29b-41d4-a716-446655440114',
+        body: { policyPackId: '550e8400-e29b-41d4-a716-446655440141' },
+      },
+    ]);
     expect(calls.executeIntent).toEqual(['550e8400-e29b-41d4-a716-446655440115']);
     expect(calls.holdIntent).toEqual(['550e8400-e29b-41d4-a716-446655440116']);
     expect(calls.releaseIntent).toEqual(['550e8400-e29b-41d4-a716-446655440117']);

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { policyRepo } from '@keeta-agent-sdk/storage';
+import { policyRepo, settingsRepo } from '@keeta-agent-sdk/storage';
 import { createIntegrationTestRuntime } from './harness.js';
 import { shouldRunIntegrationTests } from './support.js';
 
@@ -172,9 +172,7 @@ integration('policy pack persistence api', () => {
       const intent = await activeRuntime.createIntent({
         walletId: wallet.id,
         mode: 'live',
-        metadata: {
-          policyPackId: pack.id,
-        },
+        policyPackId: pack.id,
       });
 
       await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
@@ -184,14 +182,105 @@ integration('policy pack persistence api', () => {
       expect(decision).toBeDefined();
       expect(decision?.payload).toMatchObject({
         allowed: true,
+        effectivePolicyPackId: pack.id,
+        effectivePolicyPackSource: 'intent',
       });
 
       const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
       expect(auditEvent.payload).toMatchObject({
         allowed: true,
+        effectivePolicyPackId: pack.id,
         policyPack: {
           id: pack.id,
-          source: 'intent_metadata',
+          source: 'intent',
+        },
+      });
+    },
+    30_000
+  );
+
+  it(
+    'falls back to a wallet default policy pack during worker policy evaluation',
+    async () => {
+      activeRuntime = await createIntegrationTestRuntime();
+
+      const packResponse = await activeRuntime.app.inject({
+        method: 'POST',
+        url: '/policy/packs',
+        headers: activeRuntime.authHeaders(),
+        payload: {
+          name: 'wallet-default-live-override',
+          rules: [{ ruleId: 'live_mode_enabled', enabled: false }],
+          compositions: [],
+        },
+      });
+      expect(packResponse.statusCode).toBe(201);
+      const pack = JSON.parse(packResponse.body) as { id: string };
+
+      const wallet = await activeRuntime.createWallet({
+        label: 'Wallet Default Pack Wallet',
+        settings: {
+          defaultPolicyPackId: pack.id,
+        },
+      });
+      const intent = await activeRuntime.createIntent({
+        walletId: wallet.id,
+        mode: 'live',
+      });
+
+      await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
+      await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
+
+      const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
+      expect(auditEvent.payload).toMatchObject({
+        allowed: true,
+        effectivePolicyPackId: pack.id,
+        policyPack: {
+          id: pack.id,
+          source: 'wallet_default',
+        },
+      });
+    },
+    30_000
+  );
+
+  it(
+    'falls back to the global default policy pack during worker policy evaluation',
+    async () => {
+      activeRuntime = await createIntegrationTestRuntime();
+
+      const packResponse = await activeRuntime.app.inject({
+        method: 'POST',
+        url: '/policy/packs',
+        headers: activeRuntime.authHeaders(),
+        payload: {
+          name: 'global-default-live-override',
+          rules: [{ ruleId: 'live_mode_enabled', enabled: false }],
+          compositions: [],
+        },
+      });
+      expect(packResponse.statusCode).toBe(201);
+      const pack = JSON.parse(packResponse.body) as { id: string };
+      await settingsRepo.upsertSetting(activeRuntime.db, settingsRepo.POLICY_DEFAULT_PACK_SETTING_KEY, {
+        policyPackId: pack.id,
+      });
+
+      const wallet = await activeRuntime.createWallet({ label: 'Global Default Pack Wallet' });
+      const intent = await activeRuntime.createIntent({
+        walletId: wallet.id,
+        mode: 'live',
+      });
+
+      await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
+      await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
+
+      const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
+      expect(auditEvent.payload).toMatchObject({
+        allowed: true,
+        effectivePolicyPackId: pack.id,
+        policyPack: {
+          id: pack.id,
+          source: 'global_default',
         },
       });
     },

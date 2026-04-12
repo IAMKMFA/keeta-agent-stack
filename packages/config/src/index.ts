@@ -53,6 +53,8 @@ const EnvSchema = z.object({
   EXECUTION_KILL_SWITCH: boolFromEnv.default(false),
   /** Optional shared secret for GET /ops/metrics and admin routes. */
   OPS_API_KEY: z.string().min(1).optional(),
+  /** Optional fallback policy-pack id used when no intent or wallet selector is present. */
+  DEFAULT_POLICY_PACK_ID: z.string().uuid().optional(),
   /** Admin token for policy evaluate bypass (audited). */
   ADMIN_BYPASS_TOKEN: z.string().min(1).optional(),
   /** Symmetric JWT secret for operator/admin API access. */

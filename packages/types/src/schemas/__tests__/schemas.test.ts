@@ -26,6 +26,7 @@ import {
   StrategyTemplateSchema,
   WalletBalancesResponseSchema,
   WalletBalanceSnapshotSchema,
+  WalletSettingsSchema,
   WebhookDeliverySchema,
   WebhookSubscriptionSchema,
 } from '../../index.js';
@@ -43,6 +44,10 @@ describe('Zod schemas', () => {
       size: '100.5',
       maxSlippageBps: 50,
       mode: 'simulate' as const,
+      policyPackId: '550e8400-e29b-41d4-a716-446655440010',
+      effectivePolicyPackId: '550e8400-e29b-41d4-a716-446655440011',
+      effectivePolicyPackName: 'desk-risk',
+      effectivePolicyPackSource: 'intent' as const,
       createdAt: now,
     };
     expect(ExecutionIntentSchema.parse(v)).toEqual(v);
@@ -413,6 +418,15 @@ describe('Zod schemas', () => {
       contributions: [
         { ruleId: 'max_order_size', passed: true },
       ],
+      effectivePolicyPackId: '550e8400-e29b-41d4-a716-446655440012',
+      effectivePolicyPackName: 'wallet-default',
+      effectivePolicyPackSource: 'wallet_default' as const,
+      policyPack: {
+        id: '550e8400-e29b-41d4-a716-446655440012',
+        name: 'wallet-default',
+        source: 'wallet_default' as const,
+      },
+      policyPackWarnings: ['warning'],
       evaluatedAt: now,
     };
     expect(PolicyDecisionSchema.parse(d)).toEqual(d);
@@ -424,10 +438,20 @@ describe('Zod schemas', () => {
       intentId: '550e8400-e29b-41d4-a716-446655440000',
       adapterId: 'mock-dex',
       status: 'confirmed' as const,
+      effectivePolicyPackId: '550e8400-e29b-41d4-a716-446655440013',
+      effectivePolicyPackName: 'global-default',
+      effectivePolicyPackSource: 'global_default' as const,
       txId: '0xabc',
       completedAt: now,
     };
     expect(ExecutionResultSchema.parse(e)).toEqual(e);
+  });
+
+  it('round-trips WalletSettings', () => {
+    const settings = {
+      defaultPolicyPackId: '550e8400-e29b-41d4-a716-446655440014',
+    };
+    expect(WalletSettingsSchema.parse(settings)).toEqual(settings);
   });
 
   it('round-trips AdapterHealth and CapabilityMap', () => {

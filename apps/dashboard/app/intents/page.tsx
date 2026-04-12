@@ -17,6 +17,8 @@ type IntentRow = {
     quoteAsset?: string;
     side?: string;
     size?: string;
+    policyPackId?: string;
+    effectivePolicyPackId?: string;
   };
 };
 
@@ -56,6 +58,20 @@ export default async function Page() {
       </span>
     ),
     approval: row.requiresApproval ? row.approvalStatus : 'not required',
+    policyPack: (
+      <div className="space-y-1">
+        <div className="font-mono text-xs">
+          {row.payload?.effectivePolicyPackId
+            ? shortId(row.payload.effectivePolicyPackId)
+            : row.payload?.policyPackId
+              ? shortId(row.payload.policyPackId)
+              : '—'}
+        </div>
+        <div className="text-[11px] text-[var(--hub-muted)]">
+          {row.payload?.effectivePolicyPackId ? 'effective' : row.payload?.policyPackId ? 'selected' : 'none'}
+        </div>
+      </div>
+    ),
     wallet: <span className="font-mono text-xs">{shortId(row.walletId)}</span>,
     updated: <span className="font-mono text-xs">{formatDateTime(row.updatedAt)}</span>,
   }));
@@ -95,6 +111,7 @@ export default async function Page() {
             { key: 'side', label: 'Side / Size' },
             { key: 'status', label: 'Status' },
             { key: 'approval', label: 'Approval' },
+            { key: 'policyPack', label: 'Policy Pack' },
             { key: 'wallet', label: 'Wallet' },
             { key: 'updated', label: 'Updated' },
           ]}

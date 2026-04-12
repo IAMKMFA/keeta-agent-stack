@@ -1,5 +1,6 @@
 export { createDefaultPolicyRules, definePolicyComposition, definePolicyRule, PolicyEngine } from './engine.js';
 export { applyPolicyPack } from './pack-runtime.js';
+export { resolvePolicyPackSelection } from './policy-pack-selection.js';
 export type {
   PolicyComposition,
   PolicyCompositionOperator,
@@ -23,6 +24,10 @@ export type {
   AppliedPolicyPackSummary,
   ApplyPolicyPackResult,
 } from './pack-runtime.js';
+export type {
+  PolicyPackSelectionInput,
+  ResolvedPolicyPackSelection,
+} from './policy-pack-selection.js';
 export {
   CreatePolicyPackSchema,
   PolicyCompositionOperatorSchema,

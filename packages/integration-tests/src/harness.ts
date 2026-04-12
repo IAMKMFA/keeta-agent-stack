@@ -61,6 +61,9 @@ function resolveOverride(
 export interface CreateWalletInput {
   label?: string;
   address?: string;
+  settings?: {
+    defaultPolicyPackId?: string | null;
+  };
 }
 
 export interface CreateIntentInput {
@@ -72,6 +75,7 @@ export interface CreateIntentInput {
   maxSlippageBps?: number;
   mode?: 'simulate' | 'live';
   strategyId?: string;
+  policyPackId?: string;
   venueAllowlist?: string[];
   metadata?: JsonRecord;
   requiresApproval?: boolean;
@@ -298,6 +302,7 @@ export async function createIntegrationTestRuntime(
         payload: {
           label: input.label ?? 'Integration Wallet',
           address: input.address ?? `keeta_${randomUUID().replace(/-/g, '')}`,
+          ...(input.settings ? { settings: input.settings } : {}),
         },
       });
       assertStatus(response.statusCode, 201, response.body);
@@ -327,6 +332,7 @@ export async function createIntegrationTestRuntime(
           maxSlippageBps: input.maxSlippageBps ?? 50,
           mode: input.mode ?? 'simulate',
           ...(input.strategyId ? { strategyId: input.strategyId } : {}),
+          ...(input.policyPackId ? { policyPackId: input.policyPackId } : {}),
           ...(input.venueAllowlist ? { venueAllowlist: input.venueAllowlist } : {}),
           ...(input.metadata ? { metadata: input.metadata } : {}),
           ...(input.requiresApproval !== undefined ? { requiresApproval: input.requiresApproval } : {}),

@@ -7,6 +7,9 @@ type WalletRow = {
   id: string;
   label: string;
   address: string;
+  settings?: {
+    defaultPolicyPackId?: string | null;
+  };
 };
 
 export default async function Page() {
@@ -21,6 +24,16 @@ export default async function Page() {
       <div className="space-y-1">
         <div className="font-mono text-xs">{shortId(row.address, 10)}</div>
         <div className="font-mono text-[11px] text-[var(--hub-muted)]">{row.address}</div>
+      </div>
+    ),
+    policyPack: (
+      <div className="space-y-1">
+        <div className="font-mono text-xs">
+          {row.settings?.defaultPolicyPackId ? shortId(row.settings.defaultPolicyPackId) : '—'}
+        </div>
+        <div className="text-[11px] text-[var(--hub-muted)]">
+          {row.settings?.defaultPolicyPackId ? 'wallet default' : 'none'}
+        </div>
       </div>
     ),
   }));
@@ -47,6 +60,7 @@ export default async function Page() {
             { key: 'id', label: 'Wallet ID' },
             { key: 'label', label: 'Label' },
             { key: 'address', label: 'Address' },
+            { key: 'policyPack', label: 'Default Policy Pack' },
           ]}
           rows={tableRows}
           rowKey={(row) => String(row._key)}

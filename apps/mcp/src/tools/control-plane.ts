@@ -46,9 +46,16 @@ export function buildControlPlaneToolSpecs(
     configOverrides: z.record(z.unknown()).optional().describe('Optional policy-config overrides for preview only.'),
     contextOverrides: z.record(z.unknown()).optional().describe('Optional evaluation-context overrides for preview only.'),
   } satisfies Record<keyof Pick<PolicyEvaluateRequest, 'intentId' | 'intent' | 'reason' | 'policyPackId' | 'configOverrides' | 'contextOverrides'>, z.ZodTypeAny>;
-  const createIntentBodySchema = ExecutionIntentSchema.omit({ id: true, createdAt: true })
+  const createIntentBodySchema = ExecutionIntentSchema.omit({
+    id: true,
+    createdAt: true,
+    effectivePolicyPackId: true,
+    effectivePolicyPackName: true,
+    effectivePolicyPackSource: true,
+  })
     .partial({
       strategyId: true,
+      policyPackId: true,
       venueAllowlist: true,
       metadata: true,
     })
@@ -95,10 +102,15 @@ export function buildControlPlaneToolSpecs(
         'Queue the intent pipeline policy-evaluation stage (`POST /intents/:id/policy`). This is not the admin preview endpoint.',
       inputSchema: {
         intentId: z.string().uuid().describe('Intent id to evaluate through the pipeline policy stage.'),
+        policyPackId: z.string().uuid().optional().describe('Optional override policy pack id to persist on the intent before evaluation.'),
       },
-      handler: async ({ intentId }) => {
+      handler: async ({ intentId, policyPackId }) => {
         const client = getClient();
-        return textResult(await client.policyIntent(String(intentId)));
+        return textResult(
+          await client.policyIntent(String(intentId), {
+            ...(typeof policyPackId === 'string' ? { policyPackId } : {}),
+          })
+        );
       },
     },
     {
