@@ -98,6 +98,9 @@ It is intentionally precise. It describes what is first-class today, what is par
 | Shared built-in rail metadata | No public route | Yes | Indirect | Good | Shared local registry metadata source |
 | Enumerated fiat-push / fiat-pull / crypto rails (UAE, CAD, Plaid, PULL) | No public route | Yes (`listRailCatalog`, `filterRailCatalog`) | Yes (`keeta_list_available_rails`) | Good | Backed by `@keetanetwork/anchor` 0.0.58 enum surface |
 | Anchor chaining (resolveAssets / pathOwner / distance) | Indirect (via worker) | Types exposed on `ExecutionResult` | Yes (`keeta_anchor_chaining_*`) | Good | MCP tools require server-held seed unless `MCP_ALLOW_INLINE_SEEDS=true` |
+| Mock CEX adapter (`@keeta-agent-sdk/adapter-mock-cex`) | n/a | n/a | n/a | Good | In-memory CLOB-style adapter. Disabled unless `KEETA_ENABLE_MOCK_CEX=true`. Quote + simulate + live (in-memory balances) all real. |
+| Solana stub adapter (`@keeta-agent-sdk/adapter-solana-stub`) | n/a | n/a | n/a | Partial | Quote + simulate work for routing demos. `execute(mode='live')` throws `SolanaNotImplementedError`. Disabled unless `KEETA_ENABLE_SOLANA_STUB=true`. See [docs/creating-new-adapter.md](./creating-new-adapter.md). |
+| Adapter template (`@keeta-agent-sdk/adapter-template`) | n/a | n/a | n/a | Strong | Boilerplate; `execute` throws `NotImplementedError`. Use as a starting point for a real venue. |
 
 ## Keeta Network Primitive Coverage
 

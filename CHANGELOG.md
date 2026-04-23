@@ -97,3 +97,7 @@ used during the upstream-sync + deep-audit refactor.
   `AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION`, `MCP_ALLOW_INLINE_SEEDS`, and `LOG_REDACT_EXTRA`
   variables.
 - Added this `CHANGELOG.md` with the full phase-by-phase summary.
+- Added a docs index, governance links in the README, and GitHub issue / PR
+  templates so the repository is easier to navigate and contribute to.
+- Added `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, and `LICENSE`
+  cross-links so the public repository surface is complete and professional.

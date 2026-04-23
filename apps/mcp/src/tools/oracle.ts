@@ -52,16 +52,32 @@ function normalizeMcpToolPayload(payload: unknown): unknown {
 }
 
 function toErrorPayload(error: unknown): unknown {
+  // Standardised error envelope per docs/dashboard-v2-contract.md / MCP polish.
   if (error instanceof KtaOracleRequestError) {
+    const status = error.status ?? 0;
     return {
-      error: error.message,
-      status: error.status,
-      endpoint: error.endpoint,
-      body: error.body,
+      ok: false,
+      error: {
+        code: `ORACLE_HTTP_${status || 'ERROR'}`,
+        message: error.message,
+        retryable: status >= 500 || status === 429,
+        hint:
+          status === 429
+            ? 'Rate-limited by KTA Oracle. Back off, then retry.'
+            : status >= 500
+              ? 'Upstream Oracle is degraded. Retry with exponential backoff.'
+              : undefined,
+        details: { endpoint: error.endpoint, body: error.body },
+      },
     };
   }
   return {
-    error: error instanceof Error ? error.message : String(error),
+    ok: false,
+    error: {
+      code: 'ORACLE_ERROR',
+      message: error instanceof Error ? error.message : String(error),
+      retryable: false,
+    },
   };
 }
 

@@ -1,6 +1,13 @@
 /**
- * Golden path: Oracle-first payment planning (rates, rails, exchange instructions)
- * — one integration surface for intelligence before durable execution.
+ * Scenario: oracle payment playbook.
+ *
+ * One integration surface for fiat → KTA payment intelligence before durable
+ * execution: pulls rates, available rails, and machine-actionable exchange
+ * instructions. Pair with the new `oracle.payment.preview` / `oracle.payment.execute`
+ * MCP tools to wire into Grok / Claude / LangGraph agents.
+ *
+ * Maps to the "Oracle payment playbook" row in the root README's Common Agent
+ * Patterns.
  */
 import { buildOraclePaymentPlaybook, KtaOracleClient } from '@keeta-agent-sdk/keeta';
 

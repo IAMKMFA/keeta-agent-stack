@@ -1,5 +1,8 @@
 # Keeta Agent SDK
 
+[![CI](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+
 Build Keeta-native agents that can take an intent, find the best route, enforce policy, simulate risk, execute safely, and keep users and operators informed in real time.
 
 ## Status
@@ -7,6 +10,8 @@ Build Keeta-native agents that can take an intent, find the best route, enforce 
 Active development (0.x pre-release).
 
 This repository is an active build of the Keeta Agent SDK. It is already powerful and end-to-end capable, but it is still evolving and should be treated as a working release track rather than a final public release.
+
+Quick links: [Docs index](./docs/README.md) | [Contributing](./CONTRIBUTING.md) | [Code of Conduct](./CODE_OF_CONDUCT.md) | [Security](./SECURITY.md) | [Changelog](./CHANGELOG.md)
 
 ## In One Minute
 
@@ -128,6 +133,123 @@ For the one-command demo flow:
 pnpm demo
 ```
 
+## Build Your First Trading Agent in 10 Minutes
+
+This walkthrough takes you from a fresh clone to a running agent that prices a swap, runs it through policy, simulates the result, and is ready to flip to live execution. Everything below uses the published `createKeetaAgent` factory in `@keeta-agent-sdk/agent-runtime`.
+
+### 1. Install and start the dev stack
+
+```bash
+pnpm install
+docker compose up -d
+cp .env.example .env
+pnpm db:migrate
+pnpm dev:all
+```
+
+`pnpm dev:all` boots the API (`:3001`), worker, dashboard (`:3000`), and MCP server. Leave it running.
+
+### 2. Wire up an offline agent (no signing required)
+
+```ts
+import { createKeetaAgent } from '@keeta-agent-sdk/agent-runtime';
+import { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
+import { MockDexAdapter } from '@keeta-agent-sdk/adapter-mock-dex';
+import type { ExecutionIntent } from '@keeta-agent-sdk/types';
+
+const registry = new AdapterRegistry();
+registry.register(
+  new MockDexAdapter({
+    id: 'mock-dex',
+    spreadBps: 10,
+    feeBps: 5,
+    maxSlippageBps: 4,
+    failureRate: 0,
+  })
+);
+
+const agent = createKeetaAgent({
+  name: 'tutorial-agent',
+  registry,
+  policy: {
+    maxOrderSize: 1_000_000,
+    maxSlippageBps: 500,
+    venueAllowlist: [],
+    assetAllowlist: [],
+    liveModeEnabled: true,
+  },
+  hooks: {
+    onIntent:        (ctx) => console.log('intent', ctx.intent.id),
+    afterRoute:      (ctx) => console.log('best route', ctx.routes?.best.id),
+    afterPolicy:     (ctx) => console.log('policy allowed?', ctx.policyDecision?.allowed),
+    afterSimulation: (ctx) => console.log('simulated slippage bps', ctx.simulationResult?.simulatedSlippageBps),
+  },
+});
+
+const intent: ExecutionIntent = {
+  id: crypto.randomUUID(),
+  walletId: crypto.randomUUID(),
+  baseAsset: 'KTA',
+  quoteAsset: 'USDC',
+  side: 'sell',
+  size: '25',
+  maxSlippageBps: 50,
+  mode: 'simulate',
+  createdAt: new Date().toISOString(),
+};
+
+const result = await agent.execute(intent);
+console.log(result.kind, result);
+```
+
+`result.kind` is one of `'denied' | 'simulated' | 'executed' | 'failed'`. With the inputs above you should see `simulated`.
+
+### 3. Flip to live execution
+
+Drop the `registry` + `policy` and pass an SDK client instead. The factory will create the intent, walk it through the API pipeline, and resolve once a terminal `intent.executed` / `intent.failed` event arrives.
+
+```ts
+import { createClient } from '@keeta-agent-sdk/sdk';
+
+const sdk = createClient({
+  baseUrl: process.env.KEETA_API_URL ?? 'http://localhost:3001',
+  defaultHeaders: { Authorization: `Bearer ${process.env.KEETA_API_TOKEN ?? ''}` },
+});
+
+const liveAgent = createKeetaAgent({ name: 'tutorial-live', sdk });
+const liveResult = await liveAgent.execute({ ...intent, mode: 'live' });
+```
+
+The worker (not the agent process) holds the Keeta signing key, so this code path stays safe to run in user-facing agents.
+
+### 4. Productionise
+
+- Drop your runtime config into a `starter-agent-template/` clone (next section) for a standalone deploy unit.
+- Hook `onError` in production to forward failures to your observability stack.
+- Pre-warm policy packs by calling `sdk.evaluatePolicy(...)` from a CI smoke test before deploying.
+
+## Common Agent Patterns & Examples
+
+Five turn-key reference agents live under [`examples/`](./examples). Each folder has its own README explaining the scenario, prerequisites, and run command.
+
+| Pattern | Folder | What it shows |
+|---|---|---|
+| Paper trader | [`examples/paper-trader`](./examples/paper-trader) | Hands-off simulation loop using `createKeetaAgent` and the mock DEX. |
+| Rebalance bot | [`examples/rebalance-bot`](./examples/rebalance-bot) | Periodic portfolio rebalancing via policy-gated route execution. |
+| Oracle payment playbook | [`examples/oracle-payment-playbook`](./examples/oracle-payment-playbook) | Oracle-priced fiat → KTA payment with the new `oracle.payment.*` MCP tools. |
+| Route inspector | [`examples/route-inspector`](./examples/route-inspector) | Pull alternates and explainable scoring out of the routing engine. |
+| Simulation fidelity | [`examples/simulation-fidelity`](./examples/simulation-fidelity) | Compare standard / shadow / replay simulation modes against live chain reads. |
+
+For an end-to-end smoke harness that exercises the API + worker together, see [`examples/mock-live-run`](./examples/mock-live-run).
+
+LLM integration recipes (Grok, Claude, LangGraph) are documented in [`examples/mcp-llm-integration.md`](./examples/mcp-llm-integration.md).
+
+## SDK Reference & OpenAPI
+
+- `pnpm dev:all` (or `pnpm --filter @keeta-agent-sdk/api dev`) serves the live API. Browse [`http://localhost:3001/docs`](http://localhost:3001/docs) for the Swagger UI (Try-It-Out enabled).
+- `pnpm docs:generate` builds Typedoc HTML for `@keeta-agent-sdk/sdk`, `@keeta-agent-sdk/agent-runtime`, and `@keeta-agent-sdk/types` into `docs/typedoc/`.
+- A higher-level guided tour of both surfaces lives in [`docs/sdk-reference.md`](./docs/sdk-reference.md).
+
 ## Live Keeta Mode
 
 For live native Keeta transfers:
@@ -196,6 +318,23 @@ The integration suite runs the real API and worker against Postgres and Redis.
 - The main frontier work is packaging and deeper production maturity, not rebuilding the core design.
 - Development on `main` is meant to be understandable, extensible, and operationally credible before a stable release is declared.
 
+## Where to next
+
+- [Documentation index](./docs/README.md) - guided map across the long-form docs, generated references, and live API docs.
+- [Deployment guide](./docs/deployment.md) — topology, env, scaling, observability, platform recipes, and a reference `docker-compose.prod.yml` + Helm chart skeleton.
+- [Creating a new adapter](./docs/creating-new-adapter.md) — step-by-step from `packages/adapter-template/` through routing weights and tests.
+- [MCP + LLM integration](./examples/mcp-llm-integration.md) — Grok, Claude, and LangGraph wiring with the Oracle Payment Playbook walkthrough.
+- [Capability matrix](./docs/capability-matrix.md) — adapter coverage and parity tracking.
+- [Starter agent template](./starter-agent-template) — minimal standalone project that pins the published packages.
+
+## Community & Governance
+
+- [Contributing guide](./CONTRIBUTING.md) — local setup, checks, branch conventions, and release hygiene.
+- [Code of Conduct](./CODE_OF_CONDUCT.md) — expected behaviour for contributors and maintainers.
+- [Security policy](./SECURITY.md) — private disclosure process for signing, auth, payment, and operator issues.
+- [Changelog](./CHANGELOG.md) — user-facing changes queued for the next release.
+- [License](./LICENSE) — Apache-2.0.
+
 ## License
 
-Apache-2.0
+[Apache-2.0](./LICENSE)

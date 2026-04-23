@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import { Queue } from 'bullmq';
 import { Redis } from 'ioredis';
 import { loadEnv, QUEUE_NAMES, getDefaultJobOptions, type AppEnv } from '@keeta-agent-sdk/config';
@@ -27,6 +29,7 @@ import { routesRoutes } from './routes/routes.js';
 import { anchorsRoutes } from './routes/anchors.js';
 import { eventsRoutes } from './routes/events.js';
 import { openApiRoutes } from './routes/openapi.js';
+import { buildOpenApiDocument } from './openapi.js';
 import { webhooksRoutes } from './routes/webhooks.js';
 import { metricsRoutes } from './routes/metrics.js';
 import { meRoutes } from './routes/me.js';
@@ -160,6 +163,29 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
   await app.register(anchorsRoutes);
   await app.register(eventsRoutes);
   await app.register(openApiRoutes);
+
+  await app.register(swagger, {
+    // The generated document is valid at runtime, but @fastify/swagger's type
+    // surface is narrower than our hand-built OpenAPI 3.1 helper.
+    openapi: buildOpenApiDocument({ serverUrl: env.API_URL ?? `http://localhost:${env.API_PORT}` }) as never,
+  });
+  await app.register(swaggerUi, {
+    routePrefix: '/docs',
+    transformSpecification: (_swaggerObject, req) =>
+      buildOpenApiDocument({
+        serverUrl:
+          app.env.API_URL ??
+          (typeof req.headers.host === 'string'
+            ? `${req.protocol}://${req.headers.host}`
+            : `http://localhost:${app.env.API_PORT}`),
+      }),
+    uiConfig: {
+      docExpansion: 'list',
+      deepLinking: true,
+      tryItOutEnabled: true,
+    },
+    staticCSP: true,
+  });
   await app.register(webhooksRoutes);
   await app.register(meRoutes);
   await app.register(railsRoutes);

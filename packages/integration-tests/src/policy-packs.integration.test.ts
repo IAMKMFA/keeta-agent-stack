@@ -7,6 +7,14 @@ const integration = shouldRunIntegrationTests() ? describe : describe.skip;
 
 let activeRuntime: Awaited<ReturnType<typeof createIntegrationTestRuntime>> | undefined;
 
+function createPolicyPackRuntime() {
+  return createIntegrationTestRuntime({
+    envOverrides: {
+      AUTH_LEGACY_OPS_API_KEY_ROLE: 'admin',
+    },
+  });
+}
+
 afterEach(async () => {
   await activeRuntime?.close();
   activeRuntime = undefined;
@@ -14,7 +22,7 @@ afterEach(async () => {
 
 integration('policy pack persistence api', () => {
   it('creates, lists, updates, and deletes policy packs', async () => {
-    activeRuntime = await createIntegrationTestRuntime();
+    activeRuntime = await createPolicyPackRuntime();
 
     const createResponse = await activeRuntime.app.inject({
       method: 'POST',
@@ -91,7 +99,7 @@ integration('policy pack persistence api', () => {
   });
 
   it('applies a selected policy pack during admin policy preview', async () => {
-    activeRuntime = await createIntegrationTestRuntime();
+    activeRuntime = await createPolicyPackRuntime();
 
     const createResponse = await activeRuntime.app.inject({
       method: 'POST',
@@ -148,7 +156,7 @@ integration('policy pack persistence api', () => {
   it(
     'applies an intent-selected policy pack during worker policy evaluation',
     async () => {
-      activeRuntime = await createIntegrationTestRuntime();
+      activeRuntime = await createPolicyPackRuntime();
 
       const packResponse = await activeRuntime.app.inject({
         method: 'POST',
@@ -202,7 +210,7 @@ integration('policy pack persistence api', () => {
   it(
     'falls back to a wallet default policy pack during worker policy evaluation',
     async () => {
-      activeRuntime = await createIntegrationTestRuntime();
+      activeRuntime = await createPolicyPackRuntime();
 
       const packResponse = await activeRuntime.app.inject({
         method: 'POST',
@@ -247,7 +255,7 @@ integration('policy pack persistence api', () => {
   it(
     'falls back to the global default policy pack during worker policy evaluation',
     async () => {
-      activeRuntime = await createIntegrationTestRuntime();
+      activeRuntime = await createPolicyPackRuntime();
 
       const packResponse = await activeRuntime.app.inject({
         method: 'POST',
@@ -290,7 +298,7 @@ integration('policy pack persistence api', () => {
   it(
     'applies a strategy-assigned policy pack during worker policy evaluation',
     async () => {
-      activeRuntime = await createIntegrationTestRuntime();
+      activeRuntime = await createPolicyPackRuntime();
 
       const packResponse = await activeRuntime.app.inject({
         method: 'POST',

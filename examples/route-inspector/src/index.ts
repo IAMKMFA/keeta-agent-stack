@@ -1,3 +1,12 @@
+/**
+ * Scenario: route inspector.
+ *
+ * Spins up the default dev adapter set and asks the routing engine to build
+ * direct + alternate route plans for one intent. Useful when you are debugging
+ * scoring weights, capability gaps, or "why didn't my route win?" questions.
+ *
+ * Maps to the "Route inspector" row in the root README's Common Agent Patterns.
+ */
 import { AdapterRegistry, createDefaultDevAdapters } from '@keeta-agent-sdk/adapter-registry';
 import { Router } from '@keeta-agent-sdk/routing';
 import type { ExecutionIntent } from '@keeta-agent-sdk/types';

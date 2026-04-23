@@ -234,16 +234,15 @@ export async function createIntegrationTestRuntime(
     opsApiKey: runtime.opsApiKey,
     adminToken,
     authHeaders: (role: IntegrationAuthRole = 'operator') => {
+      if (role === 'admin') {
+        return { 'x-admin-token': adminToken };
+      }
       if (opsApiKey) {
         const headers: Record<string, string> = { 'x-ops-key': opsApiKey };
         return headers;
       }
       if (jwtSecret) {
         throw new Error('Use issueJwt() for async JWT auth header generation');
-      }
-      if (role === 'admin') {
-        const headers: Record<string, string> = { 'x-admin-token': adminToken };
-        return headers;
       }
       throw new Error('No integration auth mechanism is configured');
     },

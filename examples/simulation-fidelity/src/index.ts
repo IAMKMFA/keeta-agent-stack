@@ -1,6 +1,15 @@
 /**
- * Golden path: simulation with shadow-style Keeta snapshot (ledger + balances stub).
- * For live chain + wallet snapshots without submit, use POST /simulations/run with fidelityMode shadow.
+ * Scenario: simulation fidelity comparison.
+ *
+ * Runs the simulator in shadow mode against a synthetic Keeta snapshot
+ * (ledger + balances stub) so you can see exactly which fields show up in the
+ * `SimulationResult`. Switch `fidelityMode` to `standard` (math only) or
+ * `replay` (anchored backtest) to compare outputs side-by-side. For live
+ * chain + wallet snapshots without submit, hit `POST /simulations/run` with
+ * `fidelityMode: 'shadow'`.
+ *
+ * Maps to the "Simulation fidelity" row in the root README's Common Agent
+ * Patterns.
  */
 import { AdapterRegistry, createDefaultDevAdapters } from '@keeta-agent-sdk/adapter-registry';
 import { Router } from '@keeta-agent-sdk/routing';

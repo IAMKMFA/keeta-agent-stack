@@ -22,6 +22,7 @@
     "@keeta-agent-sdk/adapter-registry": "workspace:*",
     "@keeta-agent-sdk/policy": "workspace:*",
     "@keeta-agent-sdk/routing": "workspace:*",
+    "@keeta-agent-sdk/sdk": "workspace:*",
     "@keeta-agent-sdk/simulator": "workspace:*",
     "@keeta-agent-sdk/types": "workspace:*",
     "@keeta-agent-sdk/wallet": "workspace:*"

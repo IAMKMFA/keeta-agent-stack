@@ -327,33 +327,40 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
           ...(policyPackWarnings ? { policyPackWarnings } : {}),
         }
       : baseDecision;
-    await auditRepo.insertAuditEvent(app.db, {
-      intentId: intent.id,
-      eventType: 'policy.admin_evaluate',
-      payload: {
-        reason,
-        decision,
-        effectiveConfig: redactedEffectiveConfig(effectiveConfig),
-        source: 'api',
-        ...(resolvedPolicyPack.policyPack
-          ? {
-              effectivePolicyPackId: resolvedPolicyPack.policyPack.id,
-              effectivePolicyPackName: resolvedPolicyPack.policyPack.name,
-              effectivePolicyPackSource: resolvedPolicyPack.source,
-            }
-          : {}),
-        ...(resolvedPolicyPack.policyPack
-          ? {
-              policyPack: {
-                id: resolvedPolicyPack.policyPack.id,
-                name: resolvedPolicyPack.policyPack.name,
-                source: resolvedPolicyPack.source,
-              },
-            }
-          : {}),
-        ...(policyPackWarnings ? { policyPackWarnings } : {}),
-      },
-    });
+    // Inline preview payloads are allowed even when no intent row exists yet, so
+    // only persist an audit event when the intent is actually present in storage.
+    const canPersistAuditEvent = intentId
+      ? true
+      : Boolean(await intentRepo.getIntentById(app.db, intent.id));
+    if (canPersistAuditEvent) {
+      await auditRepo.insertAuditEvent(app.db, {
+        intentId: intent.id,
+        eventType: 'policy.admin_evaluate',
+        payload: {
+          reason,
+          decision,
+          effectiveConfig: redactedEffectiveConfig(effectiveConfig),
+          source: 'api',
+          ...(resolvedPolicyPack.policyPack
+            ? {
+                effectivePolicyPackId: resolvedPolicyPack.policyPack.id,
+                effectivePolicyPackName: resolvedPolicyPack.policyPack.name,
+                effectivePolicyPackSource: resolvedPolicyPack.source,
+              }
+            : {}),
+          ...(resolvedPolicyPack.policyPack
+            ? {
+                policyPack: {
+                  id: resolvedPolicyPack.policyPack.id,
+                  name: resolvedPolicyPack.policyPack.name,
+                  source: resolvedPolicyPack.source,
+                },
+              }
+            : {}),
+          ...(policyPackWarnings ? { policyPackWarnings } : {}),
+        },
+      });
+    }
     return {
       decision,
       rules: engine.listRuleMetadata(),

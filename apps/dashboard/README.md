@@ -12,7 +12,10 @@ navigation and three distinct personas in a single app:
 | `anonymous`    | `/login`             | Login gate — all privileged surfaces redirect here.             |
 
 See [`docs/dashboard-v2-contract.md`](docs/dashboard-v2-contract.md) for the
-full role/capability matrix, API contracts, env vars, and rollout status.
+full role/capability matrix, API contracts, env vars, and rollout status. For
+production rollout (topology, env hardening, scaling, observability, and
+platform recipes) see the
+[deployment guide](../../docs/deployment.md).
 
 ## Auth model
 

@@ -1,7 +1,13 @@
 /**
- * Golden path: route + simulate (or --live) against default dev adapters.
- * - KTA/KTA + keeta-transfer: native Keeta settlement (worker + signing for live).
- * - USDC/USDC + oracle-rail-cctp-usdc: Oracle-planned CCTP-style rail (simulate by default; live needs partner URL).
+ * Scenario: mock live run.
+ *
+ * End-to-end smoke harness: registers the default dev adapter set, picks
+ * either KTA-native settlement or an Oracle-planned CCTP-style rail, and
+ * runs the route → simulate path. Pass `--live` to flip the intent to live
+ * mode (still safe in dev because the worker holds signing keys), and `--cctp`
+ * to swap the rail. Useful for end-to-end smoke before promoting a build.
+ *
+ * Linked from the root README under Common Agent Patterns.
  */
 import { AdapterRegistry, createDefaultDevAdapters } from '@keeta-agent-sdk/adapter-registry';
 import { Router } from '@keeta-agent-sdk/routing';

@@ -1,7 +1,10 @@
 import { KeetaTransferAdapter } from '@keeta-agent-sdk/adapter-keeta-transfer';
 import { MockAnchorAdapter } from '@keeta-agent-sdk/adapter-mock-anchor';
+import { MockCexAdapter } from '@keeta-agent-sdk/adapter-mock-cex';
 import { MockDexAdapter } from '@keeta-agent-sdk/adapter-mock-dex';
 import { OracleCctpRailAdapter } from '@keeta-agent-sdk/adapter-oracle-rail';
+import { SolanaStubAdapter } from '@keeta-agent-sdk/adapter-solana-stub';
+import type { VenueAdapter } from '@keeta-agent-sdk/adapter-base';
 import { AdapterRegistry } from './registry.js';
 
 export function createDefaultDevAdapters() {
@@ -24,7 +27,16 @@ export function createDefaultDevAdapters() {
   const transfer = new KeetaTransferAdapter();
   const oracleCctp = new OracleCctpRailAdapter();
 
-  return [dex, anchor, transfer, oracleCctp] as const;
+  const adapters: VenueAdapter[] = [dex, anchor, transfer, oracleCctp];
+
+  if (MockCexAdapter.isEnabled()) {
+    adapters.push(new MockCexAdapter());
+  }
+  if (SolanaStubAdapter.isEnabled()) {
+    adapters.push(new SolanaStubAdapter());
+  }
+
+  return adapters;
 }
 
 export function createDefaultDevRegistry(): AdapterRegistry {
