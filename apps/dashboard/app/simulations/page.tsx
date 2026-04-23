@@ -1,5 +1,5 @@
 import { DataTable } from '../../components/DataTable';
-import { StatusCard } from '../../components/StatusCard';
+import { Card, Kpi, KpiGrid, PageHeader, StatusPill } from '../../components/ui';
 import { fetchJson } from '../../lib/api';
 import { formatDateTime, formatNumber, shortId } from '../../lib/format';
 
@@ -16,6 +16,9 @@ type SimulationRow = {
   createdAt: string;
 };
 
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Simulations — Keeta Agent Hub' };
+
 export default async function Page() {
   const rows = await fetchJson<SimulationRow[]>('/simulations', []);
   const completed = rows.filter((row) => row.status === 'completed').length;
@@ -25,25 +28,30 @@ export default async function Page() {
   const tableRows = rows.map((row) => ({
     _key: row.id,
     id: (
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <div className="font-mono text-xs">{shortId(row.id)}</div>
-        <div className="font-mono text-[11px] text-[var(--hub-muted)]">{row.id}</div>
+        <div className="font-mono text-[11px] text-[var(--keeta-muted)]">{row.id}</div>
       </div>
     ),
     intent: <span className="font-mono text-xs">{shortId(row.intentId)}</span>,
-    route: row.routePlanId ? <span className="font-mono text-xs">{shortId(row.routePlanId)}</span> : '—',
+    route: row.routePlanId ? (
+      <span className="font-mono text-xs">{shortId(row.routePlanId)}</span>
+    ) : (
+      '—'
+    ),
     status: (
-      <span
-        className={`inline-flex rounded-full border px-2 py-1 text-xs ${
+      <StatusPill
+        tone={
           row.status === 'completed'
-            ? 'border-[rgba(50,149,144,0.42)] bg-[rgba(50,149,144,0.12)] text-[#1d635f]'
+            ? 'success'
             : row.status === 'failed'
-              ? 'border-[rgba(190,63,67,0.45)] bg-[rgba(190,63,67,0.1)] text-[var(--hub-danger)]'
-              : 'border-[rgba(204,147,56,0.4)] bg-[rgba(204,147,56,0.09)] text-[#91661d]'
-        }`}
+              ? 'danger'
+              : 'warning'
+        }
+        dot={false}
       >
         {row.status}
-      </span>
+      </StatusPill>
     ),
     fidelity: row.scenario?.fidelityMode ?? 'standard',
     latency: row.scenario?.latencyMs ?? '—',
@@ -52,27 +60,35 @@ export default async function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="hub-kicker">Simulation Engine</div>
-        <h1 className="hub-heading mt-1 text-3xl font-semibold">Simulations</h1>
-        <p className="mt-2 text-sm text-[var(--hub-muted)]">
-          Shadow and replay evaluation queue for pre-trade confidence before execution.
-        </p>
-      </div>
+      <PageHeader
+        kicker="Simulation engine"
+        title="Simulations"
+        description="Shadow and replay evaluation queue for pre-trade confidence before execution."
+        meta={<StatusPill tone="info">{formatNumber(rows.length)} total</StatusPill>}
+      />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatusCard title="Total runs" value={formatNumber(rows.length)} hint="Simulation jobs" />
-        <StatusCard title="Completed" value={formatNumber(completed)} hint="Finished runs" tone="good" />
-        <StatusCard
-          title="Pending"
+      <KpiGrid columns={4}>
+        <Kpi label="Total runs" value={formatNumber(rows.length)} hint="Simulation jobs" />
+        <Kpi
+          label="Completed"
+          value={formatNumber(completed)}
+          hint="Finished runs"
+          trend="up"
+        />
+        <Kpi
+          label="Pending"
           value={formatNumber(pending)}
           hint="Queued / in progress"
-          tone={pending > 0 ? 'warn' : 'neutral'}
+          trend={pending === 0 ? 'up' : 'flat'}
         />
-        <StatusCard title="Shadow mode" value={formatNumber(shadowMode)} hint="Live chain context attached" />
-      </div>
+        <Kpi
+          label="Shadow mode"
+          value={formatNumber(shadowMode)}
+          hint="Live chain context attached"
+        />
+      </KpiGrid>
 
-      <section className="hub-soft-panel p-4">
+      <Card kicker="Runs" title="Recent simulations" padding="sm">
         <DataTable
           columns={[
             { key: 'id', label: 'Run ID' },
@@ -87,7 +103,7 @@ export default async function Page() {
           rowKey={(row) => String(row._key)}
           emptyMessage="No simulation runs yet. Queue one using /simulations/run."
         />
-      </section>
+      </Card>
     </div>
   );
 }

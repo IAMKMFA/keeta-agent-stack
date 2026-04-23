@@ -10,6 +10,7 @@ import type { AppEnv } from '@keeta-agent-sdk/config';
 import {
   applyPolicyPack,
   CreatePolicyPackSchema,
+  defaultPolicyConfigFromEnv,
   PolicyEngine,
   UpdatePolicyPackSchema,
   type PolicyConfig,
@@ -17,7 +18,7 @@ import {
   resolvePolicyPackSelection as resolveStoredPolicyPackSelection,
 } from '@keeta-agent-sdk/policy';
 import { intentRepo, routeRepo, auditRepo, policyRepo, settingsRepo, strategyRepo, walletRepo } from '@keeta-agent-sdk/storage';
-import { requireAdminAccess } from '../lib/auth.js';
+import { requireAdminAccess, requireOperatorAccess } from '../lib/auth.js';
 
 const policyConfigOverrideSchema = z.object({
   maxOrderSize: z.number().finite().positive(),
@@ -101,36 +102,32 @@ const evaluateBodySchema = z.object({
 });
 
 function defaultPolicyConfig(env: AppEnv): PolicyConfig {
-  return {
-    maxOrderSize: Number(process.env.POLICY_MAX_ORDER_SIZE ?? 1_000_000),
-    maxSlippageBps: Number(process.env.POLICY_MAX_SLIPPAGE_BPS ?? 500),
-    venueAllowlist: (process.env.POLICY_VENUE_ALLOWLIST ?? '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
-    assetAllowlist: (process.env.POLICY_ASSET_ALLOWLIST ?? '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
-    liveModeEnabled: process.env.LIVE_MODE_ENABLED === 'true' || process.env.LIVE_MODE_ENABLED === '1',
-    keetaPolicyEnabled: env.KEETA_POLICY_ENABLED === true,
-    identityPolicyEnabled: env.IDENTITY_POLICY_ENABLED === true,
-    anchorBondVerificationRequired: env.ANCHOR_BOND_STRICT === true,
-    maxExposurePerAsset: numEnv('POLICY_MAX_EXPOSURE_PER_ASSET'),
-    maxExposurePerWallet: numEnv('POLICY_MAX_EXPOSURE_PER_WALLET'),
-    maxExposurePerVenue: numEnv('POLICY_MAX_EXPOSURE_PER_VENUE'),
-    maxNotionalPerStrategy: numEnv('POLICY_MAX_NOTIONAL_PER_STRATEGY'),
-    maxDailyTrades: numEnv('POLICY_MAX_DAILY_TRADES', 50_000),
-    maxUnsettledExecutions: numEnv('POLICY_MAX_UNSETTLED', 5000),
-    maxDrawdownBps: numEnv('POLICY_MAX_DRAWDOWN_BPS'),
-  };
+  return defaultPolicyConfigFromEnv(env);
 }
 
-function numEnv(key: string, defaultVal?: number): number | undefined {
-  const v = process.env[key];
-  if (v === undefined || v === '') return defaultVal;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : defaultVal;
+/**
+ * Produce a compact audit snapshot of a policy config. Arrays are replaced by their lengths
+ * so the audit payload never leaks full venue / asset allowlists or other operational secrets
+ * to downstream audit sinks.
+ */
+function redactedEffectiveConfig(config: PolicyConfig): Record<string, unknown> {
+  return {
+    maxOrderSize: config.maxOrderSize,
+    maxSlippageBps: config.maxSlippageBps,
+    venueAllowlistCount: config.venueAllowlist?.length ?? 0,
+    assetAllowlistCount: config.assetAllowlist?.length ?? 0,
+    liveModeEnabled: config.liveModeEnabled,
+    keetaPolicyEnabled: config.keetaPolicyEnabled,
+    identityPolicyEnabled: config.identityPolicyEnabled,
+    anchorBondVerificationRequired: config.anchorBondVerificationRequired,
+    maxExposurePerAsset: config.maxExposurePerAsset,
+    maxExposurePerWallet: config.maxExposurePerWallet,
+    maxExposurePerVenue: config.maxExposurePerVenue,
+    maxNotionalPerStrategy: config.maxNotionalPerStrategy,
+    maxDailyTrades: config.maxDailyTrades,
+    maxUnsettledExecutions: config.maxUnsettledExecutions,
+    maxDrawdownBps: config.maxDrawdownBps,
+  };
 }
 
 type AppliedPolicyPackResponse = {
@@ -218,11 +215,45 @@ async function resolvePolicyPackSelection(
 
 export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
   app.get('/policy/rules', async (req, reply) => {
-    if (!(await requireAdminAccess(app, req, reply, { allowAdminBypassToken: true }))) {
+    if (!(await requireOperatorAccess(app, req, reply))) {
       return;
     }
     const engine = new PolicyEngine();
     return { rules: engine.listRuleMetadata() };
+  });
+
+  app.get('/policy/decisions', async (req, reply) => {
+    if (!(await requireOperatorAccess(app, req, reply))) {
+      return;
+    }
+    const query = req.query as Record<string, unknown> | undefined;
+    const limitRaw = query?.limit;
+    const limit =
+      typeof limitRaw === 'string'
+        ? Number.parseInt(limitRaw, 10)
+        : typeof limitRaw === 'number'
+          ? limitRaw
+          : 200;
+    const safeLimit = Number.isFinite(limit) ? Math.min(1000, Math.max(1, limit)) : 200;
+    const rows = await policyRepo.listRecentPolicyDecisions(app.db, safeLimit);
+    return rows.map((r) => {
+      const payload = r.payload ?? {};
+      const readString = (key: string): string | null => {
+        const value = (payload as Record<string, unknown>)[key];
+        return typeof value === 'string' ? value : null;
+      };
+      return {
+        id: r.id,
+        intentId: r.intentId,
+        outcome: readString('outcome') ?? readString('decision') ?? 'unknown',
+        ruleId: readString('ruleId'),
+        ruleName: readString('ruleName'),
+        reason: readString('reason'),
+        policyPackId: readString('policyPackId'),
+        contributions: Array.isArray(r.ruleContributions) ? r.ruleContributions : [],
+        createdAt: r.createdAt,
+      };
+    });
   });
 
   app.post('/policy/evaluate', async (req, reply) => {
@@ -302,7 +333,7 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
       payload: {
         reason,
         decision,
-        effectiveConfig,
+        effectiveConfig: redactedEffectiveConfig(effectiveConfig),
         source: 'api',
         ...(resolvedPolicyPack.policyPack
           ? {
@@ -339,7 +370,7 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.get('/policy/packs', async (req, reply) => {
-    if (!(await requireAdminAccess(app, req, reply, { allowAdminBypassToken: true }))) {
+    if (!(await requireOperatorAccess(app, req, reply))) {
       return;
     }
     const listed = await policyRepo.listPolicyPacks(app.db);

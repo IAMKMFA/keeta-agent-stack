@@ -22,11 +22,11 @@
     "@keeta-agent-sdk/config": "workspace:*",
     "@keeta-agent-sdk/types": "workspace:*",
     "@keeta-agent-sdk/wallet": "workspace:*",
-    "@keetanetwork/keetanet-client": "^0.16.0"
+    "@keetanetwork/keetanet-client": "^0.16.1"
   },
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^3.0.5"
+    "vitest": "^3.2.4"
   }
 }

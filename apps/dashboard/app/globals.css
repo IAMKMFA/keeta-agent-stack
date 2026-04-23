@@ -3,16 +3,40 @@
 @tailwind utilities;
 
 :root {
-  --hub-bg: #f4f5f5;
-  --hub-surface: #ffffff;
-  --hub-surface-soft: #f8f8f8;
-  --hub-ink: #2c2a2a;
-  --hub-muted: #807f7f;
-  --hub-line: #dddddd;
-  --hub-accent: #329590;
-  --hub-accent-deep: #147598;
-  --hub-danger: #be3f43;
-  --hub-shadow: 0 20px 60px -42px rgba(44, 42, 42, 0.48);
+  /* Keeta brand tokens (aligned with keeta.com). These are the canonical
+     variables going forward. The --hub-* tokens below are kept as aliases
+     for an alias-first migration and will be removed in a later pass. */
+  --keeta-bg-warm: #f4f5f5;
+  --keeta-surface: #ffffff;
+  --keeta-surface-soft: #f8f8f8;
+  --keeta-ink: #2c2a2a;
+  --keeta-ink-subtle: #4f4d4d;
+  --keeta-muted: #807f7f;
+  --keeta-line: #dddddd;
+  --keeta-line-strong: rgba(128, 127, 127, 0.32);
+  --keeta-accent: #329590;
+  --keeta-accent-deep: #147598;
+  --keeta-accent-soft: rgba(50, 149, 144, 0.13);
+  --keeta-danger: #be3f43;
+  --keeta-danger-soft: rgba(190, 63, 67, 0.12);
+  --keeta-warning: #b8762a;
+  --keeta-warning-soft: rgba(184, 118, 42, 0.14);
+  --keeta-success: #2f8f6b;
+  --keeta-success-soft: rgba(47, 143, 107, 0.14);
+  --keeta-shadow: 0 20px 60px -42px rgba(44, 42, 42, 0.48);
+  --keeta-shadow-soft: 0 10px 30px -22px rgba(44, 42, 42, 0.32);
+
+  /* Alias-first: old --hub-* tokens resolve to the new --keeta-* palette. */
+  --hub-bg: var(--keeta-bg-warm);
+  --hub-surface: var(--keeta-surface);
+  --hub-surface-soft: var(--keeta-surface-soft);
+  --hub-ink: var(--keeta-ink);
+  --hub-muted: var(--keeta-muted);
+  --hub-line: var(--keeta-line);
+  --hub-accent: var(--keeta-accent);
+  --hub-accent-deep: var(--keeta-accent-deep);
+  --hub-danger: var(--keeta-danger);
+  --hub-shadow: var(--keeta-shadow);
 }
 
 * {

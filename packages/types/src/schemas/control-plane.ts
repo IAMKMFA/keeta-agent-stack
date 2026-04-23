@@ -93,12 +93,21 @@ export const AdapterSummarySchema = z.object({
   kind: VenueKindSchema,
 });
 
+export const RailTransportSchema = z.enum(['fiat-push', 'fiat-pull', 'crypto', 'native']);
+
 export const AvailableRailSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   production: z.boolean(),
   kind: VenueKindSchema,
   description: z.string().optional(),
+  /**
+   * Transport classification mirroring `@keetanetwork/anchor` FiatPullRails / FiatPushRails /
+   * CryptoRails (0.0.58+). Optional for backward-compat with pre-0.0.58 registrations.
+   */
+  transport: RailTransportSchema.optional(),
+  /** True if the anchor provider supports initiating managed transfers for this rail. */
+  supportsManagedTransfer: z.boolean().optional(),
 });
 
 export type WalletBalanceSnapshot = z.infer<typeof WalletBalanceSnapshotSchema>;
@@ -116,3 +125,4 @@ export type StrategyTemplate = z.infer<typeof StrategyTemplateSchema>;
 export type OpsMetricSample = z.infer<typeof OpsMetricSampleSchema>;
 export type AdapterSummary = z.infer<typeof AdapterSummarySchema>;
 export type AvailableRail = z.infer<typeof AvailableRailSchema>;
+export type RailTransport = z.infer<typeof RailTransportSchema>;

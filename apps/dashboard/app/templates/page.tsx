@@ -1,5 +1,5 @@
 import { fetchJson } from '../../lib/api';
-import { StatusCard } from '../../components/StatusCard';
+import { Card, EmptyState, Kpi, KpiGrid, PageHeader, StatusPill } from '../../components/ui';
 import { formatNumber } from '../../lib/format';
 
 type TemplateRow = {
@@ -11,6 +11,9 @@ type TemplateRow = {
   config: Record<string, unknown>;
 };
 
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Strategy templates — Keeta Agent Hub' };
+
 export default async function Page() {
   const rows = await fetchJson<TemplateRow[]>('/strategy-templates', []);
   const withDescriptions = rows.filter((row) => Boolean(row.description)).length;
@@ -18,40 +21,57 @@ export default async function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="hub-kicker">Strategy Catalog</div>
-        <h1 className="hub-heading mt-1 text-3xl font-semibold">Strategy templates</h1>
-        <p className="mt-2 text-sm text-[var(--hub-muted)]">
-          Productized recipes mapped to example packages — use as starting points for agents.
-        </p>
-      </div>
+      <PageHeader
+        kicker="Strategy catalog"
+        title="Strategy templates"
+        description="Productized recipes mapped to example packages — use as starting points for agents."
+        meta={<StatusPill tone="info">{formatNumber(rows.length)} entries</StatusPill>}
+      />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatusCard title="Templates" value={formatNumber(templateCount)} hint="Seeded strategy blueprints" />
-        <StatusCard title="Named entries" value={formatNumber(rows.length)} hint="Total rows in registry" />
-        <StatusCard title="Documented" value={formatNumber(withDescriptions)} hint="With descriptions" />
-      </div>
+      <KpiGrid columns={3}>
+        <Kpi
+          label="Templates"
+          value={formatNumber(templateCount)}
+          hint="Seeded strategy blueprints"
+        />
+        <Kpi
+          label="Named entries"
+          value={formatNumber(rows.length)}
+          hint="Total rows in registry"
+        />
+        <Kpi
+          label="Documented"
+          value={formatNumber(withDescriptions)}
+          hint="With descriptions"
+        />
+      </KpiGrid>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {rows.length === 0 ? (
-          <p className="rounded-xl border border-[var(--hub-line)] bg-white px-4 py-3 text-sm text-[var(--hub-muted)]">
-            No templates found. Run `pnpm db:seed` after migrations.
-          </p>
-        ) : (
-          rows.map((t) => (
-            <div key={t.id} className="hub-soft-panel space-y-3 p-4">
-              <div className="hub-heading text-base font-semibold">{t.name}</div>
-              {t.slug ? (
-                <div className="font-mono text-xs text-[var(--hub-muted)]">{t.slug}</div>
+      {rows.length === 0 ? (
+        <Card>
+          <EmptyState
+            title="No templates found"
+            description="Run pnpm db:seed after migrations to populate the registry."
+          />
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {rows.map((t) => (
+            <Card
+              key={t.id}
+              kicker={t.isTemplate ? 'template' : 'entry'}
+              title={t.name}
+              description={t.slug ?? undefined}
+            >
+              {t.description ? (
+                <p className="mb-3 text-sm text-[var(--keeta-ink-subtle)]">{t.description}</p>
               ) : null}
-              {t.description ? <p className="text-sm text-[#575555]">{t.description}</p> : null}
-              <pre className="overflow-x-auto rounded-xl border border-[var(--hub-line)] bg-[#111313] p-3 text-xs text-[#dbe4e4]">
+              <pre className="max-h-80 overflow-auto rounded-xl border border-[var(--keeta-line)] bg-[#111313] p-3 text-xs text-[#dbe4e4]">
                 {JSON.stringify(t.config, null, 2)}
               </pre>
-            </div>
-          ))
-        )}
-      </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

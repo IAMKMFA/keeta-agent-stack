@@ -153,6 +153,88 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
     return anchors.filter((anchor) => anchor !== null);
   });
 
+  /**
+   * Dashboard-safe anchor health aggregate. Does not return full anchor
+   * configuration; returns only health signals that are safe to surface to
+   * operator / exec viewers.
+   */
+  app.get('/anchors/health', async (req, reply) => {
+    if (!(await requireViewerAccess(app, req, reply))) {
+      return;
+    }
+    const rows = await paymentAnchorRepo.listPaymentAnchors(app.db, 500);
+    const strict = app.env.ANCHOR_BOND_STRICT === true;
+    const anchors = (
+      await Promise.all(rows.map((row) => toAnchorResponse(app.db, row, strict)))
+    ).filter((a): a is NonNullable<typeof a> => a !== null);
+
+    const total = anchors.length;
+    let bonded = 0;
+    let verified = 0;
+    let withdrawalRequested = 0;
+    let notReady = 0;
+    const statusCounts: Record<string, number> = {};
+
+    const items = anchors.map((anchor) => {
+      const bond = anchor.currentBond;
+      const hasBond = !!bond;
+      const isBonded = hasBond && bond!.status !== 'released';
+      const isVerified = hasBond && bond!.verified === true;
+      const isWithdrawing =
+        hasBond && !!bond!.withdrawalRequestedAt && bond!.status !== 'released';
+      if (isBonded) bonded += 1;
+      if (isVerified) verified += 1;
+      if (isWithdrawing) withdrawalRequested += 1;
+      if (anchor.readiness?.status !== 'ready') notReady += 1;
+      statusCounts[anchor.status] = (statusCounts[anchor.status] ?? 0) + 1;
+
+      return {
+        id: anchor.id,
+        label: anchor.label,
+        adapterId: anchor.adapterId,
+        status: anchor.status,
+        corridorKey: anchor.corridorKey,
+        ready: anchor.readiness?.status === 'ready',
+        readinessStatus: anchor.readiness?.status ?? 'blocked',
+        canServeLiveTraffic: anchor.readiness?.canServeLiveTraffic ?? false,
+        bond: hasBond
+          ? {
+              amountAtomic: bond!.amountAtomic,
+              assetId: bond!.assetId,
+              status: bond!.status,
+              delayDays: bond!.delayDays,
+              verified: bond!.verified,
+              withdrawalRequestedAt: bond!.withdrawalRequestedAt,
+              ageDays: bond!.createdAt
+                ? Math.max(
+                    0,
+                    Math.floor(
+                      (Date.now() - Date.parse(bond!.createdAt)) / 86_400_000
+                    )
+                  )
+                : null,
+            }
+          : null,
+        operatorMetrics: anchor.operatorMetrics ?? null,
+      };
+    });
+
+    return {
+      summary: {
+        total,
+        bonded,
+        verified,
+        withdrawalRequested,
+        notReady,
+        statusCounts,
+        bondCoverage: total > 0 ? Math.round((bonded / total) * 1000) / 10 : 0,
+        verificationRate: bonded > 0 ? Math.round((verified / bonded) * 1000) / 10 : 0,
+        strictVerification: strict,
+      },
+      anchors: items,
+    };
+  });
+
   app.post('/anchors/reconcile', async (req, reply) => {
     if (!(await requireOperatorAccess(app, req, reply))) {
       return;

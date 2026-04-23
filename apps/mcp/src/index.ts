@@ -8,6 +8,7 @@ import { registerExecuteTools } from './tools/execute.js';
 import { registerOracleTools } from './tools/oracle.js';
 import { registerAgentPlaybookTools } from './tools/agent-playbook.js';
 import { registerAnchorTools } from './tools/anchors.js';
+import { registerAnchorChainingTools } from './tools/anchor-chaining.js';
 import { registerControlPlaneTools } from './tools/control-plane.js';
 
 const KEETA_DOCS_MCP = 'https://docs.keeta.com/~gitbook/mcp';
@@ -27,6 +28,7 @@ registerExecuteTools(server);
 registerOracleTools(server);
 registerAgentPlaybookTools(server);
 registerAnchorTools(server);
+registerAnchorChainingTools(server);
 registerControlPlaneTools(server);
 
 server.resource(

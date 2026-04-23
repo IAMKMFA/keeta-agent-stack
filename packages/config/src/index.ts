@@ -83,6 +83,18 @@ const EnvSchema = z.object({
   AUTH_JWT_REMOTE_TIMEOUT_MS: z.coerce.number().int().min(500).default(5_000),
   /** Allow legacy x-ops-key fallback outside local integration scenarios. */
   AUTH_ALLOW_LEGACY_OPS_API_KEY: boolFromEnv.default(false),
+  /**
+   * Role granted to callers authenticating via the legacy `x-ops-key` header.
+   * Defaults to `operator` (least-privilege). Explicit opt-in to `admin` is required for old
+   * deployments that still rely on the legacy key for admin routes.
+   */
+  AUTH_LEGACY_OPS_API_KEY_ROLE: z.enum(['operator', 'admin']).default('operator'),
+  /**
+   * Explicitly allow `ADMIN_BYPASS_TOKEN` to grant admin access in production. Defaults to
+   * false; in production the bypass token must be explicitly enabled (disables silently in
+   * `NODE_ENV=production`). Development and test environments always allow it when set.
+   */
+  AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION: boolFromEnv.default(false),
   /** Enable Prometheus-compatible metrics export. */
   METRICS_ENABLED: boolFromEnv.default(true),
   /** Require authenticated operator/admin access for /metrics. */

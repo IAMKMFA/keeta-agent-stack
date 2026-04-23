@@ -23,6 +23,38 @@ import {
   validateNetwork,
 } from './helpers.js';
 
+/**
+ * MCP security gate for inline seeds. When `MCP_ALLOW_INLINE_SEEDS` is not truthy, the worker
+ * rejects requests that include a `seed` argument and instead falls back to the server-held
+ * `KEETA_SIGNING_SEED` if present.
+ *
+ * Motivation: inline seed arguments flow through the MCP transcript, server logs, and client
+ * tool invocations — giving them far more exposure than a worker-pinned environment variable.
+ */
+export function inlineSeedsAllowed(): boolean {
+  const v = process.env.MCP_ALLOW_INLINE_SEEDS;
+  return v === 'true' || v === '1';
+}
+
+/**
+ * Resolve the seed to use for a MCP execution.
+ *   - If the caller passed an inline seed AND `MCP_ALLOW_INLINE_SEEDS` is set, honor it.
+ *   - If the caller passed an inline seed but inline seeds are disabled, throw a clear error.
+ *   - If the caller passed no seed, fall back to the worker's `KEETA_SIGNING_SEED` (if set).
+ *   - Otherwise return `undefined` so callers can choose a read-only path.
+ */
+export function resolveSeedOrThrow(inlineSeed: string | undefined): string | undefined {
+  if (inlineSeed !== undefined) {
+    if (!inlineSeedsAllowed()) {
+      throw new Error(
+        'Inline seeds are disabled in this MCP deployment. Remove the `seed` argument or set MCP_ALLOW_INLINE_SEEDS=true (dev only).'
+      );
+    }
+    return inlineSeed;
+  }
+  return process.env.KEETA_SIGNING_SEED;
+}
+
 export function registerExecuteTools(server: McpServer): void {
   server.tool(
     'keeta_client_execute',
@@ -51,7 +83,8 @@ export function registerExecuteTools(server: McpServer): void {
       args: z.array(z.unknown()).default([]),
     },
     async ({ network, seed, accountIndex, method, args }) => {
-      const account = seed ? accountFromSeed(seed, accountIndex) : null;
+      const resolvedSeed = resolveSeedOrThrow(seed);
+      const account = resolvedSeed ? accountFromSeed(resolvedSeed, accountIndex) : null;
       const client = createUserClient(validateNetwork(network), account);
       try {
         if (method === 'GET_PROPERTY') {
@@ -71,10 +104,10 @@ export function registerExecuteTools(server: McpServer): void {
 
   server.tool(
     'keeta_builder_execute',
-    'Execute a sequence of Builder operations and optionally publish blocks.',
+    'Execute a sequence of Builder operations and optionally publish blocks. Requires a signing seed: pass `seed` only when MCP_ALLOW_INLINE_SEEDS=true, otherwise the worker uses the server-pinned KEETA_SIGNING_SEED.',
     {
       network: z.enum(['main', 'test']),
-      seed: z.string(),
+      seed: z.string().optional(),
       accountIndex: z.number().int().min(0).default(0),
       operations: z.array(
         z.object({
@@ -87,7 +120,13 @@ export function registerExecuteTools(server: McpServer): void {
       autoPublish: z.boolean().default(true),
     },
     async ({ network, seed, accountIndex, operations, autoPublish }) => {
-      const account = accountFromSeed(seed, accountIndex);
+      const resolvedSeed = resolveSeedOrThrow(seed);
+      if (!resolvedSeed) {
+        throw new Error(
+          'keeta_builder_execute requires a signing seed. Set KEETA_SIGNING_SEED on the MCP host, or enable MCP_ALLOW_INLINE_SEEDS=true (dev only) and pass `seed`.'
+        );
+      }
+      const account = accountFromSeed(resolvedSeed, accountIndex);
       const client = createUserClient(validateNetwork(network), account);
       try {
         const builder = getUserClientTools(client).initBuilder();
@@ -152,7 +191,8 @@ export function registerExecuteTools(server: McpServer): void {
       rootAddress: z.string().optional(),
     },
     async ({ network, seed, accountIndex, subtarget, serviceName, libModule, method, args, rootAddress }) => {
-      const account = seed ? accountFromSeed(seed, accountIndex) : null;
+      const resolvedSeed = resolveSeedOrThrow(seed);
+      const account = resolvedSeed ? accountFromSeed(resolvedSeed, accountIndex) : null;
       const client = createUserClient(validateNetwork(network), account);
       try {
         const root = rootAddress ? accountFromPublicKey(rootAddress) : getUserClientTools(client).networkAddress;

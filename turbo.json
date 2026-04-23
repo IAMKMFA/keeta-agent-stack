@@ -16,6 +16,9 @@
     "lint": {
       "outputs": []
     },
+    "lint:security": {
+      "outputs": []
+    },
     "typecheck": {
       "dependsOn": ["^build"],
       "outputs": []
@@ -32,6 +35,19 @@
     "LOG_LEVEL",
     "NEXT_PUBLIC_API_URL",
     "KTA_ORACLE_BASE_URL",
-    "KTA_ORACLE_TIMEOUT_MS"
+    "KTA_ORACLE_TIMEOUT_MS",
+    "KEETA_NETWORK",
+    "KEETA_SIGNING_SEED",
+    "KEETA_ACCOUNT_INDEX",
+    "KEETA_POLICY_ENABLED",
+    "IDENTITY_POLICY_ENABLED",
+    "ANCHOR_BOND_STRICT",
+    "LIVE_MODE_ENABLED",
+    "MCP_ALLOW_INLINE_SEEDS",
+    "OPS_API_KEY",
+    "ADMIN_BYPASS_TOKEN",
+    "AUTH_ALLOW_LEGACY_OPS_API_KEY",
+    "AUTH_LEGACY_OPS_API_KEY_ROLE",
+    "AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION"
   ]
 }

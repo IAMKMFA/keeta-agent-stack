@@ -1,7 +1,10 @@
 import { DataTable } from '../../components/DataTable';
-import { StatusCard } from '../../components/StatusCard';
+import { Card, Kpi, KpiGrid, PageHeader, StatusPill } from '../../components/ui';
 import { fetchJson } from '../../lib/api';
 import { formatDateTime, formatNumber } from '../../lib/format';
+
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Payment anchors — Keeta Agent Hub' };
 
 type AnchorRow = {
   id: string;
@@ -68,26 +71,49 @@ export default async function Page() {
       ),
       corridor: anchor.corridorKey ?? '—',
       status: (
-        <span className="inline-flex rounded-full border border-[rgba(50,149,144,0.42)] bg-[rgba(50,149,144,0.12)] px-2 py-1 text-xs text-[#1d635f]">
+        <StatusPill
+          tone={anchor.status === 'active' ? 'success' : 'neutral'}
+          dot={false}
+        >
           {anchor.status}
-        </span>
+        </StatusPill>
       ),
       bond: anchor.currentBond ? `${anchor.currentBond.amountAtomic} ${anchor.currentBond.assetId}` : '—',
       delay: anchor.currentBond ? `${anchor.currentBond.delayDays}d` : '—',
       bondStatus: anchor.currentBond ? (
-        <span className="inline-flex rounded-full border border-[var(--hub-line)] px-2 py-1 text-xs">
+        <StatusPill
+          tone={
+            anchor.currentBond.verified
+              ? 'success'
+              : anchor.currentBond.status === 'active'
+                ? 'info'
+                : 'warning'
+          }
+          dot={false}
+        >
           {anchor.currentBond.status}
           {anchor.currentBond.verified ? ' / verified' : ''}
-        </span>
+        </StatusPill>
       ) : (
-        'missing'
+        <StatusPill tone="danger" dot={false}>
+          missing
+        </StatusPill>
       ),
       readiness: (
         <div className="space-y-1">
-          <span className="inline-flex rounded-full border border-[var(--hub-line)] px-2 py-1 text-xs">
-            {anchor.readiness.status}
-          </span>
-          <div className="max-w-[20rem] text-xs text-[var(--hub-muted)]">
+          <StatusPill
+            tone={
+              anchor.readiness.status === 'ready'
+                ? 'success'
+                : anchor.readiness.status === 'needs_attention'
+                  ? 'warning'
+                  : 'danger'
+            }
+            dot={false}
+          >
+            {anchor.readiness.status.replace('_', ' ')}
+          </StatusPill>
+          <div className="max-w-[20rem] text-xs text-[var(--keeta-muted)]">
             {anchor.readiness.issues[0]?.message ??
               (anchor.readiness.canServeLiveTraffic
                 ? 'Eligible for live traffic.'
@@ -98,7 +124,7 @@ export default async function Page() {
         </div>
       ),
       operatorHealth: (
-        <div className="space-y-1 text-xs text-[var(--hub-muted)]">
+        <div className="space-y-1 text-xs text-[var(--keeta-muted)]">
           <div>
             success {typeof anchor.operatorMetrics?.successRate === 'number' ? `${anchor.operatorMetrics.successRate.toFixed(1)}%` : '—'}
           </div>
@@ -122,7 +148,7 @@ export default async function Page() {
           : '—',
       setup: anchor.commercialTerms?.setupFeeNote ?? '—',
       lockRef: href ? (
-        <a className="font-mono text-xs text-[var(--hub-accent-deep)] underline" href={href}>
+        <a className="font-mono text-xs text-[var(--keeta-accent-deep)] underline" href={href}>
           {anchor.currentBond?.lockTxHash}
         </a>
       ) : (
@@ -134,23 +160,37 @@ export default async function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="hub-kicker">Anchor Network</div>
-        <h1 className="hub-heading mt-1 text-3xl font-semibold">Payment Anchors</h1>
-        <p className="mt-2 text-sm text-[var(--hub-muted)]">
-          Anchor identity, commercial terms, and KTA bond posture for operator-managed corridors.
-        </p>
-      </div>
+      <PageHeader
+        kicker="Anchor network"
+        title="Payment anchors"
+        description="Anchor identity, commercial terms, and KTA bond posture for operator-managed corridors."
+        meta={<StatusPill tone="info">{formatNumber(anchors.length)} anchors</StatusPill>}
+      />
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatusCard title="Anchors" value={formatNumber(anchors.length)} hint="Registered records" />
-        <StatusCard title="Active" value={formatNumber(active)} hint="Operational anchors" tone="good" />
-        <StatusCard title="Bonded" value={formatNumber(bonded)} hint="Active KTA bond coverage" tone="good" />
-        <StatusCard title="Live Ready" value={formatNumber(liveReady)} hint="Status and bond both ready" tone="good" />
-      </div>
+      <KpiGrid columns={4}>
+        <Kpi label="Anchors" value={formatNumber(anchors.length)} hint="Registered records" />
+        <Kpi
+          label="Active"
+          value={formatNumber(active)}
+          hint="Operational anchors"
+          trend="up"
+        />
+        <Kpi
+          label="Bonded"
+          value={formatNumber(bonded)}
+          hint="Active KTA bond coverage"
+          trend="up"
+        />
+        <Kpi
+          label="Live ready"
+          value={formatNumber(liveReady)}
+          hint="Status and bond both ready"
+          trend="up"
+        />
+      </KpiGrid>
 
-      <section className="hub-soft-panel p-5">
-        <div className="mb-4 rounded-2xl border border-[var(--hub-line)] bg-white/70 p-4 text-sm text-[var(--hub-muted)]">
+      <Card kicker="Directory" title="All payment anchors" padding="sm">
+        <div className="mb-4 rounded-2xl border border-[var(--keeta-line)] bg-white/70 p-4 text-sm text-[var(--keeta-muted)]">
           Anchor economics are modeled in three parts: a setup fee note for integration/commercial context, a locked
           KTA bond with a 30 or 90 day withdrawal delay, and a volume fee in basis points. This is operator
           configuration, not legal advice.
@@ -175,7 +215,7 @@ export default async function Page() {
           rowKey={(row) => String(row._key)}
           emptyMessage="No payment anchors registered yet."
         />
-      </section>
+      </Card>
     </div>
   );
 }

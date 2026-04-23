@@ -11,6 +11,7 @@
     "test": "turbo run test",
     "test:integration": "RUN_INTEGRATION_TESTS=true pnpm --filter @keeta-agent-sdk/integration-tests test",
     "lint": "turbo run lint",
+    "lint:security": "turbo run lint:security",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean && rm -rf node_modules",
     "db:generate": "pnpm --filter @keeta-agent-sdk/storage exec drizzle-kit generate",

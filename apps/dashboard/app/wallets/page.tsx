@@ -1,5 +1,5 @@
 import { DataTable } from '../../components/DataTable';
-import { StatusCard } from '../../components/StatusCard';
+import { Card, Kpi, KpiGrid, PageHeader, StatusPill } from '../../components/ui';
 import { fetchJson } from '../../lib/api';
 import { formatNumber, shortId } from '../../lib/format';
 
@@ -12,6 +12,9 @@ type WalletRow = {
   };
 };
 
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Wallets — Keeta Agent Hub' };
+
 export default async function Page() {
   const rows = await fetchJson<WalletRow[]>('/wallets', []);
   const uniqueLabels = new Set(rows.map((row) => row.label)).size;
@@ -21,17 +24,21 @@ export default async function Page() {
     id: <span className="font-mono text-xs">{shortId(row.id)}</span>,
     label: row.label,
     address: (
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <div className="font-mono text-xs">{shortId(row.address, 10)}</div>
-        <div className="font-mono text-[11px] text-[var(--hub-muted)]">{row.address}</div>
+        <div className="font-mono text-[11px] text-[var(--keeta-muted)]">
+          {row.address}
+        </div>
       </div>
     ),
     policyPack: (
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <div className="font-mono text-xs">
-          {row.settings?.defaultPolicyPackId ? shortId(row.settings.defaultPolicyPackId) : '—'}
+          {row.settings?.defaultPolicyPackId
+            ? shortId(row.settings.defaultPolicyPackId)
+            : '—'}
         </div>
-        <div className="text-[11px] text-[var(--hub-muted)]">
+        <div className="text-[11px] text-[var(--keeta-muted)]">
           {row.settings?.defaultPolicyPackId ? 'wallet default' : 'none'}
         </div>
       </div>
@@ -40,21 +47,24 @@ export default async function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="hub-kicker">Identity Layer</div>
-        <h1 className="hub-heading mt-1 text-3xl font-semibold">Wallets</h1>
-        <p className="mt-2 text-sm text-[var(--hub-muted)]">
-          Imported wallets available for intent origination and balance snapshots.
-        </p>
-      </div>
+      <PageHeader
+        kicker="Identity layer"
+        title="Wallets"
+        description="Imported wallets available for intent origination and balance snapshots."
+        meta={<StatusPill tone="info">{formatNumber(rows.length)} wallets</StatusPill>}
+      />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatusCard title="Wallets" value={formatNumber(rows.length)} hint="Imported into storage" />
-        <StatusCard title="Unique labels" value={formatNumber(uniqueLabels)} hint="Naming coverage" />
-        <StatusCard title="Address book" value={rows.length > 0 ? 'Ready' : 'Empty'} hint="POST /wallets/import" />
-      </div>
+      <KpiGrid columns={3}>
+        <Kpi label="Wallets" value={formatNumber(rows.length)} hint="Imported into storage" />
+        <Kpi label="Unique labels" value={formatNumber(uniqueLabels)} hint="Naming coverage" />
+        <Kpi
+          label="Address book"
+          value={rows.length > 0 ? 'Ready' : 'Empty'}
+          hint="POST /wallets/import"
+        />
+      </KpiGrid>
 
-      <section className="hub-soft-panel p-4">
+      <Card kicker="Directory" title="All wallets" padding="sm">
         <DataTable
           columns={[
             { key: 'id', label: 'Wallet ID' },
@@ -66,7 +76,7 @@ export default async function Page() {
           rowKey={(row) => String(row._key)}
           emptyMessage="No wallets found. Import one using POST /wallets/import."
         />
-      </section>
+      </Card>
     </div>
   );
 }

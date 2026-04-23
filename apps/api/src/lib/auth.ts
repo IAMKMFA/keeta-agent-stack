@@ -115,6 +115,25 @@ function legacyOpsKeyAllowed(app: FastifyInstance): boolean {
   return app.env.NODE_ENV !== 'production' || app.env.AUTH_ALLOW_LEGACY_OPS_API_KEY === true;
 }
 
+/**
+ * Role granted to a caller that authenticated via the legacy `x-ops-key` header.
+ * Defaults to `operator` (least-privilege); admins must explicitly opt in with
+ * `AUTH_LEGACY_OPS_API_KEY_ROLE=admin` (historical behavior).
+ */
+function legacyOpsKeyRole(app: FastifyInstance): AuthRole {
+  return app.env.AUTH_LEGACY_OPS_API_KEY_ROLE ?? 'operator';
+}
+
+/**
+ * Whether the admin bypass token is allowed to grant admin access in this environment.
+ * In production, the bypass token is only accepted when `AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION`
+ * is explicitly set to true; development/test always allow it when the token is configured.
+ */
+function adminBypassAllowed(app: FastifyInstance): boolean {
+  if (app.env.NODE_ENV !== 'production') return true;
+  return app.env.AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION === true;
+}
+
 function jwtRemoteTimeoutMs(app: FastifyInstance): number {
   return app.env.AUTH_JWT_REMOTE_TIMEOUT_MS;
 }
@@ -262,9 +281,13 @@ export async function authorizeRequest(
     return null;
   }
 
-  if (options.allowAdminBypassToken && app.env.ADMIN_BYPASS_TOKEN) {
+  if (options.allowAdminBypassToken && app.env.ADMIN_BYPASS_TOKEN && adminBypassAllowed(app)) {
     const adminToken = extractAdminToken(req);
     if (adminToken && adminToken === app.env.ADMIN_BYPASS_TOKEN) {
+      app.log.warn(
+        { route: req.routeOptions?.url ?? req.url, ip: req.ip },
+        'admin access granted via ADMIN_BYPASS_TOKEN — avoid in production'
+      );
       return {
         authType: 'admin-token',
         roles: ['admin'],
@@ -275,9 +298,18 @@ export async function authorizeRequest(
   if (app.env.OPS_API_KEY && legacyOpsKeyAllowed(app)) {
     const opsToken = extractOpsToken(req);
     if (opsToken && opsToken === app.env.OPS_API_KEY) {
+      const role = legacyOpsKeyRole(app);
+      if (!hasRequiredRole({ authType: 'ops-key', roles: [role] }, options.anyOfRoles)) {
+        app.log.warn(
+          { route: req.routeOptions?.url ?? req.url, ip: req.ip, grantedRole: role, required: options.anyOfRoles },
+          'legacy ops-key has insufficient role for this route'
+        );
+        forbidden(reply);
+        return null;
+      }
       return {
         authType: 'ops-key',
-        roles: ['admin'],
+        roles: [role],
       };
     }
   }

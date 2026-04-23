@@ -96,6 +96,8 @@ It is intentionally precise. It describes what is first-class today, what is par
 | Adapter health | Yes | Partial | No | Partial | Backend route exists; can be promoted in SDK/MCP |
 | Production vs mock labeling | Partial | Yes | Indirect | Good | SDK now clearly marks `mock-dex` and `mock-anchor` as non-production |
 | Shared built-in rail metadata | No public route | Yes | Indirect | Good | Shared local registry metadata source |
+| Enumerated fiat-push / fiat-pull / crypto rails (UAE, CAD, Plaid, PULL) | No public route | Yes (`listRailCatalog`, `filterRailCatalog`) | Yes (`keeta_list_available_rails`) | Good | Backed by `@keetanetwork/anchor` 0.0.58 enum surface |
+| Anchor chaining (resolveAssets / pathOwner / distance) | Indirect (via worker) | Types exposed on `ExecutionResult` | Yes (`keeta_anchor_chaining_*`) | Good | MCP tools require server-held seed unless `MCP_ALLOW_INLINE_SEEDS=true` |
 
 ## Keeta Network Primitive Coverage
 
@@ -134,3 +136,35 @@ Use this wording when describing the platform publicly:
 Use this wording internally when discussing the frontier:
 
 > The current platform is feature-complete for the main control-plane product surface, while deeper first-class coverage of lower-level Keeta network primitives and expanded operator controls remain the next major upgrades.
+
+## Dashboard V2 Surface (2026 refresh)
+
+| Surface | Backend API | Dashboard Route | Role Gate | Capability Gate | Status |
+|---|---|---|---|---|---|
+| Viewer identity | `GET /me` | n/a | any authenticated | — | Strong |
+| Role-based home redirect | — | `/` | any authenticated | — | Strong |
+| Operator Command Center | existing ops APIs + `/ops/kill-switch` | `/command-center` | admin, operator | `ops:read` (+ `kill_switch:write` to mutate) | Strong |
+| Live Execution Stream | `/events/stream` via hardened proxy | `/live` | admin, operator | `ops:read` | Strong |
+| Policy Insights | `GET /policy/decisions` | `/policy` | admin, operator | `policy:read` | Strong |
+| Anchor & Bond Health | `GET /anchors/health` | `/anchors-health` | admin, operator | `ops:read` | Strong |
+| Webhook Deliveries | `GET /ops/webhooks`, `/ops/webhook-deliveries` | `/webhooks` | admin, operator | `webhooks:read` | Strong |
+| Cost & Fees Analytics | `GET /ops/fees/aggregate` | `/cost` | admin, operator | `ops:read` | Good (in-memory agg; materialization planned) |
+| Exec Overview | existing execution/anchor APIs | `/overview` | admin, operator, exec | `exec:read` | Strong |
+| Tenant Home | tenant-scoped ops | `/home` | admin, operator, tenant | `tenant:read` | Strong |
+| Rail Catalog | `GET /rails/catalog` | `/rails` | admin, operator, tenant, exec | `rails:read` | Strong |
+
+### Security guarantees
+
+- `OPS_API_KEY` never appears in the browser bundle, client props, logs, or
+  browser requests. It is strictly a server-only service credential.
+- No `NEXT_PUBLIC_DASHBOARD_V2`; rollout uses the server-only
+  `DASHBOARD_V2_ENABLED` flag.
+- All privileged dashboard routes are guarded at three layers: navigation
+  (`lib/nav.ts`), Next layout groups (`requireRole` / `requireScope` /
+  `requireTenantAccess`), and Fastify route handlers (explicit role checks).
+- Tenant data is scoped on the backend; tenant viewers cannot reach
+  operator/exec/global ops surfaces by URL or direct API call.
+- Exec role has read-only access — no mutation controls rendered and no
+  privileged capabilities granted.
+- All fee aggregations redact wallet/customer identifiers at display.
+

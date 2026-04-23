@@ -20,6 +20,15 @@ export async function getLatestPolicyDecisionForIntent(db: Database, intentId: s
   return rows[0];
 }
 
+export async function listRecentPolicyDecisions(db: Database, limit = 200) {
+  const safeLimit = Math.max(1, Math.min(1000, limit));
+  return db
+    .select()
+    .from(policyDecisions)
+    .orderBy(desc(policyDecisions.createdAt))
+    .limit(safeLimit);
+}
+
 export async function listPolicyPacks(db: Database) {
   return db.select().from(policyPacks).orderBy(desc(policyPacks.updatedAt));
 }

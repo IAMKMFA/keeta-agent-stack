@@ -1,5 +1,5 @@
 import { DataTable } from '../../components/DataTable';
-import { StatusCard } from '../../components/StatusCard';
+import { Card, Kpi, KpiGrid, PageHeader, StatusPill } from '../../components/ui';
 import { fetchJson } from '../../lib/api';
 import { formatDateTime, formatNumber } from '../../lib/format';
 
@@ -11,6 +11,9 @@ type AdapterHealth = {
   message?: string;
   checkedAt?: string;
 };
+
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Adapters — Keeta Agent Hub' };
 
 export default async function Page() {
   const [adapters, healthRows] = await Promise.all([
@@ -28,46 +31,52 @@ export default async function Page() {
       id: <span className="font-mono text-xs">{adapter.id}</span>,
       kind: adapter.kind,
       health: health ? (
-        <span
-          className={`inline-flex rounded-full border px-2 py-1 text-xs ${
-            health.ok
-              ? 'border-[rgba(50,149,144,0.42)] bg-[rgba(50,149,144,0.12)] text-[#1d635f]'
-              : 'border-[rgba(190,63,67,0.45)] bg-[rgba(190,63,67,0.1)] text-[var(--hub-danger)]'
-          }`}
-        >
+        <StatusPill tone={health.ok ? 'success' : 'danger'} dot={false}>
           {health.ok ? 'ok' : 'degraded'}
-        </span>
+        </StatusPill>
       ) : (
-        'unknown'
+        <StatusPill tone="neutral" dot={false}>
+          unknown
+        </StatusPill>
       ),
       latency: health?.latencyMs ?? '—',
-      checked: <span className="font-mono text-xs">{formatDateTime(health?.checkedAt)}</span>,
+      checked: (
+        <span className="font-mono text-xs">{formatDateTime(health?.checkedAt)}</span>
+      ),
       note: health?.message ?? '—',
     };
   });
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="hub-kicker">Adapter Mesh</div>
-        <h1 className="hub-heading mt-1 text-3xl font-semibold">Adapters</h1>
-        <p className="mt-2 text-sm text-[var(--hub-muted)]">
-          Registered venue adapters and their latest health-check telemetry.
-        </p>
-      </div>
+      <PageHeader
+        kicker="Adapter mesh"
+        title="Adapters"
+        description="Registered venue adapters and their latest health-check telemetry."
+        meta={<StatusPill tone="info">{formatNumber(adapters.length)} registered</StatusPill>}
+      />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatusCard title="Registered adapters" value={formatNumber(adapters.length)} hint="Registry entries" />
-        <StatusCard title="Healthy" value={formatNumber(healthy)} hint="Latest health check" tone="good" />
-        <StatusCard
-          title="Degraded"
+      <KpiGrid columns={3}>
+        <Kpi
+          label="Registered adapters"
+          value={formatNumber(adapters.length)}
+          hint="Registry entries"
+        />
+        <Kpi
+          label="Healthy"
+          value={formatNumber(healthy)}
+          hint="Latest health check"
+          trend="up"
+        />
+        <Kpi
+          label="Degraded"
           value={formatNumber(Math.max(healthRows.length - healthy, 0))}
           hint="Needs adapter review"
-          tone={healthRows.length - healthy > 0 ? 'warn' : 'good'}
+          trend={healthRows.length - healthy === 0 ? 'up' : 'down'}
         />
-      </div>
+      </KpiGrid>
 
-      <section className="hub-soft-panel p-4">
+      <Card kicker="Health" title="Adapter registry" padding="sm">
         <DataTable
           columns={[
             { key: 'id', label: 'Adapter ID' },
@@ -81,7 +90,7 @@ export default async function Page() {
           rowKey={(row) => String(row._key)}
           emptyMessage="No adapters registered."
         />
-      </section>
+      </Card>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 export { createDefaultPolicyRules, definePolicyComposition, definePolicyRule, PolicyEngine } from './engine.js';
+export { defaultPolicyConfigFromEnv, type PolicyEnvInputs } from './defaults.js';
 export { applyPolicyPack } from './pack-runtime.js';
 export { resolvePolicyPackSelection } from './policy-pack-selection.js';
 export type {

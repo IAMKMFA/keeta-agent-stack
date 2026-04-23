@@ -1,5 +1,5 @@
 export { getLogContext, withLogContext, type LogContext, type LogContextValue } from './context.js';
-export { createLogger } from './logger.js';
+export { createLogger, getRedactPaths } from './logger.js';
 export { TelemetryEmitter, type TelemetryEventInput } from './emitter.js';
 export {
   attachTraceMetadata,

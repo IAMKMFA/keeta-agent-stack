@@ -29,6 +29,9 @@ import { eventsRoutes } from './routes/events.js';
 import { openApiRoutes } from './routes/openapi.js';
 import { webhooksRoutes } from './routes/webhooks.js';
 import { metricsRoutes } from './routes/metrics.js';
+import { meRoutes } from './routes/me.js';
+import { railsRoutes } from './routes/rails.js';
+import { feesRoutes } from './routes/fees.js';
 import { createApiMetricsCollector } from './lib/metrics.js';
 
 const API_QUEUE_NAMES = [
@@ -158,6 +161,9 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
   await app.register(eventsRoutes);
   await app.register(openApiRoutes);
   await app.register(webhooksRoutes);
+  await app.register(meRoutes);
+  await app.register(railsRoutes);
+  await app.register(feesRoutes);
   if (env.METRICS_ENABLED) {
     await app.register(metricsRoutes);
   }

@@ -1,5 +1,5 @@
 import { DataTable } from '../../components/DataTable';
-import { StatusCard } from '../../components/StatusCard';
+import { Card, Kpi, KpiGrid, PageHeader, StatusPill } from '../../components/ui';
 import { fetchJson } from '../../lib/api';
 import { formatDateTime, formatNumber, shortId } from '../../lib/format';
 
@@ -15,6 +15,9 @@ type ExecutionRow = {
   createdAt?: string;
 };
 
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Executions — Keeta Agent Hub' };
+
 export default async function Page() {
   const rows = await fetchJson<ExecutionRow[]>('/executions', []);
   const submitted = rows.filter((row) => ['submitted', 'pending'].includes(row.status)).length;
@@ -24,23 +27,26 @@ export default async function Page() {
   const tableRows = rows.map((r) => ({
     _key: r.id,
     id: (
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <div className="font-mono text-xs">{shortId(r.id)}</div>
-        <div className="font-mono text-[11px] text-[var(--hub-muted)]">{r.id}</div>
+        <div className="font-mono text-[11px] text-[var(--keeta-muted)]">{r.id}</div>
       </div>
     ),
     status: (
-      <span
-        className={`inline-flex rounded-full border px-2 py-1 text-xs ${
+      <StatusPill
+        tone={
           r.status === 'failed'
-            ? 'border-[rgba(190,63,67,0.45)] bg-[rgba(190,63,67,0.1)] text-[var(--hub-danger)]'
+            ? 'danger'
             : r.status === 'submitted' || r.status === 'pending'
-              ? 'border-[rgba(204,147,56,0.4)] bg-[rgba(204,147,56,0.09)] text-[#91661d]'
-              : 'border-[rgba(50,149,144,0.42)] bg-[rgba(50,149,144,0.12)] text-[#1d635f]'
-        }`}
+              ? 'warning'
+              : r.status === 'settled' || r.status === 'completed'
+                ? 'success'
+                : 'info'
+        }
+        dot={false}
       >
         {r.status}
-      </span>
+      </StatusPill>
     ),
     intent: <span className="font-mono text-xs">{shortId(r.intentId)}</span>,
     adapter: r.adapterId,
@@ -52,42 +58,36 @@ export default async function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="hub-kicker">Settlement Ledger</div>
-        <h1 className="hub-heading mt-1 text-3xl font-semibold">Executions</h1>
-        <p className="mt-2 text-sm text-[var(--hub-muted)]">
-          End-to-end execution records with adapter assignment, transaction references, and settlement state.
-        </p>
-      </div>
+      <PageHeader
+        kicker="Settlement ledger"
+        title="Executions"
+        description="End-to-end execution records with adapter assignment, transaction references, and settlement state."
+        meta={<StatusPill tone="info">{formatNumber(rows.length)} total</StatusPill>}
+      />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatusCard title="Total executions" value={formatNumber(rows.length)} hint="Latest first" />
-        <StatusCard
-          title="In-flight"
+      <KpiGrid columns={4}>
+        <Kpi label="Total executions" value={formatNumber(rows.length)} hint="Latest first" />
+        <Kpi
+          label="In-flight"
           value={formatNumber(submitted)}
           hint="Pending or submitted"
-          tone={submitted > 0 ? 'warn' : 'good'}
+          trend={submitted === 0 ? 'up' : 'flat'}
         />
-        <StatusCard
-          title="Confirmed"
+        <Kpi
+          label="Confirmed"
           value={formatNumber(settled)}
           hint="Settlement state confirmed"
-          tone={settled > 0 ? 'good' : 'neutral'}
+          trend="up"
         />
-        <StatusCard
-          title="Failures"
+        <Kpi
+          label="Failures"
           value={formatNumber(failed)}
           hint="Needs operator triage"
-          tone={failed > 0 ? 'danger' : 'good'}
+          trend={failed === 0 ? 'up' : 'down'}
         />
-      </div>
+      </KpiGrid>
 
-      <p className="text-sm text-[var(--hub-muted)]">
-        Settlement fields populate from live Keeta transfers executed by the worker (see tx hash / explorer
-        URL on the execution payload).
-      </p>
-
-      <section className="hub-soft-panel p-4">
+      <Card kicker="Ledger" title="Recent executions" padding="sm">
         <DataTable
           columns={[
             { key: 'id', label: 'Execution ID' },
@@ -103,7 +103,7 @@ export default async function Page() {
           rowKey={(row) => String(row._key)}
           emptyMessage="No executions found yet."
         />
-      </section>
+      </Card>
     </div>
   );
 }

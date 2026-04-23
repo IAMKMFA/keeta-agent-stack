@@ -1,7 +1,10 @@
 import { DataTable } from '../../components/DataTable';
-import { StatusCard } from '../../components/StatusCard';
+import { Card, Kpi, KpiGrid, PageHeader, StatusPill } from '../../components/ui';
 import { fetchJson } from '../../lib/api';
 import { formatDateTime, formatNumber, formatOptionalNumber, shortId } from '../../lib/format';
+
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Routes — Keeta Agent Hub' };
 
 type RoutePayload = {
   hopCount?: number;
@@ -41,22 +44,22 @@ export default async function Page() {
   const tableRows = rows.map((row) => ({
     _key: row.id,
     id: (
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <div className="font-mono text-xs">{shortId(row.id)}</div>
-        <div className="font-mono text-[11px] text-[var(--hub-muted)]">{row.id}</div>
+        <div className="font-mono text-[11px] text-[var(--keeta-muted)]">{row.id}</div>
       </div>
     ),
     intent: <span className="font-mono text-xs">{shortId(row.intentId)}</span>,
     venue: (
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <div className="font-mono text-xs">{row.payload?.steps?.[0]?.adapterId ?? '—'}</div>
-        <div className="text-[11px] text-[var(--hub-muted)]">
+        <div className="text-[11px] text-[var(--keeta-muted)]">
           {row.payload?.steps?.[0]?.routingContext?.corridorMatch ?? '—'}
           {typeof row.payload?.steps?.[0]?.routingContext?.scoreAdjustment === 'number'
             ? ` / ${row.payload.steps[0].routingContext.scoreAdjustment >= 0 ? '+' : ''}${row.payload.steps[0].routingContext.scoreAdjustment.toFixed(1)}`
             : ''}
         </div>
-        <div className="text-[11px] text-[var(--hub-muted)]">
+        <div className="text-[11px] text-[var(--keeta-muted)]">
           {typeof row.payload?.steps?.[0]?.routingContext?.operatorSuccessRate === 'number'
             ? `${row.payload.steps[0].routingContext.operatorSuccessRate.toFixed(1)}%`
             : '—'}
@@ -75,21 +78,28 @@ export default async function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="hub-kicker">Routing Intelligence</div>
-        <h1 className="hub-heading mt-1 text-3xl font-semibold">Routes</h1>
-        <p className="mt-2 text-sm text-[var(--hub-muted)]">
-          Candidate route plans produced by the router with hop count, fee, slippage, and composite score.
-        </p>
-      </div>
+      <PageHeader
+        kicker="Routing intelligence"
+        title="Routes"
+        description="Candidate route plans produced by the router with hop count, fee, slippage, and composite score."
+        meta={<StatusPill tone="info">{formatNumber(rows.length)} plans</StatusPill>}
+      />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatusCard title="Route plans" value={formatNumber(rows.length)} hint="Latest first" />
-        <StatusCard title="Positive score" value={formatNumber(highConfidence)} hint="Score greater than 0" />
-        <StatusCard title="Average score" value={avgScore} hint="Across visible plans" />
-      </div>
+      <KpiGrid columns={3}>
+        <Kpi
+          label="Route plans"
+          value={formatNumber(rows.length)}
+          hint="Latest first"
+        />
+        <Kpi
+          label="Positive score"
+          value={formatNumber(highConfidence)}
+          hint="Score greater than 0"
+        />
+        <Kpi label="Average score" value={avgScore} hint="Across visible plans" />
+      </KpiGrid>
 
-      <section className="hub-soft-panel p-4">
+      <Card kicker="Candidates" title="Recent route plans" padding="sm">
         <DataTable
           columns={[
             { key: 'id', label: 'Route ID' },
@@ -105,7 +115,7 @@ export default async function Page() {
           rowKey={(row) => String(row._key)}
           emptyMessage="No route plans yet. Run route generation for an intent to see output here."
         />
-      </section>
+      </Card>
     </div>
   );
 }

@@ -19,7 +19,13 @@ import type {
   WebhookDelivery,
   WebhookSubscription,
 } from '@keeta-agent-sdk/types';
-import { mergeRailMetadata } from '@keeta-agent-sdk/adapter-registry';
+import {
+  listBuiltinRailMetadata,
+  listBuiltinRailsByTransport,
+  mergeRailMetadata,
+  type RailMetadataEntry,
+  type RailTransport,
+} from '@keeta-agent-sdk/adapter-registry';
 import type {
   PolicyComposition,
   PolicyAnchorBondHint,
@@ -549,6 +555,20 @@ export function createClient(opts: SdkClientOptions) {
 
     listAvailableRails: async (options: RequestOptions = {}): Promise<AvailableRail[]> =>
       mergeRailMetadata(await getJson<AdapterSummary[]>('/adapters', options)),
+
+    /**
+     * Return the full rail catalog known to this SDK build (includes every rail the upstream
+     * `@keetanetwork/anchor` currently advertises via `FiatPullRails` / `FiatPushRails` /
+     * `CryptoRails`, not only those registered as active adapters in the local control plane).
+     * Useful for dashboards and policy-pack authoring.
+     */
+    listRailCatalog: (): AvailableRail[] => listBuiltinRailMetadata(),
+
+    /**
+     * Filter the rail catalog by transport and/or production-only.
+     */
+    filterRailCatalog: (opts?: { transports?: RailTransport[]; productionOnly?: boolean }): RailMetadataEntry[] =>
+      listBuiltinRailsByTransport(opts),
 
     createIntent: (body: CreateIntentRequest) =>
       postJson<ExecutionIntent>('/intents', body),

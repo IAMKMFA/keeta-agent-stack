@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, lt, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, lt, or, sql } from 'drizzle-orm';
 import type { Database } from '../db';
 import { executions } from '../schema/executions';
 
@@ -12,6 +12,25 @@ export async function insertExecution(
 
 export async function listExecutions(db: Database, limit = 100) {
   return db.select().from(executions).orderBy(desc(executions.createdAt)).limit(limit);
+}
+
+/**
+ * List executions created at or after the given timestamp. Used by the
+ * Cost & Fees aggregate endpoint. Capped at `limit` rows to protect the
+ * API; callers must page via timestamp windows for larger ranges.
+ */
+export async function listExecutionsSince(
+  db: Database,
+  since: Date,
+  limit = 5000
+) {
+  const safeLimit = Math.max(1, Math.min(10000, limit));
+  return db
+    .select()
+    .from(executions)
+    .where(gte(executions.createdAt, since))
+    .orderBy(desc(executions.createdAt))
+    .limit(safeLimit);
 }
 
 export async function getLatestExecutionForIntent(db: Database, intentId: string) {

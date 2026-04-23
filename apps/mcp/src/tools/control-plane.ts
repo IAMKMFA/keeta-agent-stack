@@ -71,7 +71,8 @@ export function buildControlPlaneToolSpecs(
       inputSchema: createIntentBodySchema.shape,
       handler: async (args) => {
         const client = getClient();
-        return textResult(await client.createIntent(args as unknown as CreateIntentRequest));
+        const parsed = createIntentBodySchema.parse(args) satisfies CreateIntentRequest;
+        return textResult(await client.createIntent(parsed));
       },
     },
     {

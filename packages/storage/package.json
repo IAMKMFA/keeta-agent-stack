@@ -17,7 +17,8 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "migrate": "tsx src/migrate.ts",
-    "migrate:down": "tsx src/migrate-down.ts"
+    "migrate:down": "tsx src/migrate-down.ts",
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
     "@keeta-agent-sdk/core": "workspace:*",

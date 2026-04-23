@@ -34,6 +34,7 @@ import { createDefaultDevRegistry, type AdapterRegistry } from '@keeta-agent-sdk
 import { Router } from '@keeta-agent-sdk/routing';
 import {
   applyPolicyPack,
+  defaultPolicyConfigFromEnv,
   PolicyEngine,
   resolvePolicyPackSelection as resolveStoredPolicyPackSelection,
   type PolicyAnchorBondHint,
@@ -271,29 +272,7 @@ function sortWebhookEvents<A extends { createdAt: Date; id: string }>(rows: A[])
 }
 
 function defaultPolicy(env: AppEnv): PolicyConfig {
-  return {
-    maxOrderSize: Number(process.env.POLICY_MAX_ORDER_SIZE ?? 1_000_000),
-    maxSlippageBps: Number(process.env.POLICY_MAX_SLIPPAGE_BPS ?? 500),
-    venueAllowlist: (process.env.POLICY_VENUE_ALLOWLIST ?? '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
-    assetAllowlist: (process.env.POLICY_ASSET_ALLOWLIST ?? '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
-    liveModeEnabled: process.env.LIVE_MODE_ENABLED === 'true' || process.env.LIVE_MODE_ENABLED === '1',
-    keetaPolicyEnabled: env.KEETA_POLICY_ENABLED === true,
-    identityPolicyEnabled: env.IDENTITY_POLICY_ENABLED === true,
-    anchorBondVerificationRequired: env.ANCHOR_BOND_STRICT === true,
-    maxExposurePerAsset: numEnv('POLICY_MAX_EXPOSURE_PER_ASSET'),
-    maxExposurePerWallet: numEnv('POLICY_MAX_EXPOSURE_PER_WALLET'),
-    maxExposurePerVenue: numEnv('POLICY_MAX_EXPOSURE_PER_VENUE'),
-    maxNotionalPerStrategy: numEnv('POLICY_MAX_NOTIONAL_PER_STRATEGY'),
-    maxDailyTrades: numEnv('POLICY_MAX_DAILY_TRADES', 50_000),
-    maxUnsettledExecutions: numEnv('POLICY_MAX_UNSETTLED', 5000),
-    maxDrawdownBps: numEnv('POLICY_MAX_DRAWDOWN_BPS'),
-  };
+  return defaultPolicyConfigFromEnv(env);
 }
 
 type AnchorBondReconciliationJobData = {
@@ -859,13 +838,6 @@ async function buildAnchorRoutingProfiles(
   }
 
   return { paymentAnchorIds, byAdapterId };
-}
-
-function numEnv(key: string, defaultVal?: number): number | undefined {
-  const v = process.env[key];
-  if (v === undefined || v === '') return defaultVal;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : defaultVal;
 }
 
 function hydrateRoutePlanKinds<T extends { steps: Array<{ adapterId: string; venueKind?: string }> }>(
@@ -2048,18 +2020,22 @@ async function withDatabaseTransaction<T>(
     QUEUE_NAMES.executionReconciliation,
     async () => {
       const rows = await executionRepo.listExecutionsForReconciliation(db, 300_000, 30);
-      for (const ex of rows) {
-        const health = await readChainHealth(env.KEETA_NETWORK).catch(() => null);
-        await auditRepo.insertAuditEvent(db, {
-          intentId: ex.intentId,
-          executionId: ex.id,
-          eventType: 'execution.reconciliation_tick',
-          payload: {
-            settlementState: ex.settlementState,
-            ledgerBlockCount: health?.ledger?.blockCount,
-          },
-        });
-      }
+      if (rows.length === 0) return;
+      const health = await readChainHealth(env.KEETA_NETWORK).catch(() => null);
+      const ledgerBlockCount = health?.ledger?.blockCount;
+      await Promise.all(
+        rows.map((ex) =>
+          auditRepo.insertAuditEvent(db, {
+            intentId: ex.intentId,
+            executionId: ex.id,
+            eventType: 'execution.reconciliation_tick',
+            payload: {
+              settlementState: ex.settlementState,
+              ledgerBlockCount,
+            },
+          })
+        )
+      );
     },
     { ...connection, ...getWorkerOptions(QUEUE_NAMES.executionReconciliation) }
   );
