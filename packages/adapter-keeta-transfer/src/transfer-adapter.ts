@@ -5,6 +5,7 @@ import {
   KEETA_USER_CLIENT_EXTENSION,
   inferSettlementState,
   readChainHealth,
+  type ChainHealthSnapshot,
   sendTransferWithUserClientWithRetry,
   type KeetaNetworkName,
   type UserClient,
@@ -13,6 +14,7 @@ import type { AdapterHealth, CapabilityMap, QuoteRequest } from '@keeta-agent-st
 import { randomUUID } from 'node:crypto';
 
 const EXPLORER_TEMPLATE_KEY = 'keetaExplorerTxUrlTemplate';
+type ChainHealthReader = (network: KeetaNetworkName) => Promise<ChainHealthSnapshot>;
 
 function parseAtomicAmount(stepSizeIn: string, metadata: Record<string, unknown> | undefined): bigint {
   const m = metadata?.amountAtomic;
@@ -30,15 +32,21 @@ export class KeetaTransferAdapter implements VenueAdapter {
   readonly id: string;
   readonly kind = 'transfer' as const;
   private readonly network: KeetaNetworkName;
+  private readonly readHealth: ChainHealthReader;
 
-  constructor(id = 'keeta-transfer', network?: KeetaNetworkName) {
+  constructor(
+    id = 'keeta-transfer',
+    network?: KeetaNetworkName,
+    options?: { readHealth?: ChainHealthReader }
+  ) {
     this.id = id;
     const n = network ?? (process.env.KEETA_NETWORK as KeetaNetworkName | undefined) ?? 'test';
     this.network = n;
+    this.readHealth = options?.readHealth ?? readChainHealth;
   }
 
   async healthCheck(): Promise<AdapterHealth> {
-    const snap = await readChainHealth(this.network);
+    const snap = await this.readHealth(this.network);
     return {
       adapterId: this.id,
       ok: snap.ok,

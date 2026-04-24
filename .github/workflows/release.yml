@@ -13,6 +13,7 @@ concurrency:
 jobs:
   release:
     name: Version + Publish
+    if: ${{ vars.ENABLE_NPM_PUBLISH == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

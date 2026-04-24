@@ -151,7 +151,25 @@ jobs:
       - name: Wait for Postgres and Redis
         run: |
           until pg_isready -h localhost -p 5432 -U keeta -d keeta_agent; do sleep 1; done
-          until redis-cli -h localhost -p 6379 ping; do sleep 1; done
+          until node <<'NODE'
+          const net = require('node:net');
+          const socket = net.createConnection({ host: '127.0.0.1', port: 6379 });
+          socket.setTimeout(1000);
+          socket.on('connect', () => socket.write('*1\r\n$4\r\nPING\r\n'));
+          socket.on('data', (chunk) => {
+            const ok = chunk.toString().includes('PONG');
+            socket.end();
+            process.exit(ok ? 0 : 1);
+          });
+          socket.on('timeout', () => {
+            socket.destroy();
+            process.exit(1);
+          });
+          socket.on('error', () => process.exit(1));
+          NODE
+          do
+            sleep 1
+          done
 
       - name: Run integration tests
         env:
