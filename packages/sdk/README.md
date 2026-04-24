@@ -1,19 +1,22 @@
-# `@keeta-agent-sdk/sdk`
+# `@keeta-agent-stack/sdk`
 
-Typed HTTP client for the [Keeta Agent SDK](https://github.com/IAMKMFA/keeta-agent-sdk) control plane. Drives the durable intent → quote → route → policy → execute pipeline without ever touching a signing seed (those live only in the worker).
+Typed HTTP client for the [Keeta Agent Stack](https://github.com/IAMKMFA/keeta-agent-stack) control plane. Drives the durable intent → quote → route → policy → execute pipeline without ever touching a signing seed (those live only in the worker).
 
 ## Install
 
+> Not yet published to npm. The `@keeta-agent-stack/*` scope is reserved
+> intent but not claimed; see the root README's Status section. Until publish,
+> consume this package via the monorepo workspace (clone + `pnpm install`).
+
 ```bash
-npm install @keeta-agent-sdk/sdk
-# or
-pnpm add @keeta-agent-sdk/sdk
+# once published:
+pnpm add @keeta-agent-stack/sdk
 ```
 
 ## Quick start
 
 ```ts
-import { createClient } from '@keeta-agent-sdk/sdk';
+import { createClient } from '@keeta-agent-stack/sdk';
 
 const client = createClient({
   baseUrl: process.env.KEETA_API_URL ?? 'http://localhost:3001',
@@ -48,7 +51,7 @@ The factory returns a fully-typed object covering:
 - **Anchors & adapters** — `listPaymentAnchors()`, `createPaymentAnchorDraft()`, etc.
 - **Webhooks & events** — `subscribeWebhook()`, `listWebhooks()`, `listEvents()`, `streamEvents()`
 
-See the [SDK reference docs](https://github.com/IAMKMFA/keeta-agent-sdk/blob/main/docs/sdk-reference.md) and the live [OpenAPI spec](https://github.com/IAMKMFA/keeta-agent-sdk#sdk-reference--openapi) for the full surface.
+See the [SDK reference docs](https://github.com/IAMKMFA/keeta-agent-stack/blob/main/docs/sdk-reference.md) and the live [OpenAPI spec](https://github.com/IAMKMFA/keeta-agent-stack#sdk-reference--openapi) for the full surface.
 
 ## Status
 

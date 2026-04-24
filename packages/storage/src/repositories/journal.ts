@@ -1,5 +1,5 @@
-import type { VerifiableExecutionJournal } from '@keeta-agent-sdk/core';
-import type { JournalEntry } from '@keeta-agent-sdk/core';
+import type { VerifiableExecutionJournal } from '@keeta-agent-stack/core';
+import type { JournalEntry } from '@keeta-agent-stack/core';
 import type { Database } from '../db';
 import { executionJournalEntries } from '../schema/journal';
 

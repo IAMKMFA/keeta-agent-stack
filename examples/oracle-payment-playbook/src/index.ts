@@ -9,7 +9,7 @@
  * Maps to the "Oracle payment playbook" row in the root README's Common Agent
  * Patterns.
  */
-import { buildOraclePaymentPlaybook, KtaOracleClient } from '@keeta-agent-sdk/keeta';
+import { buildOraclePaymentPlaybook, KtaOracleClient } from '@keeta-agent-stack/keeta';
 
 async function main() {
   const client = new KtaOracleClient({

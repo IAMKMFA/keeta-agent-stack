@@ -1,5 +1,5 @@
 {
-  "name": "@keeta-agent-sdk/integration-tests",
+  "name": "@keeta-agent-stack/integration-tests",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -11,19 +11,19 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@keeta-agent-sdk/adapter-registry": "workspace:*",
-    "@keeta-agent-sdk/api": "workspace:*",
-    "@keeta-agent-sdk/keeta": "workspace:*",
-    "@keeta-agent-sdk/routing": "workspace:*",
-    "@keeta-agent-sdk/storage": "workspace:*",
-    "@keeta-agent-sdk/types": "workspace:*",
-    "@keeta-agent-sdk/worker": "workspace:*",
+    "@keeta-agent-stack/adapter-registry": "workspace:*",
+    "@keeta-agent-stack/api": "workspace:*",
+    "@keeta-agent-stack/keeta": "workspace:*",
+    "@keeta-agent-stack/routing": "workspace:*",
+    "@keeta-agent-stack/storage": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*",
+    "@keeta-agent-stack/worker": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "ioredis": "^5.4.2",
     "pg": "^8.13.1"
   },
   "devDependencies": {
-    "@keeta-agent-sdk/adapter-mock-dex": "workspace:*",
+    "@keeta-agent-stack/adapter-mock-dex": "workspace:*",
     "@types/node": "^22.10.2",
     "@types/pg": "^8.11.10",
     "jose": "^5.9.6",

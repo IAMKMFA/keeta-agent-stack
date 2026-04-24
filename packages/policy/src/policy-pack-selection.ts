@@ -1,4 +1,4 @@
-import type { ExecutionIntent, PolicyPackSource } from '@keeta-agent-sdk/types';
+import type { ExecutionIntent, PolicyPackSource } from '@keeta-agent-stack/types';
 import type { PolicyPack } from './types.js';
 
 export interface PolicyPackSelectionInput {

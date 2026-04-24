@@ -11,10 +11,10 @@
  * Maps to the "Simulation fidelity" row in the root README's Common Agent
  * Patterns.
  */
-import { AdapterRegistry, createDefaultDevAdapters } from '@keeta-agent-sdk/adapter-registry';
-import { Router } from '@keeta-agent-sdk/routing';
-import { simulate } from '@keeta-agent-sdk/simulator';
-import type { ExecutionIntent, KeetaSimulationSnapshot } from '@keeta-agent-sdk/types';
+import { AdapterRegistry, createDefaultDevAdapters } from '@keeta-agent-stack/adapter-registry';
+import { Router } from '@keeta-agent-stack/routing';
+import { simulate } from '@keeta-agent-stack/simulator';
+import type { ExecutionIntent, KeetaSimulationSnapshot } from '@keeta-agent-stack/types';
 
 async function main() {
   const registry = new AdapterRegistry();

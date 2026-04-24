@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { executionRepo } from '@keeta-agent-sdk/storage';
+import { executionRepo } from '@keeta-agent-stack/storage';
 import { requireOperatorAccess } from '../lib/auth.js';
 
 const aggregateQuerySchema = z.object({

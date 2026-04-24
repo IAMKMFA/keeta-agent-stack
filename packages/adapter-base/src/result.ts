@@ -1,4 +1,4 @@
-import type { ExecutionResult, QuoteResponse } from '@keeta-agent-sdk/types';
+import type { ExecutionResult, QuoteResponse } from '@keeta-agent-stack/types';
 
 export type AdapterOk<T> = { success: true; data: T };
 export type AdapterErr = { success: false; code: string; message: string };

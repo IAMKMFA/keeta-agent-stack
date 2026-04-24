@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { RoutePlanSchema, SimulationResultSchema } from '@keeta-agent-sdk/types';
+import { RoutePlanSchema, SimulationResultSchema } from '@keeta-agent-stack/types';
 import { computeWebhookSignature, createIntegrationTestRuntime } from './harness.js';
 import { shouldRunIntegrationTests, waitFor } from './support.js';
 

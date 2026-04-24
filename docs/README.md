@@ -1,6 +1,6 @@
 # Documentation Index
 
-This folder holds the long-form reference material for the Keeta Agent SDK.
+This folder holds the long-form reference material for the Keeta Agent Stack.
 Use this page as the fastest route to the right guide.
 
 ## Start Here
@@ -13,12 +13,12 @@ Use this page as the fastest route to the right guide.
 | Build a new venue integration | [creating-new-adapter.md](./creating-new-adapter.md) |
 | Check API / SDK / MCP parity | [capability-matrix.md](./capability-matrix.md) |
 | Review near-term platform direction | [next-steps-roadmap.md](./next-steps-roadmap.md) |
-| Read the higher-level architecture narrative | [keeta-agent-sdk.md](./keeta-agent-sdk.md) |
+| Read the higher-level architecture narrative | [keeta-agent-stack.md](./keeta-agent-stack.md) |
 
 ## Generated References
 
 - `pnpm docs:generate` builds Typedoc HTML into `docs/typedoc/`.
-- `pnpm --filter @keeta-agent-sdk/docs build` builds the static docs site in
+- `pnpm --filter @keeta-agent-stack/docs build` builds the static docs site in
   `apps/docs/dist`.
 - `pnpm dev:all` serves Swagger UI at `http://localhost:3001/docs`.
 

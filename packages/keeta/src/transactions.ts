@@ -1,5 +1,5 @@
 import type { UserClient } from '@keetanetwork/keetanet-client';
-import type { Signer } from '@keeta-agent-sdk/wallet';
+import type { Signer } from '@keeta-agent-stack/wallet';
 import { KeetaConnectionError, isKeetaErrorRetryable } from './errors.js';
 
 export interface UnsignedTransfer {

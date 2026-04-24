@@ -1,10 +1,10 @@
-import { KeetaTransferAdapter } from '@keeta-agent-sdk/adapter-keeta-transfer';
-import { MockAnchorAdapter } from '@keeta-agent-sdk/adapter-mock-anchor';
-import { MockCexAdapter } from '@keeta-agent-sdk/adapter-mock-cex';
-import { MockDexAdapter } from '@keeta-agent-sdk/adapter-mock-dex';
-import { OracleCctpRailAdapter } from '@keeta-agent-sdk/adapter-oracle-rail';
-import { SolanaStubAdapter } from '@keeta-agent-sdk/adapter-solana-stub';
-import type { VenueAdapter } from '@keeta-agent-sdk/adapter-base';
+import { KeetaTransferAdapter } from '@keeta-agent-stack/adapter-keeta-transfer';
+import { MockAnchorAdapter } from '@keeta-agent-stack/adapter-mock-anchor';
+import { MockCexAdapter } from '@keeta-agent-stack/adapter-mock-cex';
+import { MockDexAdapter } from '@keeta-agent-stack/adapter-mock-dex';
+import { OracleCctpRailAdapter } from '@keeta-agent-stack/adapter-oracle-rail';
+import { SolanaStubAdapter } from '@keeta-agent-stack/adapter-solana-stub';
+import type { VenueAdapter } from '@keeta-agent-stack/adapter-base';
 import { AdapterRegistry } from './registry.js';
 
 export function createDefaultDevAdapters() {

@@ -1,4 +1,4 @@
-# Fly.io app config for the Keeta Agent SDK API.
+# Fly.io app config for the Keeta Agent Stack API.
 #
 # Bootstrap once:
 #   fly apps create keeta-agent-sandbox-api

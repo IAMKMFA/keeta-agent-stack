@@ -1,17 +1,17 @@
 {
-  "name": "@keeta-agent-sdk/agent-runtime",
+  "name": "@keeta-agent-stack/agent-runtime",
   "version": "0.1.0-alpha.0",
-  "description": "@keeta-agent-sdk/agent-runtime - part of the Keeta Agent SDK",
+  "description": "@keeta-agent-stack/agent-runtime - part of the Keeta Agent Stack",
   "license": "Apache-2.0",
-  "author": "Keeta Agent SDK contributors",
-  "homepage": "https://github.com/IAMKMFA/keeta-agent-sdk#readme",
+  "author": "Keeta Agent Stack contributors",
+  "homepage": "https://github.com/IAMKMFA/keeta-agent-stack#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IAMKMFA/keeta-agent-sdk.git",
+    "url": "git+https://github.com/IAMKMFA/keeta-agent-stack.git",
     "directory": "packages/agent-runtime"
   },
   "bugs": {
-    "url": "https://github.com/IAMKMFA/keeta-agent-sdk/issues"
+    "url": "https://github.com/IAMKMFA/keeta-agent-stack/issues"
   },
   "keywords": [
     "keeta",
@@ -47,16 +47,16 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@keeta-agent-sdk/adapter-registry": "workspace:*",
-    "@keeta-agent-sdk/policy": "workspace:*",
-    "@keeta-agent-sdk/routing": "workspace:*",
-    "@keeta-agent-sdk/sdk": "workspace:*",
-    "@keeta-agent-sdk/simulator": "workspace:*",
-    "@keeta-agent-sdk/types": "workspace:*",
-    "@keeta-agent-sdk/wallet": "workspace:*"
+    "@keeta-agent-stack/adapter-registry": "workspace:*",
+    "@keeta-agent-stack/policy": "workspace:*",
+    "@keeta-agent-stack/routing": "workspace:*",
+    "@keeta-agent-stack/sdk": "workspace:*",
+    "@keeta-agent-stack/simulator": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*",
+    "@keeta-agent-stack/wallet": "workspace:*"
   },
   "devDependencies": {
-    "@keeta-agent-sdk/adapter-mock-dex": "workspace:*",
+    "@keeta-agent-stack/adapter-mock-dex": "workspace:*",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vitest": "^3.2.4"

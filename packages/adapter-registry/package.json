@@ -1,17 +1,17 @@
 {
-  "name": "@keeta-agent-sdk/adapter-registry",
+  "name": "@keeta-agent-stack/adapter-registry",
   "version": "0.1.0-alpha.0",
-  "description": "@keeta-agent-sdk/adapter-registry - part of the Keeta Agent SDK",
+  "description": "@keeta-agent-stack/adapter-registry - part of the Keeta Agent Stack",
   "license": "Apache-2.0",
-  "author": "Keeta Agent SDK contributors",
-  "homepage": "https://github.com/IAMKMFA/keeta-agent-sdk#readme",
+  "author": "Keeta Agent Stack contributors",
+  "homepage": "https://github.com/IAMKMFA/keeta-agent-stack#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IAMKMFA/keeta-agent-sdk.git",
+    "url": "git+https://github.com/IAMKMFA/keeta-agent-stack.git",
     "directory": "packages/adapter-registry"
   },
   "bugs": {
-    "url": "https://github.com/IAMKMFA/keeta-agent-sdk/issues"
+    "url": "https://github.com/IAMKMFA/keeta-agent-stack/issues"
   },
   "keywords": [
     "keeta",
@@ -45,14 +45,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@keeta-agent-sdk/types": "workspace:*",
-    "@keeta-agent-sdk/adapter-base": "workspace:*",
-    "@keeta-agent-sdk/adapter-mock-anchor": "workspace:*",
-    "@keeta-agent-sdk/adapter-mock-dex": "workspace:*",
-    "@keeta-agent-sdk/adapter-mock-cex": "workspace:*",
-    "@keeta-agent-sdk/adapter-solana-stub": "workspace:*",
-    "@keeta-agent-sdk/adapter-keeta-transfer": "workspace:*",
-    "@keeta-agent-sdk/adapter-oracle-rail": "workspace:*"
+    "@keeta-agent-stack/types": "workspace:*",
+    "@keeta-agent-stack/adapter-base": "workspace:*",
+    "@keeta-agent-stack/adapter-mock-anchor": "workspace:*",
+    "@keeta-agent-stack/adapter-mock-dex": "workspace:*",
+    "@keeta-agent-stack/adapter-mock-cex": "workspace:*",
+    "@keeta-agent-stack/adapter-solana-stub": "workspace:*",
+    "@keeta-agent-stack/adapter-keeta-transfer": "workspace:*",
+    "@keeta-agent-stack/adapter-oracle-rail": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.3.5",

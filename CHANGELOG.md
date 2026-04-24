@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Keeta Agent SDK are documented here. Subsequent
+All notable changes to the Keeta Agent Stack are documented here. Subsequent
 entries are managed by [Changesets](https://github.com/changesets/changesets):
 `pnpm changeset` to record an intent, `pnpm release` to cut versions and tags
 (automated in [`.github/workflows/release.yml`](./.github/workflows/release.yml)).
@@ -27,11 +27,11 @@ entries are managed by [Changesets](https://github.com/changesets/changesets):
 
 ## 0.1.0-alpha.0
 
-First public alpha release of the `@keeta-agent-sdk/*` family on npm.
+First public alpha release of the `@keeta-agent-stack/*` family on npm.
 
 ### Distribution
 
-- Published the SDK family to npm under `@keeta-agent-sdk/*`: `sdk`, `agent-runtime`,
+- Published the SDK family to npm under `@keeta-agent-stack/*`: `sdk`, `agent-runtime`,
   `types`, `policy`, `keeta`, `routing`, `simulator`, `wallet`, `utils`, `config`,
   `adapter-base` (+ `/contract` and `/conformance` subpaths), `adapter-registry`,
   `adapter-keeta-transfer`, `adapter-oracle-rail`, `adapter-template`,
@@ -41,7 +41,7 @@ First public alpha release of the `@keeta-agent-sdk/*` family on npm.
   and `pnpm publint:all` in CI to catch broken `exports`/`files` before a publish.
 - Fixed an adapter-base packaging bug where the main barrel re-exported test
   helpers (`./contract`, `./conformance`), which forced `vitest` into every
-  runtime consumer of `@keeta-agent-sdk/sdk`. Test helpers are now subpath-only.
+  runtime consumer of `@keeta-agent-stack/sdk`. Test helpers are now subpath-only.
 
 ### Examples & docs
 
@@ -119,7 +119,7 @@ upstream-sync + deep-audit refactor. Preserved for traceability.
 
 ### Phase 4 — Worker decomposition + performance
 
-- Consolidated `defaultPolicyConfig` into `@keeta-agent-sdk/policy` as
+- Consolidated `defaultPolicyConfig` into `@keeta-agent-stack/policy` as
   `defaultPolicyConfigFromEnv()`, removing duplicated env parsing between
   `apps/api/src/routes/policy-admin.ts` and `apps/worker/src/run.ts`.
 - Added migration `0010_hot_path_indexes.sql` with btree indexes on

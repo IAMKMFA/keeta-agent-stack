@@ -44,16 +44,16 @@ jobs:
         run: pnpm build
 
       - name: Build docs bundle
-        run: pnpm --filter @keeta-agent-sdk/docs build
+        run: pnpm --filter @keeta-agent-stack/docs build
 
       - name: Verify publishable packages (publint)
         run: pnpm publint:all
 
       - name: Verify MCP TOOLS.md is up to date
         run: |
-          pnpm --filter @keeta-agent-sdk/mcp docs:tools
+          pnpm --filter @keeta-agent-stack/mcp docs:tools
           if ! git diff --exit-code -- apps/mcp/TOOLS.md; then
-            echo "::error::apps/mcp/TOOLS.md is stale. Run 'pnpm --filter @keeta-agent-sdk/mcp docs:tools' and commit."
+            echo "::error::apps/mcp/TOOLS.md is stale. Run 'pnpm --filter @keeta-agent-stack/mcp docs:tools' and commit."
             exit 1
           fi
 
@@ -96,9 +96,9 @@ jobs:
           # Fails if pending migrations haven't been committed alongside schema changes.
           # drizzle-kit generate is idempotent; if the working tree is dirty afterwards we
           # know the schema diverged from the committed migrations.
-          pnpm --filter @keeta-agent-sdk/storage run db:generate
+          pnpm --filter @keeta-agent-stack/storage run db:generate
           if ! git diff --exit-code -- infrastructure/migrations packages/storage/drizzle; then
-            echo "::error::Schema changed but migration is missing. Run 'pnpm --filter @keeta-agent-sdk/storage run db:generate' and commit the SQL."
+            echo "::error::Schema changed but migration is missing. Run 'pnpm --filter @keeta-agent-stack/storage run db:generate' and commit the SQL."
             exit 1
           fi
 

@@ -1,5 +1,5 @@
 import { UserClient } from '@keetanetwork/keetanet-client';
-import type { AppEnv } from '@keeta-agent-sdk/config';
+import type { AppEnv } from '@keeta-agent-stack/config';
 import * as KeetaSDK from '@keetanetwork/keetanet-client';
 
 /**

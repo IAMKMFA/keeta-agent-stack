@@ -1,4 +1,4 @@
-import { runAdapterContractSuite } from '@keeta-agent-sdk/adapter-base/contract';
+import { runAdapterContractSuite } from '@keeta-agent-stack/adapter-base/contract';
 import { MockAnchorAdapter } from './mock-anchor.js';
 
 const adapter = new MockAnchorAdapter({

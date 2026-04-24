@@ -1,4 +1,4 @@
-# Fly.io app config for the Keeta Agent SDK worker.
+# Fly.io app config for the Keeta Agent Stack worker.
 #
 # The worker is the only process that should ever hold KEETA_SIGNING_SEED.
 # It runs BullMQ processors for quote/route/policy/execute/simulation/etc.
@@ -28,7 +28,7 @@ primary_region = "iad"
 
 # Worker exposes no public ports; Fly still wants a process group entry.
 [processes]
-  worker = "pnpm --filter @keeta-agent-sdk/worker start"
+  worker = "pnpm --filter @keeta-agent-stack/worker start"
 
 [[vm]]
   cpu_kind = "shared"

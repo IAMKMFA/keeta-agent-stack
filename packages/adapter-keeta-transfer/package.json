@@ -1,17 +1,17 @@
 {
-  "name": "@keeta-agent-sdk/adapter-keeta-transfer",
+  "name": "@keeta-agent-stack/adapter-keeta-transfer",
   "version": "0.1.0-alpha.0",
-  "description": "@keeta-agent-sdk/adapter-keeta-transfer - part of the Keeta Agent SDK",
+  "description": "@keeta-agent-stack/adapter-keeta-transfer - part of the Keeta Agent Stack",
   "license": "Apache-2.0",
-  "author": "Keeta Agent SDK contributors",
-  "homepage": "https://github.com/IAMKMFA/keeta-agent-sdk#readme",
+  "author": "Keeta Agent Stack contributors",
+  "homepage": "https://github.com/IAMKMFA/keeta-agent-stack#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IAMKMFA/keeta-agent-sdk.git",
+    "url": "git+https://github.com/IAMKMFA/keeta-agent-stack.git",
     "directory": "packages/adapter-keeta-transfer"
   },
   "bugs": {
-    "url": "https://github.com/IAMKMFA/keeta-agent-sdk/issues"
+    "url": "https://github.com/IAMKMFA/keeta-agent-stack/issues"
   },
   "keywords": [
     "keeta",
@@ -45,9 +45,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@keeta-agent-sdk/adapter-base": "workspace:*",
-    "@keeta-agent-sdk/keeta": "workspace:*",
-    "@keeta-agent-sdk/types": "workspace:*"
+    "@keeta-agent-stack/adapter-base": "workspace:*",
+    "@keeta-agent-stack/keeta": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.3.5",

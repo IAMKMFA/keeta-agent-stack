@@ -1,5 +1,5 @@
-import type { AdapterHealth } from '@keeta-agent-sdk/types';
-import type { VenueAdapter } from '@keeta-agent-sdk/adapter-base';
+import type { AdapterHealth } from '@keeta-agent-stack/types';
+import type { VenueAdapter } from '@keeta-agent-stack/adapter-base';
 
 export class AdapterRegistry {
   private readonly adapters = new Map<string, VenueAdapter>();

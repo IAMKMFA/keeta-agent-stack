@@ -33,7 +33,7 @@ RUN pnpm install --frozen-lockfile
 # ---------- build ----------
 FROM deps AS build
 ARG APP
-RUN pnpm --filter @keeta-agent-sdk/${APP}... build
+RUN pnpm --filter @keeta-agent-stack/${APP}... build
 
 # ---------- runtime ----------
 FROM node:${NODE_VERSION}-alpine AS runtime
@@ -48,4 +48,4 @@ COPY --from=build /repo /repo
 ENV APP=${APP}
 EXPOSE 3001
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["sh", "-c", "pnpm --filter @keeta-agent-sdk/$APP start"]
+CMD ["sh", "-c", "pnpm --filter @keeta-agent-stack/$APP start"]

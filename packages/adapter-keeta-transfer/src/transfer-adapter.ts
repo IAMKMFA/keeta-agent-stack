@@ -1,6 +1,6 @@
-import type { VenueAdapter } from '@keeta-agent-sdk/adapter-base';
-import { err, ok } from '@keeta-agent-sdk/adapter-base';
-import type { ExecuteContext } from '@keeta-agent-sdk/adapter-base';
+import type { VenueAdapter } from '@keeta-agent-stack/adapter-base';
+import { err, ok } from '@keeta-agent-stack/adapter-base';
+import type { ExecuteContext } from '@keeta-agent-stack/adapter-base';
 import {
   KEETA_USER_CLIENT_EXTENSION,
   inferSettlementState,
@@ -8,8 +8,8 @@ import {
   sendTransferWithUserClientWithRetry,
   type KeetaNetworkName,
   type UserClient,
-} from '@keeta-agent-sdk/keeta';
-import type { AdapterHealth, CapabilityMap, QuoteRequest } from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/keeta';
+import type { AdapterHealth, CapabilityMap, QuoteRequest } from '@keeta-agent-stack/types';
 import { randomUUID } from 'node:crypto';
 
 const EXPLORER_TEMPLATE_KEY = 'keetaExplorerTxUrlTemplate';

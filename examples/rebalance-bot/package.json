@@ -1,13 +1,13 @@
 {
-  "name": "@keeta-agent-sdk/example-rebalance-bot",
+  "name": "@keeta-agent-stack/example-rebalance-bot",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "@keeta-agent-sdk/adapter-mock-dex": "workspace:*",
-    "@keeta-agent-sdk/types": "workspace:*"
+    "@keeta-agent-stack/adapter-mock-dex": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

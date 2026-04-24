@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { routeRepo } from '@keeta-agent-sdk/storage';
+import { routeRepo } from '@keeta-agent-stack/storage';
 import { requireViewerAccess } from '../lib/auth.js';
 
 export const routesRoutes: FastifyPluginAsync = async (app) => {

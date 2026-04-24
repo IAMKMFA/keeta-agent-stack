@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { readChainHealth, readNetworkInfo, createReadOnlyUserClient } from '@keeta-agent-sdk/keeta';
+import { readChainHealth, readNetworkInfo, createReadOnlyUserClient } from '@keeta-agent-stack/keeta';
 import { requireViewerAccess } from '../lib/auth.js';
 
 export const chainRoutes: FastifyPluginAsync = async (app) => {

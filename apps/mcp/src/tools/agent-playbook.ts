@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { KtaOracleClient, buildOraclePaymentPlaybook } from '@keeta-agent-sdk/keeta';
+import { KtaOracleClient, buildOraclePaymentPlaybook } from '@keeta-agent-stack/keeta';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 

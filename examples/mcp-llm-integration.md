@@ -1,6 +1,6 @@
 # MCP + LLM integration
 
-The Keeta Agent SDK ships a stdio MCP server (`apps/mcp`) that exposes every
+The Keeta Agent Stack ships a stdio MCP server (`apps/mcp`) that exposes every
 control-plane action — wallet provisioning, intents, routing, policy, anchors,
 oracle pricing, and the new Oracle Payment Playbook — as typed MCP tools.
 
@@ -72,7 +72,7 @@ const grok = new OpenAI({
 });
 
 // 1. Boot the MCP server over stdio.
-const mcp = spawn('pnpm', ['--filter', '@keeta-agent-sdk/mcp', 'start'], {
+const mcp = spawn('pnpm', ['--filter', '@keeta-agent-stack/mcp', 'start'], {
   stdio: ['pipe', 'pipe', 'inherit'],
   env: process.env,
 });
@@ -173,7 +173,7 @@ import { McpToolkit } from 'langchain-mcp';
 
 const toolkit = await McpToolkit.fromCommand({
   command: 'pnpm',
-  args: ['--filter', '@keeta-agent-sdk/mcp', 'start'],
+  args: ['--filter', '@keeta-agent-stack/mcp', 'start'],
 });
 
 const llm = new ChatAnthropic({ model: 'claude-4.6-sonnet' });

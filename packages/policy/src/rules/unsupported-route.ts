@@ -1,4 +1,4 @@
-import type { PolicyRuleContribution } from '@keeta-agent-sdk/types';
+import type { PolicyRuleContribution } from '@keeta-agent-stack/types';
 import type { PolicyContext } from '../types.js';
 
 /** Reject routes with no steps or mismatched intent assets (placeholder for richer graph checks). */

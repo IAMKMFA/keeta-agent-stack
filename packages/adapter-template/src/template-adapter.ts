@@ -18,13 +18,13 @@ import type {
   DexVenueAdapter,
   ExecuteAdapterResult,
   ExecuteContext,
-} from '@keeta-agent-sdk/adapter-base';
-import { err } from '@keeta-agent-sdk/adapter-base';
+} from '@keeta-agent-stack/adapter-base';
+import { err } from '@keeta-agent-stack/adapter-base';
 import type {
   AdapterHealth,
   CapabilityMap,
   QuoteRequest,
-} from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/types';
 
 export interface TemplateAdapterConfig {
   /** Venue id surfaced in routes, metrics, and audit events. */

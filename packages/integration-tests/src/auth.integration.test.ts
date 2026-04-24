@@ -65,7 +65,7 @@ async function createRemoteJwtAuthority() {
         .setProtectedHeader({ alg: 'RS256', kid })
         .setSubject(`remote-${role}`)
         .setIssuer(issuer)
-        .setAudience('keeta-agent-sdk')
+        .setAudience('keeta-agent-stack')
         .setIssuedAt()
         .setExpirationTime('5m')
         .sign(privateKey),
@@ -88,7 +88,7 @@ integration('jwt auth and rbac', () => {
         OPS_API_KEY: undefined,
         AUTH_JWT_SECRET: 'integration-jwt-secret',
         AUTH_JWT_ISSUER: 'integration-tests',
-        AUTH_JWT_AUDIENCE: 'keeta-agent-sdk',
+        AUTH_JWT_AUDIENCE: 'keeta-agent-stack',
       },
     });
 
@@ -154,7 +154,7 @@ integration('jwt auth and rbac', () => {
         OPS_API_KEY: undefined,
         AUTH_JWT_SECRET: 'integration-jwt-secret',
         AUTH_JWT_ISSUER: 'integration-tests',
-        AUTH_JWT_AUDIENCE: 'keeta-agent-sdk',
+        AUTH_JWT_AUDIENCE: 'keeta-agent-stack',
       },
     });
 
@@ -271,7 +271,7 @@ integration('jwt auth and rbac', () => {
         AUTH_JWT_PUBLIC_KEY_PEM: undefined,
         AUTH_JWT_JWKS_URL: activeAuthority.jwksUrl,
         AUTH_JWT_ISSUER: activeAuthority.issuer,
-        AUTH_JWT_AUDIENCE: 'keeta-agent-sdk',
+        AUTH_JWT_AUDIENCE: 'keeta-agent-stack',
       },
     });
 
@@ -300,7 +300,7 @@ integration('jwt auth and rbac', () => {
         AUTH_JWT_SECRET: undefined,
         AUTH_JWT_PUBLIC_KEY_PEM: undefined,
         AUTH_JWT_OIDC_DISCOVERY_URL: activeAuthority.discoveryUrl,
-        AUTH_JWT_AUDIENCE: 'keeta-agent-sdk',
+        AUTH_JWT_AUDIENCE: 'keeta-agent-stack',
       },
     });
 

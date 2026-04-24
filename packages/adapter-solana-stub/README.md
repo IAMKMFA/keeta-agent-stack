@@ -1,4 +1,4 @@
-# @keeta-agent-sdk/adapter-solana-stub
+# @keeta-agent-stack/adapter-solana-stub
 
 Documented stub for a future Solana DEX integration. The `quote` and
 `simulate` paths return realistic data so routing demos and policy rules can

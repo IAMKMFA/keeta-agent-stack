@@ -4,8 +4,8 @@ import type {
   RoutePlan,
   SimulationResult,
   SimulationScenario,
-} from '@keeta-agent-sdk/types';
-import { sleep } from '@keeta-agent-sdk/utils';
+} from '@keeta-agent-stack/types';
+import { sleep } from '@keeta-agent-stack/utils';
 import { randomUUID } from 'node:crypto';
 
 function rng(seed?: string): () => number {

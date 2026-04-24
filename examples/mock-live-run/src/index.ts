@@ -9,10 +9,10 @@
  *
  * Linked from the root README under Common Agent Patterns.
  */
-import { AdapterRegistry, createDefaultDevAdapters } from '@keeta-agent-sdk/adapter-registry';
-import { Router } from '@keeta-agent-sdk/routing';
-import { simulate } from '@keeta-agent-sdk/simulator';
-import type { ExecutionIntent } from '@keeta-agent-sdk/types';
+import { AdapterRegistry, createDefaultDevAdapters } from '@keeta-agent-stack/adapter-registry';
+import { Router } from '@keeta-agent-stack/routing';
+import { simulate } from '@keeta-agent-stack/simulator';
+import type { ExecutionIntent } from '@keeta-agent-stack/types';
 
 const mode = process.argv.includes('--live') ? 'live' : 'simulate';
 const rail = process.argv.includes('--cctp') ? 'cctp' : 'kta';

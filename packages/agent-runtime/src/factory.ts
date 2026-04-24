@@ -1,7 +1,7 @@
-import type { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import type { PolicyConfig, PolicyRuleDefinition } from '@keeta-agent-sdk/policy';
-import { createClient, type CreateIntentRequest, type EventSubscription } from '@keeta-agent-sdk/sdk';
-import type { EventStreamEvent, ExecutionIntent, PolicyDecision, RoutePlan, SimulationResult } from '@keeta-agent-sdk/types';
+import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import type { PolicyConfig, PolicyRuleDefinition } from '@keeta-agent-stack/policy';
+import { createClient, type CreateIntentRequest, type EventSubscription } from '@keeta-agent-stack/sdk';
+import type { EventStreamEvent, ExecutionIntent, PolicyDecision, RoutePlan, SimulationResult } from '@keeta-agent-stack/types';
 import {
   AgentRuntime,
   type AgentRuntimeHook,
@@ -12,7 +12,7 @@ import {
 /**
  * Loose alias for the SDK client returned by `createClient`.
  * The agent-runtime package only depends on the published surface, so we widen
- * the type to avoid a hard re-export from `@keeta-agent-sdk/sdk`.
+ * the type to avoid a hard re-export from `@keeta-agent-stack/sdk`.
  */
 export type KeetaSDK = ReturnType<typeof createClient>;
 

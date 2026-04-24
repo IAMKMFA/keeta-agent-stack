@@ -1,7 +1,7 @@
-# @keeta-agent-sdk/adapter-mock-cex
+# @keeta-agent-stack/adapter-mock-cex
 
 In-memory mock central exchange (CEX) adapter for examples, simulations, and
-local routing experiments. It complements `@keeta-agent-sdk/adapter-mock-dex`
+local routing experiments. It complements `@keeta-agent-stack/adapter-mock-dex`
 by adding a deterministic CLOB-style counterpart with configurable fees,
 latency, balances, and per-pair order books.
 
@@ -21,7 +21,7 @@ latency, balances, and per-pair order books.
 ## Usage
 
 ```ts
-import { MockCexAdapter } from '@keeta-agent-sdk/adapter-mock-cex';
+import { MockCexAdapter } from '@keeta-agent-stack/adapter-mock-cex';
 
 if (MockCexAdapter.isEnabled()) {
   registry.register(

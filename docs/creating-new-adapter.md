@@ -1,6 +1,6 @@
 # Creating a New Adapter
 
-This guide walks you from the [`@keeta-agent-sdk/adapter-template`](../packages/adapter-template)
+This guide walks you from the [`@keeta-agent-stack/adapter-template`](../packages/adapter-template)
 boilerplate to a real venue adapter that the routing engine, policy engine,
 and dashboards can use.
 
@@ -31,7 +31,7 @@ cp -r packages/adapter-template packages/adapter-myvenue
 
 In `packages/adapter-myvenue/package.json`:
 
-- rename `"name"` to `@keeta-agent-sdk/adapter-myvenue`
+- rename `"name"` to `@keeta-agent-stack/adapter-myvenue`
 - bump `"version"` to `0.0.1`
 
 Then link the new package into the workspace:
@@ -55,10 +55,10 @@ match your venue if you want). Each method maps to a routing-engine guarantee:
 | `getQuote(req)`       | Return a `QuoteResponse` or a structured `AdapterErr`            | No side-effects. Wrap upstream errors in `err('UPSTREAM_5XX', msg)`.    |
 | `execute(ctx)`        | Settle a route step                                              | Idempotent on `ctx.intentId`. Honour `ctx.mode`.                        |
 
-Use the helpers from `@keeta-agent-sdk/adapter-base`:
+Use the helpers from `@keeta-agent-stack/adapter-base`:
 
 ```ts
-import { ok, err } from '@keeta-agent-sdk/adapter-base';
+import { ok, err } from '@keeta-agent-stack/adapter-base';
 return ok(quote);
 return err('UNSUPPORTED_PAIR', 'Pair not listed');
 ```
@@ -68,10 +68,10 @@ return err('UNSUPPORTED_PAIR', 'Pair not listed');
 There are two test layers:
 
 1. The **shared contract suite** at
-   `@keeta-agent-sdk/adapter-base/contract`:
+   `@keeta-agent-stack/adapter-base/contract`:
 
    ```ts
-   import { runAdapterContractSuite } from '@keeta-agent-sdk/adapter-base/contract';
+   import { runAdapterContractSuite } from '@keeta-agent-stack/adapter-base/contract';
    import { MyVenueAdapter } from './my-venue-adapter.js';
 
    runAdapterContractSuite(new MyVenueAdapter(), {
@@ -87,11 +87,11 @@ There are two test layers:
    `execute(simulate)` are real.
 
 2. The **conformance suite**
-   (`@keeta-agent-sdk/adapter-base/conformance`) which adds latency/cancellation
+   (`@keeta-agent-stack/adapter-base/conformance`) which adds latency/cancellation
    coverage. Wire it in once your live path is stable.
 
 If your `execute` path is still throwing (like the
-`@keeta-agent-sdk/adapter-solana-stub`), skip the contract suite and write
+`@keeta-agent-stack/adapter-solana-stub`), skip the contract suite and write
 targeted tests instead — see
 [`packages/adapter-template/src/template-adapter.test.ts`](../packages/adapter-template/src/template-adapter.test.ts).
 
@@ -105,7 +105,7 @@ never auto-loads in production. Mock adapters use the convention
 `KEETA_ENABLE_<NAME>=true`.
 
 ```ts
-import { MyVenueAdapter } from '@keeta-agent-sdk/adapter-myvenue';
+import { MyVenueAdapter } from '@keeta-agent-stack/adapter-myvenue';
 // inside createDefaultDevAdapters
 if (MyVenueAdapter.isEnabled()) {
   adapters.push(new MyVenueAdapter({ /* config */ }));
@@ -115,7 +115,7 @@ if (MyVenueAdapter.isEnabled()) {
 Add the package to `packages/adapter-registry/package.json` dependencies:
 
 ```json
-"@keeta-agent-sdk/adapter-myvenue": "workspace:*"
+"@keeta-agent-stack/adapter-myvenue": "workspace:*"
 ```
 
 ## Step 5 — Routing Weights (Optional, Recommended)
@@ -140,17 +140,17 @@ Add a row to [`docs/capability-matrix.md`](./capability-matrix.md) under
 ## Step 7 — Verify
 
 ```bash
-pnpm --filter @keeta-agent-sdk/adapter-myvenue typecheck
-pnpm --filter @keeta-agent-sdk/adapter-myvenue test
-pnpm --filter @keeta-agent-sdk/adapter-myvenue build
-pnpm --filter @keeta-agent-sdk/adapter-registry typecheck
-pnpm --filter @keeta-agent-sdk/adapter-registry test
+pnpm --filter @keeta-agent-stack/adapter-myvenue typecheck
+pnpm --filter @keeta-agent-stack/adapter-myvenue test
+pnpm --filter @keeta-agent-stack/adapter-myvenue build
+pnpm --filter @keeta-agent-stack/adapter-registry typecheck
+pnpm --filter @keeta-agent-stack/adapter-registry test
 ```
 
 Then dry-run the publish surface to make sure the package is shippable:
 
 ```bash
-pnpm --filter @keeta-agent-sdk/adapter-myvenue publish --dry-run --no-git-checks
+pnpm --filter @keeta-agent-stack/adapter-myvenue publish --dry-run --no-git-checks
 ```
 
 ## Reference Implementations

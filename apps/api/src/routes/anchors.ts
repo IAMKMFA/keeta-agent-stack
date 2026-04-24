@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { QUEUE_NAMES } from '@keeta-agent-sdk/config';
+import { QUEUE_NAMES } from '@keeta-agent-stack/config';
 import {
   AnchorBondStatusSchema,
   type AnchorBondRecord,
@@ -12,8 +12,8 @@ import {
   type PaymentAnchorSummary,
   type PaymentAnchorStatus,
   PaymentAnchorStatusSchema,
-} from '@keeta-agent-sdk/types';
-import { operatorMetricsRepo, paymentAnchorRepo } from '@keeta-agent-sdk/storage';
+} from '@keeta-agent-stack/types';
+import { operatorMetricsRepo, paymentAnchorRepo } from '@keeta-agent-stack/storage';
 import { enqueueJobWithTelemetry } from '../lib/job-tracing.js';
 import { requireOperatorAccess, requireViewerAccess } from '../lib/auth.js';
 

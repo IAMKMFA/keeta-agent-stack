@@ -3,7 +3,7 @@
 ## Our Pledge
 
 We as contributors, maintainers, and community members pledge to make
-participation in the Keeta Agent SDK community a harassment-free experience
+participation in the Keeta Agent Stack community a harassment-free experience
 for everyone, regardless of age, body size, visible or invisible disability,
 ethnicity, sex characteristics, gender identity and expression, level of
 experience, education, socio-economic status, nationality, personal

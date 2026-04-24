@@ -16,9 +16,9 @@ const KEETA_DOCS_MCP = 'https://docs.keeta.com/~gitbook/mcp';
 const ORACLE_BASE_URL = process.env.KTA_ORACLE_BASE_URL ?? 'https://kta-oracle.vercel.app';
 
 const server = new McpServer({
-  name: 'keeta-agent-sdk-mcp',
+  name: 'keeta-agent-stack-mcp',
   version: '0.0.1',
-  description: `Keeta Agent SDK MCP server with dynamic Keeta SDK execution and integrated KTA-Oracle intelligence.
+  description: `Keeta Agent Stack MCP server with dynamic Keeta SDK execution and integrated KTA-Oracle intelligence.
 
 For protocol reference, pair this server with the Keeta docs MCP at ${KEETA_DOCS_MCP}.`,
 });
@@ -132,7 +132,7 @@ server.resource(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Keeta Agent SDK MCP server running on stdio');
+  console.error('Keeta Agent Stack MCP server running on stdio');
 }
 
 main().catch((error) => {

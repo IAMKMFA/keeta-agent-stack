@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import type { QuoteRequest } from '@keeta-agent-sdk/types';
+import type { QuoteRequest } from '@keeta-agent-stack/types';
 import {
   AdapterHealthSchema,
   CapabilityMapSchema,
   ExecutionResultSchema,
   QuoteResponseSchema,
-} from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/types';
 import type { VenueAdapter } from './venue-adapter.js';
 
 export interface ContractTestOptions {

@@ -1,6 +1,6 @@
-# Contributing to Keeta Agent SDK
+# Contributing to Keeta Agent Stack
 
-Thanks for your interest in improving the Keeta Agent SDK. This guide covers
+Thanks for your interest in improving the Keeta Agent Stack. This guide covers
 how to get a working dev environment, the conventions we follow, and how to
 ship a change end-to-end.
 

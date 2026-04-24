@@ -361,7 +361,7 @@ gets exposed via a stable `apps/api` endpoint. Phase A adds an ESLint rule
 
 ### SDK in browser prohibition
 
-`@keeta-agent-sdk/sdk` assumes server-only use (it reads `OPS_API_KEY` /
+`@keeta-agent-stack/sdk` assumes server-only use (it reads `OPS_API_KEY` /
 `API_URL` from env). The dashboard imports it only from server components
 and route handlers — never from `'use client'` modules. Phase A adds a lint
 rule to block SDK imports from client-boundary files.
@@ -420,7 +420,7 @@ The SSE proxy at `app/api/events/stream/route.ts` enforces `requireRole(['admin'
 
 ### Automated tests
 
-Unit tests run via `pnpm --filter @keeta-agent-sdk/dashboard test`
+Unit tests run via `pnpm --filter @keeta-agent-stack/dashboard test`
 (Vitest, 24 cases across 3 files):
 
 - `tests/permissions.test.ts` — `hasRole`, `hasScope`, `roleHome`.
@@ -464,7 +464,7 @@ search-and-replace follow-up.
   to the same URL path (after stripping `(group)` and `_private` segments) are
   a hard build break.
 - Enforced by `apps/dashboard/scripts/check-duplicate-routes.ts`, wired into
-  `pnpm --filter @keeta-agent-sdk/dashboard test` via the `check:routes`
+  `pnpm --filter @keeta-agent-stack/dashboard test` via the `check:routes`
   script. CI fails if two pages claim the same slug, e.g. `/rails` existing
   at `(authenticated)/rails/page.tsx` and `(authenticated)/(operator)/rails/page.tsx`
   simultaneously.
@@ -541,7 +541,7 @@ search-and-replace follow-up.
 
 ### CI lint (A8)
 
-- `pnpm --filter @keeta-agent-sdk/dashboard lint:security` runs
+- `pnpm --filter @keeta-agent-stack/dashboard lint:security` runs
   `apps/dashboard/scripts/lint-security.ts`, which checks:
   - No `OPS_API_KEY` usage inside `'use client'` files.
   - No `NEXT_PUBLIC_*` env var whose name matches `KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL` in any `.env*` file.

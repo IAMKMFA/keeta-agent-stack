@@ -98,13 +98,13 @@ It is intentionally precise. It describes what is first-class today, what is par
 
 | Adapter / Capability | Status | Notes |
 |---|---|---|
-| `@keeta-agent-sdk/adapter-keeta-transfer` (native KTA) | **Live** | Real native KTA transfers via `@keetanetwork/keetanet-client` 0.16.x. Signing happens in `apps/worker`. |
-| `@keeta-agent-sdk/adapter-oracle-rail` (HTTP partner) | **Live (with config)** | KTA Oracle for quotes; configurable live CCTP-style URL for execution. Set `ORACLE_RAIL_*` env vars before flipping `mode: 'live'`. |
-| `@keeta-agent-sdk/adapter-mock-dex` | **Synthetic** | Used by `examples/paper-trader` and the integration harness. Not a real venue. |
-| `@keeta-agent-sdk/adapter-mock-anchor` | **Synthetic** | Mock anchor venue. Used in tests and demos. |
-| `@keeta-agent-sdk/adapter-mock-cex` | **Synthetic** | In-memory CLOB-style adapter. Disabled unless `KEETA_ENABLE_MOCK_CEX=true`. Quote + simulate + live (in-memory balances) all real, but balances are ephemeral. |
-| `@keeta-agent-sdk/adapter-solana-stub` | **Stub (simulate only)** | Quote + simulate work for routing demos. `execute(mode='live')` throws `SolanaNotImplementedError`. Disabled unless `KEETA_ENABLE_SOLANA_STUB=true`. |
-| `@keeta-agent-sdk/adapter-template` | **Boilerplate** | `execute` throws `NotImplementedError`. Copy this when integrating a real venue. See [`docs/creating-new-adapter.md`](./creating-new-adapter.md). |
+| `@keeta-agent-stack/adapter-keeta-transfer` (native KTA) | **Live** | Real native KTA transfers via `@keetanetwork/keetanet-client` 0.16.x. Signing happens in `apps/worker`. |
+| `@keeta-agent-stack/adapter-oracle-rail` (HTTP partner) | **Live (with config)** | KTA Oracle for quotes; configurable live CCTP-style URL for execution. Set `ORACLE_RAIL_*` env vars before flipping `mode: 'live'`. |
+| `@keeta-agent-stack/adapter-mock-dex` | **Synthetic** | Used by `examples/paper-trader` and the integration harness. Not a real venue. |
+| `@keeta-agent-stack/adapter-mock-anchor` | **Synthetic** | Mock anchor venue. Used in tests and demos. |
+| `@keeta-agent-stack/adapter-mock-cex` | **Synthetic** | In-memory CLOB-style adapter. Disabled unless `KEETA_ENABLE_MOCK_CEX=true`. Quote + simulate + live (in-memory balances) all real, but balances are ephemeral. |
+| `@keeta-agent-stack/adapter-solana-stub` | **Stub (simulate only)** | Quote + simulate work for routing demos. `execute(mode='live')` throws `SolanaNotImplementedError`. Disabled unless `KEETA_ENABLE_SOLANA_STUB=true`. |
+| `@keeta-agent-stack/adapter-template` | **Boilerplate** | `execute` throws `NotImplementedError`. Copy this when integrating a real venue. See [`docs/creating-new-adapter.md`](./creating-new-adapter.md). |
 | List adapters | Strong | `GET /adapters`; SDK `listAdapters()` |
 | Adapter health | Good | Backend route exists; SDK has `partial` exposure |
 | Shared built-in rail metadata | Good | Local registry metadata source; SDK `listRailCatalog()` / `filterRailCatalog()` |
@@ -143,7 +143,7 @@ The platform is strongest in these areas:
 
 Use this wording when describing the platform publicly:
 
-> Keeta Agent SDK now covers the full control-plane workflow across API, TypeScript SDK, and MCP, including intents, routing, policy preview and persistence, wallets, events, webhooks, anchors, oracle flows, and explicit production-vs-mock rail labeling.
+> Keeta Agent Stack now covers the full control-plane workflow across API, TypeScript SDK, and MCP, including intents, routing, policy preview and persistence, wallets, events, webhooks, anchors, oracle flows, and explicit production-vs-mock rail labeling.
 
 Use this wording internally when discussing the frontier:
 

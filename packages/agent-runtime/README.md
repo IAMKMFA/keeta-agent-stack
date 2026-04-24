@@ -1,11 +1,16 @@
-# `@keeta-agent-sdk/agent-runtime`
+# `@keeta-agent-stack/agent-runtime`
 
-Higher-level orchestration on top of [`@keeta-agent-sdk/sdk`](https://www.npmjs.com/package/@keeta-agent-sdk/sdk). Wraps the intent pipeline behind a single `agent.execute(intent)` call with hooks for routing, policy, simulation, execution, and errors.
+Higher-level orchestration on top of `@keeta-agent-stack/sdk`. Wraps the intent pipeline behind a single `agent.execute(intent)` call with hooks for routing, policy, simulation, execution, and errors.
 
 ## Install
 
+> Not yet published to npm. The `@keeta-agent-stack/*` scope is reserved
+> intent but not claimed; see the root README's Status section. Until publish,
+> consume this package via the monorepo workspace (clone + `pnpm install`).
+
 ```bash
-pnpm add @keeta-agent-sdk/agent-runtime @keeta-agent-sdk/sdk @keeta-agent-sdk/types
+# once published:
+pnpm add @keeta-agent-stack/agent-runtime @keeta-agent-stack/sdk @keeta-agent-stack/types
 ```
 
 ## Two ways to drive it
@@ -13,9 +18,9 @@ pnpm add @keeta-agent-sdk/agent-runtime @keeta-agent-sdk/sdk @keeta-agent-sdk/ty
 ### Offline (no signing, no API)
 
 ```ts
-import { createKeetaAgent } from '@keeta-agent-sdk/agent-runtime';
-import { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import { MockDexAdapter } from '@keeta-agent-sdk/adapter-mock-dex';
+import { createKeetaAgent } from '@keeta-agent-stack/agent-runtime';
+import { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import { MockDexAdapter } from '@keeta-agent-stack/adapter-mock-dex';
 
 const registry = new AdapterRegistry();
 registry.register(new MockDexAdapter({ id: 'mock-dex', spreadBps: 10, feeBps: 5, maxSlippageBps: 4, failureRate: 0 }));
@@ -34,8 +39,8 @@ const agent = createKeetaAgent({
 ### Live (delegates to the API + worker)
 
 ```ts
-import { createClient } from '@keeta-agent-sdk/sdk';
-import { createKeetaAgent } from '@keeta-agent-sdk/agent-runtime';
+import { createClient } from '@keeta-agent-stack/sdk';
+import { createKeetaAgent } from '@keeta-agent-stack/agent-runtime';
 
 const sdk = createClient({ baseUrl: process.env.KEETA_API_URL! });
 const agent = createKeetaAgent({ name: 'live-agent', sdk });

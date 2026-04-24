@@ -1,6 +1,6 @@
 # Keeta Treasury Rebalancer (flagship template)
 
-A working treasury-rebalancing agent built on `@keeta-agent-sdk/agent-runtime`.
+A working treasury-rebalancing agent built on `@keeta-agent-stack/agent-runtime`.
 Every tick the agent:
 
 1. Reads the wallet's on-chain balances (or falls back to a synthetic 70/30
@@ -20,8 +20,8 @@ even though the agent is running outside the dashboard.
 ## Try it against the hosted sandbox
 
 ```bash
-git clone https://github.com/IAMKMFA/keeta-agent-sdk
-cd keeta-agent-sdk/templates/treasury-rebalancer
+git clone https://github.com/IAMKMFA/keeta-agent-stack
+cd keeta-agent-stack/templates/treasury-rebalancer
 
 cp .env.example .env
 # Create a wallet against the sandbox and copy the id into KEETA_WALLET_ID:

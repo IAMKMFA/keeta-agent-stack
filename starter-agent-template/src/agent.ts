@@ -1,6 +1,6 @@
-import { createKeetaAgent, type KeetaAgent } from '@keeta-agent-sdk/agent-runtime';
-import { createClient } from '@keeta-agent-sdk/sdk';
-import type { ExecutionIntent } from '@keeta-agent-sdk/types';
+import { createKeetaAgent, type KeetaAgent } from '@keeta-agent-stack/agent-runtime';
+import { createClient } from '@keeta-agent-stack/sdk';
+import type { ExecutionIntent } from '@keeta-agent-stack/types';
 
 export interface BuildAgentOptions {
   apiUrl: string;

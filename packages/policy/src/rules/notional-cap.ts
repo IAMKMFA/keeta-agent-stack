@@ -1,4 +1,4 @@
-import type { PolicyRuleContribution } from '@keeta-agent-sdk/types';
+import type { PolicyRuleContribution } from '@keeta-agent-stack/types';
 import type { PolicyContext } from '../types.js';
 
 function parseSize(s: string): number {

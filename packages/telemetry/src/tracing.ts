@@ -132,7 +132,7 @@ export async function withSpan<T>(
   options: SpanOptions,
   fn: (span: Span) => Promise<T> | T
 ): Promise<T> {
-  const tracer = trace.getTracer(options.tracerName ?? 'keeta-agent-sdk');
+  const tracer = trace.getTracer(options.tracerName ?? 'keeta-agent-stack');
   const parentContext = options.parentTraceparent
     ? extractTraceContext(options.parentTraceparent)
     : options.parentContext ?? context.active();

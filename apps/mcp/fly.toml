@@ -1,4 +1,4 @@
-# Fly.io app config for the Keeta Agent SDK MCP server.
+# Fly.io app config for the Keeta Agent Stack MCP server.
 #
 # Note: the MCP server speaks the stdio transport today (see
 # `apps/mcp/src/index.ts`), so this Fly app is intended for operators who

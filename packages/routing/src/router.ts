@@ -1,6 +1,6 @@
-import type { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import type { VenueAdapter } from '@keeta-agent-sdk/adapter-base';
-import type { AdapterHealth, CapabilityMap, ExecutionIntent, QuoteRequest, QuoteResponse, RoutePlan, RouteStep } from '@keeta-agent-sdk/types';
+import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import type { VenueAdapter } from '@keeta-agent-stack/adapter-base';
+import type { AdapterHealth, CapabilityMap, ExecutionIntent, QuoteRequest, QuoteResponse, RoutePlan, RouteStep } from '@keeta-agent-stack/types';
 import { randomUUID } from 'node:crypto';
 
 export interface RouterOptions {

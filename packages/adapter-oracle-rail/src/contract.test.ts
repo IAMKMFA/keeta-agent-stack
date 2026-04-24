@@ -1,5 +1,5 @@
-import { runAdapterContractSuite } from '@keeta-agent-sdk/adapter-base/contract';
-import type { KtaOracleClient } from '@keeta-agent-sdk/keeta';
+import { runAdapterContractSuite } from '@keeta-agent-stack/adapter-base/contract';
+import type { KtaOracleClient } from '@keeta-agent-stack/keeta';
 import { OracleCctpRailAdapter } from './cctp-rail-adapter.js';
 
 const stubOracle = {

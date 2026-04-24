@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { metricsRepo, policyRepo, strategyRepo } from '@keeta-agent-sdk/storage';
+import { metricsRepo, policyRepo, strategyRepo } from '@keeta-agent-stack/storage';
 import { requireAdminAccess, requireOperatorAccess } from '../lib/auth.js';
 
 function strategyPolicyPackId(config: unknown): string | null {

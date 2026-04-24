@@ -12,7 +12,7 @@
  *   - daily_trades_cap    : cheap circuit breaker
  *   - unsettled_cap       : refuse to start a new leg while one is open
  */
-import type { CreatePolicyPackRequest } from '@keeta-agent-sdk/sdk';
+import type { CreatePolicyPackRequest } from '@keeta-agent-stack/sdk';
 import type { RebalancerConfig } from './config.js';
 
 export const POLICY_PACK_NAME = 'treasury-rebalancer';

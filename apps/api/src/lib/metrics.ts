@@ -1,8 +1,8 @@
 import type { Queue } from 'bullmq';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { collectDefaultMetrics, Counter, Gauge, Histogram, Registry } from 'prom-client';
-import { executionRepo, metricsRepo, type Database, webhookRepo } from '@keeta-agent-sdk/storage';
-import type { AppEnv } from '@keeta-agent-sdk/config';
+import { executionRepo, metricsRepo, type Database, webhookRepo } from '@keeta-agent-stack/storage';
+import type { AppEnv } from '@keeta-agent-stack/config';
 
 declare module 'fastify' {
   interface FastifyInstance {

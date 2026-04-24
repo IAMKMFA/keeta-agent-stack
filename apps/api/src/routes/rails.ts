@@ -3,7 +3,7 @@ import {
   listBuiltinRailMetadataDetailed,
   listBuiltinRailsByTransport,
   type RailTransport,
-} from '@keeta-agent-sdk/adapter-registry';
+} from '@keeta-agent-stack/adapter-registry';
 import { requireViewerAccess } from '../lib/auth.js';
 
 const KNOWN_TRANSPORTS: RailTransport[] = ['fiat-push', 'fiat-pull', 'crypto', 'native'];

@@ -1,8 +1,8 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { simulationRepo } from '@keeta-agent-sdk/storage';
-import { SimulationResultSchema } from '@keeta-agent-sdk/types';
-import { QUEUE_NAMES } from '@keeta-agent-sdk/config';
+import { simulationRepo } from '@keeta-agent-stack/storage';
+import { SimulationResultSchema } from '@keeta-agent-stack/types';
+import { QUEUE_NAMES } from '@keeta-agent-stack/config';
 import { enqueueJobWithTelemetry } from '../lib/job-tracing.js';
 import { requireOperatorAccess, requireViewerAccess } from '../lib/auth.js';
 

@@ -1,4 +1,4 @@
-# @keeta-agent-sdk/adapter-template
+# @keeta-agent-stack/adapter-template
 
 Boilerplate for building a new Keeta venue adapter (DEX, anchor bridge, or
 native transfer rail). Copy this package, rename it, and implement the
@@ -23,9 +23,9 @@ The full step-by-step walkthrough lives at
 
 ```bash
 cp -r packages/adapter-template packages/adapter-myvenue
-# rename package.json "name" to @keeta-agent-sdk/adapter-myvenue
+# rename package.json "name" to @keeta-agent-stack/adapter-myvenue
 pnpm install
-pnpm --filter @keeta-agent-sdk/adapter-myvenue test
+pnpm --filter @keeta-agent-stack/adapter-myvenue test
 ```
 
 Then:
@@ -34,7 +34,7 @@ Then:
 2. Implement `execute` for both `simulate` and `live` modes (idempotent on
    `intentId`).
 3. Add a `*.contract.test.ts` that runs `runAdapterContractSuite` from
-   `@keeta-agent-sdk/adapter-base/contract` once both paths are real.
+   `@keeta-agent-stack/adapter-base/contract` once both paths are real.
 4. Register the adapter in
    [`packages/adapter-registry/src/factory.ts`](../adapter-registry/src/factory.ts)
    behind a `KEETA_ENABLE_*` env flag.

@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security report
-    url: https://github.com/IAMKMFA/keeta-agent-sdk/security/advisories/new
+    url: https://github.com/IAMKMFA/keeta-agent-stack/security/advisories/new
     about: Report vulnerabilities privately through GitHub Security Advisories.
   - name: Contribution guide
-    url: https://github.com/IAMKMFA/keeta-agent-sdk/blob/main/CONTRIBUTING.md
+    url: https://github.com/IAMKMFA/keeta-agent-stack/blob/main/CONTRIBUTING.md
     about: Review local setup, checks, branch conventions, and documentation expectations.
   - name: Documentation index
-    url: https://github.com/IAMKMFA/keeta-agent-sdk/blob/main/docs/README.md
+    url: https://github.com/IAMKMFA/keeta-agent-stack/blob/main/docs/README.md
     about: Start here if you are looking for deployment, API, or adapter docs.

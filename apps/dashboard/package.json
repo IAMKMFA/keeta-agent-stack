@@ -1,5 +1,5 @@
 {
-  "name": "@keeta-agent-sdk/dashboard",
+  "name": "@keeta-agent-stack/dashboard",
   "version": "0.0.1",
   "private": true,
   "scripts": {

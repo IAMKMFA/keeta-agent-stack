@@ -8,7 +8,7 @@
  *
  * Maps to the "Paper trader" row in the root README's Common Agent Patterns.
  */
-import { createClient } from '@keeta-agent-sdk/sdk';
+import { createClient } from '@keeta-agent-stack/sdk';
 
 const baseUrl = process.env.API_URL ?? 'http://localhost:3001';
 const client = createClient({ baseUrl });

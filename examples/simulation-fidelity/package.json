@@ -1,15 +1,15 @@
 {
-  "name": "@keeta-agent-sdk/example-simulation-fidelity",
+  "name": "@keeta-agent-stack/example-simulation-fidelity",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "@keeta-agent-sdk/adapter-registry": "workspace:*",
-    "@keeta-agent-sdk/routing": "workspace:*",
-    "@keeta-agent-sdk/simulator": "workspace:*",
-    "@keeta-agent-sdk/types": "workspace:*"
+    "@keeta-agent-stack/adapter-registry": "workspace:*",
+    "@keeta-agent-stack/routing": "workspace:*",
+    "@keeta-agent-stack/simulator": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

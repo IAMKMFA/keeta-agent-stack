@@ -1,11 +1,11 @@
-import type { PolicyRuleContribution } from '@keeta-agent-sdk/types';
+import type { PolicyRuleContribution } from '@keeta-agent-stack/types';
 import type {
   AnchorBondStatus,
   AnchorWithdrawalDelayDays,
   ExecutionIntent,
   PaymentAnchorStatus,
   RoutePlan,
-} from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/types';
 import { z, type ZodType } from 'zod';
 
 export interface PolicyConfig {

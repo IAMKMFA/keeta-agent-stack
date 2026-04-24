@@ -1,4 +1,4 @@
-import type { AdapterSummary, AvailableRail, RailTransport, VenueKind } from '@keeta-agent-sdk/types';
+import type { AdapterSummary, AvailableRail, RailTransport, VenueKind } from '@keeta-agent-stack/types';
 
 export type { RailTransport };
 

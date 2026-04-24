@@ -6,7 +6,7 @@ The order matters. The goal is to deepen real platform leverage, not just add mo
 
 ## Current State
 
-The Keeta Agent SDK is now strong across the core control-plane product surface:
+The Keeta Agent Stack is now strong across the core control-plane product surface:
 
 - API capabilities are broadly represented in the TypeScript SDK
 - the MCP layer now covers the main operator workflow

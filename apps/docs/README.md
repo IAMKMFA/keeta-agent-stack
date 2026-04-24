@@ -1,9 +1,9 @@
-# Keeta Agent SDK Docs
+# Keeta Agent Stack Docs
 
 Build the static docs bundle with:
 
 ```bash
-pnpm --filter @keeta-agent-sdk/docs build
+pnpm --filter @keeta-agent-stack/docs build
 ```
 
 The generated site lands in `apps/docs/dist` and includes:

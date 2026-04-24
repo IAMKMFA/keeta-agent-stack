@@ -1,6 +1,6 @@
 # Keeta Starter Agent
 
-Standalone TypeScript template for building a Keeta agent with [`@keeta-agent-sdk/agent-runtime`](https://www.npmjs.com/package/@keeta-agent-sdk/agent-runtime). It is intentionally outside the monorepo workspace so you can copy this folder anywhere and `pnpm install` against published packages.
+Standalone TypeScript template for building a Keeta agent with [`@keeta-agent-stack/agent-runtime`](https://www.npmjs.com/package/@keeta-agent-stack/agent-runtime). It is intentionally outside the monorepo workspace so you can copy this folder anywhere and `pnpm install` against published packages.
 
 ## One-command setup
 
@@ -47,8 +47,8 @@ starter-agent-template/
 
 - Swap to live mode by setting `mode: 'live'` on the intent and supplying a real `walletId`.
 - Add an `AdapterRegistry` + `PolicyConfig` to `createKeetaAgent` to run the route → policy → simulate pipeline locally without hitting the API.
-- Fork this template into your own repo and pin specific package versions with `pnpm up @keeta-agent-sdk/*`.
+- Fork this template into your own repo and pin specific package versions with `pnpm up @keeta-agent-stack/*`.
 
 ## Back to the monorepo
 
-The full source for the Keeta Agent SDK lives at [github.com/IAMKMFA/keeta-agent-sdk](https://github.com/IAMKMFA/keeta-agent-sdk). See the root [`README.md`](https://github.com/IAMKMFA/keeta-agent-sdk#build-your-first-trading-agent-in-10-minutes) for the 10-minute tutorial that this template implements.
+The full source for the Keeta Agent Stack lives at [github.com/IAMKMFA/keeta-agent-stack](https://github.com/IAMKMFA/keeta-agent-stack). See the root [`README.md`](https://github.com/IAMKMFA/keeta-agent-stack#build-your-first-trading-agent-in-10-minutes) for the 10-minute tutorial that this template implements.

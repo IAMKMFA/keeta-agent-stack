@@ -5,8 +5,8 @@ import {
   ExecutionIntentSchema,
   PaymentAnchorStatusSchema,
   RoutePlanSchema,
-} from '@keeta-agent-sdk/types';
-import type { AppEnv } from '@keeta-agent-sdk/config';
+} from '@keeta-agent-stack/types';
+import type { AppEnv } from '@keeta-agent-stack/config';
 import {
   applyPolicyPack,
   CreatePolicyPackSchema,
@@ -16,8 +16,8 @@ import {
   type PolicyConfig,
   type PolicyPack,
   resolvePolicyPackSelection as resolveStoredPolicyPackSelection,
-} from '@keeta-agent-sdk/policy';
-import { intentRepo, routeRepo, auditRepo, policyRepo, settingsRepo, strategyRepo, walletRepo } from '@keeta-agent-sdk/storage';
+} from '@keeta-agent-stack/policy';
+import { intentRepo, routeRepo, auditRepo, policyRepo, settingsRepo, strategyRepo, walletRepo } from '@keeta-agent-stack/storage';
 import { requireAdminAccess, requireOperatorAccess } from '../lib/auth.js';
 
 const policyConfigOverrideSchema = z.object({

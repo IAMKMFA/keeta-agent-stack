@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { scoreRoute } from './router.js';
 import { Router } from './router.js';
-import type { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import type { QuoteRequest } from '@keeta-agent-sdk/types';
+import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import type { QuoteRequest } from '@keeta-agent-stack/types';
 
 describe('Router scoring', () => {
   it('scoreRoute is deterministic for identical inputs', () => {

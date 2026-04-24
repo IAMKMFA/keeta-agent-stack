@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { ExecutionResultSchema } from '@keeta-agent-sdk/types';
-import { executionRepo } from '@keeta-agent-sdk/storage';
+import { ExecutionResultSchema } from '@keeta-agent-stack/types';
+import { executionRepo } from '@keeta-agent-stack/storage';
 import { requireViewerAccess } from '../lib/auth.js';
 
 export const executionsRoutes: FastifyPluginAsync = async (app) => {

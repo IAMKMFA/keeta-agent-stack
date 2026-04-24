@@ -1,7 +1,7 @@
-import type { AnchorVenueAdapter, ExecuteContext } from '@keeta-agent-sdk/adapter-base';
-import { err, ok } from '@keeta-agent-sdk/adapter-base';
-import type { AdapterHealth, CapabilityMap, QuoteRequest } from '@keeta-agent-sdk/types';
-import { sleep } from '@keeta-agent-sdk/utils';
+import type { AnchorVenueAdapter, ExecuteContext } from '@keeta-agent-stack/adapter-base';
+import { err, ok } from '@keeta-agent-stack/adapter-base';
+import type { AdapterHealth, CapabilityMap, QuoteRequest } from '@keeta-agent-stack/types';
+import { sleep } from '@keeta-agent-stack/utils';
 import { randomUUID } from 'node:crypto';
 
 export type AnchorCompletionState = 'pending' | 'completed' | 'failed';

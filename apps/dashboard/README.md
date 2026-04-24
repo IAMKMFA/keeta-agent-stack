@@ -1,6 +1,6 @@
 # Keeta Agent Hub — Dashboard
 
-Next.js 15 (App Router) dashboard for the Keeta Agent SDK, with role-aware
+Next.js 15 (App Router) dashboard for the Keeta Agent Stack, with role-aware
 navigation and three distinct personas in a single app:
 
 | Persona        | Home                 | Purpose                                                         |
@@ -55,8 +55,8 @@ resolved boolean as a prop from a server component.
 
 ```bash
 pnpm install
-pnpm --filter @keeta-agent-sdk/api dev        # upstream API
-pnpm --filter @keeta-agent-sdk/dashboard dev  # dashboard on :3000
+pnpm --filter @keeta-agent-stack/api dev        # upstream API
+pnpm --filter @keeta-agent-stack/dashboard dev  # dashboard on :3000
 ```
 
 Set `DASHBOARD_DEV_VIEWER_ROLE=operator` (or `admin`/`tenant`/`exec`) to
@@ -77,7 +77,7 @@ stub a local viewer without standing up a JWT.
 
 ## Test coverage
 
-`pnpm --filter @keeta-agent-sdk/dashboard test` runs 24 unit tests in
+`pnpm --filter @keeta-agent-stack/dashboard test` runs 24 unit tests in
 `tests/`:
 
 - `permissions.test.ts` — `hasRole`, `hasScope`, `roleHome`.

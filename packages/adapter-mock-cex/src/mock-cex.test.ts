@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { runAdapterContractSuite } from '@keeta-agent-sdk/adapter-base/contract';
+import { runAdapterContractSuite } from '@keeta-agent-stack/adapter-base/contract';
 import { MockCexAdapter } from './mock-cex.js';
 
 const adapter = new MockCexAdapter({

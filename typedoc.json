@@ -1,6 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "name": "Keeta Agent SDK",
+  "name": "Keeta Agent Stack",
   "entryPoints": [
     "packages/sdk/src/index.ts",
     "packages/agent-runtime/src/index.ts",
@@ -13,7 +13,7 @@
   "excludeExternals": true,
   "readme": "docs/sdk-reference.md",
   "navigationLinks": {
-    "GitHub": "https://github.com/IAMKMFA/keeta-agent-sdk",
+    "GitHub": "https://github.com/IAMKMFA/keeta-agent-stack",
     "OpenAPI": "http://localhost:3001/docs"
   },
   "categorizeByGroup": true,

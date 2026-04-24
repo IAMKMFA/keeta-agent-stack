@@ -1,17 +1,17 @@
 {
-  "name": "@keeta-agent-sdk/sdk",
+  "name": "@keeta-agent-stack/sdk",
   "version": "0.1.0-alpha.0",
-  "description": "@keeta-agent-sdk/sdk - part of the Keeta Agent SDK",
+  "description": "@keeta-agent-stack/sdk - part of the Keeta Agent Stack",
   "license": "Apache-2.0",
-  "author": "Keeta Agent SDK contributors",
-  "homepage": "https://github.com/IAMKMFA/keeta-agent-sdk#readme",
+  "author": "Keeta Agent Stack contributors",
+  "homepage": "https://github.com/IAMKMFA/keeta-agent-stack#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IAMKMFA/keeta-agent-sdk.git",
+    "url": "git+https://github.com/IAMKMFA/keeta-agent-stack.git",
     "directory": "packages/sdk"
   },
   "bugs": {
-    "url": "https://github.com/IAMKMFA/keeta-agent-sdk/issues"
+    "url": "https://github.com/IAMKMFA/keeta-agent-stack/issues"
   },
   "keywords": [
     "keeta",
@@ -49,10 +49,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@keeta-agent-sdk/adapter-registry": "workspace:*",
-    "@keeta-agent-sdk/keeta": "workspace:*",
-    "@keeta-agent-sdk/policy": "workspace:*",
-    "@keeta-agent-sdk/types": "workspace:*"
+    "@keeta-agent-stack/adapter-registry": "workspace:*",
+    "@keeta-agent-stack/keeta": "workspace:*",
+    "@keeta-agent-stack/policy": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.3.5",

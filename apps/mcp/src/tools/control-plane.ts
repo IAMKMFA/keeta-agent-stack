@@ -5,8 +5,8 @@ import {
   type CreateIntentRequest,
   type EventStreamEvent,
   type PolicyEvaluateRequest,
-} from '@keeta-agent-sdk/sdk';
-import { PolicyCompositionSchema, PolicyRuleSchema } from '@keeta-agent-sdk/policy';
+} from '@keeta-agent-stack/sdk';
+import { PolicyCompositionSchema, PolicyRuleSchema } from '@keeta-agent-stack/policy';
 import { formatResult } from './helpers.js';
 import { createControlPlaneClient, type ControlPlaneSdkClient } from './sdk-client.js';
 

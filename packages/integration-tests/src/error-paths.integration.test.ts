@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import { MockDexAdapter } from '@keeta-agent-sdk/adapter-mock-dex';
+import { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import { MockDexAdapter } from '@keeta-agent-stack/adapter-mock-dex';
 import { createIntegrationTestRuntime } from './harness.js';
 import { shouldRunIntegrationTests } from './support.js';
 

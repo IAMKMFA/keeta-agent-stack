@@ -1,28 +1,41 @@
-# Keeta Agent SDK
+# Keeta Agent Stack
 
-[![CI](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/ci.yml)
-[![Template smoke](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/template-smoke.yml/badge.svg?branch=main)](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/template-smoke.yml)
-[![npm: @keeta-agent-sdk/sdk](https://img.shields.io/npm/v/@keeta-agent-sdk/sdk?label=%40keeta-agent-sdk%2Fsdk&color=cb3837&logo=npm)](https://www.npmjs.com/package/@keeta-agent-sdk/sdk)
-[![npm: @keeta-agent-sdk/agent-runtime](https://img.shields.io/npm/v/@keeta-agent-sdk/agent-runtime?label=%40keeta-agent-sdk%2Fagent-runtime&color=cb3837&logo=npm)](https://www.npmjs.com/package/@keeta-agent-sdk/agent-runtime)
+[![CI](https://github.com/IAMKMFA/keeta-agent-stack/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/IAMKMFA/keeta-agent-stack/actions/workflows/ci.yml)
+[![Template smoke](https://github.com/IAMKMFA/keeta-agent-stack/actions/workflows/template-smoke.yml/badge.svg?branch=main)](https://github.com/IAMKMFA/keeta-agent-stack/actions/workflows/template-smoke.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 
 Build Keeta-native agents that can take an intent, find the best route, enforce policy, simulate risk, execute safely, and keep users and operators informed in real time.
 
 ## Status
 
-**`0.1.0-alpha.0` is published on npm.** The SDK family
-(`@keeta-agent-sdk/sdk`, `@keeta-agent-sdk/agent-runtime`,
-`@keeta-agent-sdk/types`, `@keeta-agent-sdk/policy`, plus 15 supporting
-packages — see [CHANGELOG](./CHANGELOG.md)) is installable today. Surface is
-labeled `alpha` because the API may still shift before `0.1.0`; everything
-below works against the current release.
+**Pre-publish alpha (`0.1.0-alpha.0`).** The SDK family
+(`@keeta-agent-stack/sdk`, `@keeta-agent-stack/agent-runtime`,
+`@keeta-agent-stack/types`, `@keeta-agent-stack/policy`, plus 15 supporting
+packages — see [CHANGELOG](./CHANGELOG.md)) is publish-ready and consumable
+from this monorepo today via `pnpm` workspace links or by cloning. The
+`@keeta-agent-stack/*` scope is **not yet live on npm** — we are deliberately
+not squatting on a name the Keeta team may want to ship under. The first npm
+publish is gated on that decision; until then, use the monorepo directly
+(see [`docs/sdk-reference.md`](./docs/sdk-reference.md) and
+[`docs/deployment.md`](./docs/deployment.md)).
 
 Quick links: [Docs index](./docs/README.md) | [Contributing](./CONTRIBUTING.md) | [Code of Conduct](./CODE_OF_CONDUCT.md) | [Security](./SECURITY.md) | [Changelog](./CHANGELOG.md)
 
 ## Get started in 30 seconds
 
+Until the first npm publish, install from the monorepo:
+
 ```bash
-pnpm add @keeta-agent-sdk/sdk @keeta-agent-sdk/agent-runtime @keeta-agent-sdk/types
+git clone https://github.com/IAMKMFA/keeta-agent-stack.git
+cd keeta-agent-stack
+pnpm install
+pnpm build
+```
+
+Once published, the consumer-facing install will be:
+
+```bash
+pnpm add @keeta-agent-stack/sdk @keeta-agent-stack/agent-runtime @keeta-agent-stack/types
 ```
 
 Three files to read first, in order:
@@ -33,13 +46,13 @@ Three files to read first, in order:
 
 Three more things you probably want next:
 
-- **Hosted OpenAPI spec** — published from `main` to GitHub Pages. Spec at <https://iamkmfa.github.io/keeta-agent-sdk/openapi.json>, full docs bundle at <https://iamkmfa.github.io/keeta-agent-sdk/>.
+- **Hosted OpenAPI spec** — published from `main` to GitHub Pages. Spec at <https://iamkmfa.github.io/keeta-agent-stack/openapi.json>, full docs bundle at <https://iamkmfa.github.io/keeta-agent-stack/>.
 - **Deploy your own sandbox** — multi-stage [`Dockerfile`](./Dockerfile), [`docker-compose.prod.yml`](./docker-compose.prod.yml), and Fly configs at [`apps/api/fly.toml`](./apps/api/fly.toml) / [`apps/worker/fly.toml`](./apps/worker/fly.toml) / [`apps/mcp/fly.toml`](./apps/mcp/fly.toml). Bootstrap commands in [`docs/deployment.md`](./docs/deployment.md#hosted-sandbox-flyio). Sandbox defaults: Keeta testnet, read-only, `MCP_ALLOW_INLINE_SEEDS=false`.
 - **Security model in one page** — [`SECURITY.md`](./SECURITY.md) covers `KEETA_SIGNING_SEED` handling (worker-only), `MCP_ALLOW_INLINE_SEEDS` rationale, seed rotation, and the `OPS_API_KEY` / `ADMIN_BYPASS_TOKEN` authorization surfaces.
 
 ## In One Minute
 
-Keeta Agent SDK is a full execution stack for autonomous payment and trading agents on Keeta.
+Keeta Agent Stack is a full execution stack for autonomous payment and trading agents on Keeta.
 
 It gives an agent the infrastructure to:
 
@@ -159,7 +172,7 @@ pnpm demo
 
 ## Build Your First Trading Agent in 10 Minutes
 
-This walkthrough takes you from a fresh clone to a running agent that prices a swap, runs it through policy, simulates the result, and is ready to flip to live execution. Everything below uses the published `createKeetaAgent` factory in `@keeta-agent-sdk/agent-runtime`.
+This walkthrough takes you from a fresh clone to a running agent that prices a swap, runs it through policy, simulates the result, and is ready to flip to live execution. Everything below uses the published `createKeetaAgent` factory in `@keeta-agent-stack/agent-runtime`.
 
 ### 1. Install and start the dev stack
 
@@ -176,10 +189,10 @@ pnpm dev:all
 ### 2. Wire up an offline agent (no signing required)
 
 ```ts
-import { createKeetaAgent } from '@keeta-agent-sdk/agent-runtime';
-import { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import { MockDexAdapter } from '@keeta-agent-sdk/adapter-mock-dex';
-import type { ExecutionIntent } from '@keeta-agent-sdk/types';
+import { createKeetaAgent } from '@keeta-agent-stack/agent-runtime';
+import { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import { MockDexAdapter } from '@keeta-agent-stack/adapter-mock-dex';
+import type { ExecutionIntent } from '@keeta-agent-stack/types';
 
 const registry = new AdapterRegistry();
 registry.register(
@@ -233,7 +246,7 @@ console.log(result.kind, result);
 Drop the `registry` + `policy` and pass an SDK client instead. The factory will create the intent, walk it through the API pipeline, and resolve once a terminal `intent.executed` / `intent.failed` event arrives.
 
 ```ts
-import { createClient } from '@keeta-agent-sdk/sdk';
+import { createClient } from '@keeta-agent-stack/sdk';
 
 const sdk = createClient({
   baseUrl: process.env.KEETA_API_URL ?? 'http://localhost:3001',
@@ -275,9 +288,9 @@ The full MCP tool inventory (81 tools, with input schemas and read/write/signing
 
 ## SDK Reference & OpenAPI
 
-- **Hosted OpenAPI snapshot** — published from `main` to GitHub Pages by [`.github/workflows/pages.yml`](./.github/workflows/pages.yml). Once Pages is enabled for this repo, the canonical spec lives at `https://iamkmfa.github.io/keeta-agent-sdk/openapi.json` and the full docs bundle at `https://iamkmfa.github.io/keeta-agent-sdk/`.
-- **Local Swagger UI** — `pnpm dev:all` (or `pnpm --filter @keeta-agent-sdk/api dev`) serves the live API. Browse [`http://localhost:3001/docs`](http://localhost:3001/docs) for the Try-It-Out UI.
-- **Typedoc** — `pnpm docs:generate` builds API docs for `@keeta-agent-sdk/sdk`, `@keeta-agent-sdk/agent-runtime`, and `@keeta-agent-sdk/types` into `docs/typedoc/`.
+- **Hosted OpenAPI snapshot** — published from `main` to GitHub Pages by [`.github/workflows/pages.yml`](./.github/workflows/pages.yml). Once Pages is enabled for this repo, the canonical spec lives at `https://iamkmfa.github.io/keeta-agent-stack/openapi.json` and the full docs bundle at `https://iamkmfa.github.io/keeta-agent-stack/`.
+- **Local Swagger UI** — `pnpm dev:all` (or `pnpm --filter @keeta-agent-stack/api dev`) serves the live API. Browse [`http://localhost:3001/docs`](http://localhost:3001/docs) for the Try-It-Out UI.
+- **Typedoc** — `pnpm docs:generate` builds API docs for `@keeta-agent-stack/sdk`, `@keeta-agent-stack/agent-runtime`, and `@keeta-agent-stack/types` into `docs/typedoc/`.
 - A higher-level guided tour of both surfaces lives in [`docs/sdk-reference.md`](./docs/sdk-reference.md).
 
 ## Live Keeta Mode
@@ -321,7 +334,7 @@ The integration suite runs the real API and worker against Postgres and Redis.
 
 - [Capability Matrix](./docs/capability-matrix.md) — current product-surface coverage across API, SDK, and MCP
 - [Next Steps Roadmap](./docs/next-steps-roadmap.md) — recommended engineering sequence for the next platform phase
-- [Platform Overview](./docs/keeta-agent-sdk.md) — higher-level positioning and architecture summary
+- [Platform Overview](./docs/keeta-agent-stack.md) — higher-level positioning and architecture summary
 
 ## Repository Map
 

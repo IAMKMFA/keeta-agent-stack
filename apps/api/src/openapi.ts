@@ -92,7 +92,7 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
   return {
     openapi: '3.1.0',
     info: {
-      title: 'Keeta Agent SDK API',
+      title: 'Keeta Agent Stack API',
       version: '0.0.1',
       description:
         'Keeta-native control plane for intents, routing, policy, anchors, event streaming, webhooks, and oracle-assisted payment flows.',

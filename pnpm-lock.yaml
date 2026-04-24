@@ -59,25 +59,25 @@ importers:
       '@fastify/swagger-ui':
         specifier: ^5.2.6
         version: 5.2.6
-      '@keeta-agent-sdk/adapter-registry':
+      '@keeta-agent-stack/adapter-registry':
         specifier: workspace:*
         version: link:../../packages/adapter-registry
-      '@keeta-agent-sdk/config':
+      '@keeta-agent-stack/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@keeta-agent-sdk/keeta':
+      '@keeta-agent-stack/keeta':
         specifier: workspace:*
         version: link:../../packages/keeta
-      '@keeta-agent-sdk/policy':
+      '@keeta-agent-stack/policy':
         specifier: workspace:*
         version: link:../../packages/policy
-      '@keeta-agent-sdk/storage':
+      '@keeta-agent-stack/storage':
         specifier: workspace:*
         version: link:../../packages/storage
-      '@keeta-agent-sdk/telemetry':
+      '@keeta-agent-stack/telemetry':
         specifier: workspace:*
         version: link:../../packages/telemetry
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../../packages/types
       bullmq:
@@ -172,7 +172,7 @@ importers:
 
   apps/docs:
     dependencies:
-      '@keeta-agent-sdk/api':
+      '@keeta-agent-stack/api':
         specifier: workspace:*
         version: link:../api
     devDependencies:
@@ -185,13 +185,13 @@ importers:
 
   apps/mcp:
     dependencies:
-      '@keeta-agent-sdk/keeta':
+      '@keeta-agent-stack/keeta':
         specifier: workspace:*
         version: link:../../packages/keeta
-      '@keeta-agent-sdk/policy':
+      '@keeta-agent-stack/policy':
         specifier: workspace:*
         version: link:../../packages/policy
-      '@keeta-agent-sdk/sdk':
+      '@keeta-agent-stack/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
       '@keetanetwork/anchor':
@@ -225,34 +225,34 @@ importers:
 
   apps/worker:
     dependencies:
-      '@keeta-agent-sdk/adapter-registry':
+      '@keeta-agent-stack/adapter-registry':
         specifier: workspace:*
         version: link:../../packages/adapter-registry
-      '@keeta-agent-sdk/config':
+      '@keeta-agent-stack/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@keeta-agent-sdk/keeta':
+      '@keeta-agent-stack/keeta':
         specifier: workspace:*
         version: link:../../packages/keeta
-      '@keeta-agent-sdk/policy':
+      '@keeta-agent-stack/policy':
         specifier: workspace:*
         version: link:../../packages/policy
-      '@keeta-agent-sdk/routing':
+      '@keeta-agent-stack/routing':
         specifier: workspace:*
         version: link:../../packages/routing
-      '@keeta-agent-sdk/simulator':
+      '@keeta-agent-stack/simulator':
         specifier: workspace:*
         version: link:../../packages/simulator
-      '@keeta-agent-sdk/storage':
+      '@keeta-agent-stack/storage':
         specifier: workspace:*
         version: link:../../packages/storage
-      '@keeta-agent-sdk/telemetry':
+      '@keeta-agent-stack/telemetry':
         specifier: workspace:*
         version: link:../../packages/telemetry
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../../packages/types
-      '@keeta-agent-sdk/utils':
+      '@keeta-agent-stack/utils':
         specifier: workspace:*
         version: link:../../packages/utils
       bullmq:
@@ -283,10 +283,10 @@ importers:
 
   examples/hello-agent:
     dependencies:
-      '@keeta-agent-sdk/sdk':
+      '@keeta-agent-stack/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:
@@ -299,16 +299,16 @@ importers:
 
   examples/mock-live-run:
     dependencies:
-      '@keeta-agent-sdk/adapter-registry':
+      '@keeta-agent-stack/adapter-registry':
         specifier: workspace:*
         version: link:../../packages/adapter-registry
-      '@keeta-agent-sdk/routing':
+      '@keeta-agent-stack/routing':
         specifier: workspace:*
         version: link:../../packages/routing
-      '@keeta-agent-sdk/simulator':
+      '@keeta-agent-stack/simulator':
         specifier: workspace:*
         version: link:../../packages/simulator
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:
@@ -321,7 +321,7 @@ importers:
 
   examples/oracle-payment-playbook:
     dependencies:
-      '@keeta-agent-sdk/keeta':
+      '@keeta-agent-stack/keeta':
         specifier: workspace:*
         version: link:../../packages/keeta
     devDependencies:
@@ -334,10 +334,10 @@ importers:
 
   examples/paper-trader:
     dependencies:
-      '@keeta-agent-sdk/sdk':
+      '@keeta-agent-stack/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:
@@ -350,10 +350,10 @@ importers:
 
   examples/rebalance-bot:
     dependencies:
-      '@keeta-agent-sdk/adapter-mock-dex':
+      '@keeta-agent-stack/adapter-mock-dex':
         specifier: workspace:*
         version: link:../../packages/adapter-mock-dex
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:
@@ -366,13 +366,13 @@ importers:
 
   examples/route-inspector:
     dependencies:
-      '@keeta-agent-sdk/adapter-registry':
+      '@keeta-agent-stack/adapter-registry':
         specifier: workspace:*
         version: link:../../packages/adapter-registry
-      '@keeta-agent-sdk/routing':
+      '@keeta-agent-stack/routing':
         specifier: workspace:*
         version: link:../../packages/routing
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:
@@ -385,16 +385,16 @@ importers:
 
   examples/simulation-fidelity:
     dependencies:
-      '@keeta-agent-sdk/adapter-registry':
+      '@keeta-agent-stack/adapter-registry':
         specifier: workspace:*
         version: link:../../packages/adapter-registry
-      '@keeta-agent-sdk/routing':
+      '@keeta-agent-stack/routing':
         specifier: workspace:*
         version: link:../../packages/routing
-      '@keeta-agent-sdk/simulator':
+      '@keeta-agent-stack/simulator':
         specifier: workspace:*
         version: link:../../packages/simulator
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:
@@ -407,7 +407,7 @@ importers:
 
   packages/adapter-base:
     dependencies:
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -423,13 +423,13 @@ importers:
 
   packages/adapter-keeta-transfer:
     dependencies:
-      '@keeta-agent-sdk/adapter-base':
+      '@keeta-agent-stack/adapter-base':
         specifier: workspace:*
         version: link:../adapter-base
-      '@keeta-agent-sdk/keeta':
+      '@keeta-agent-stack/keeta':
         specifier: workspace:*
         version: link:../keeta
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -445,13 +445,13 @@ importers:
 
   packages/adapter-mock-anchor:
     dependencies:
-      '@keeta-agent-sdk/adapter-base':
+      '@keeta-agent-stack/adapter-base':
         specifier: workspace:*
         version: link:../adapter-base
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
-      '@keeta-agent-sdk/utils':
+      '@keeta-agent-stack/utils':
         specifier: workspace:*
         version: link:../utils
     devDependencies:
@@ -467,10 +467,10 @@ importers:
 
   packages/adapter-mock-cex:
     dependencies:
-      '@keeta-agent-sdk/adapter-base':
+      '@keeta-agent-stack/adapter-base':
         specifier: workspace:*
         version: link:../adapter-base
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -486,10 +486,10 @@ importers:
 
   packages/adapter-mock-dex:
     dependencies:
-      '@keeta-agent-sdk/adapter-base':
+      '@keeta-agent-stack/adapter-base':
         specifier: workspace:*
         version: link:../adapter-base
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -505,13 +505,13 @@ importers:
 
   packages/adapter-oracle-rail:
     dependencies:
-      '@keeta-agent-sdk/adapter-base':
+      '@keeta-agent-stack/adapter-base':
         specifier: workspace:*
         version: link:../adapter-base
-      '@keeta-agent-sdk/keeta':
+      '@keeta-agent-stack/keeta':
         specifier: workspace:*
         version: link:../keeta
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -527,28 +527,28 @@ importers:
 
   packages/adapter-registry:
     dependencies:
-      '@keeta-agent-sdk/adapter-base':
+      '@keeta-agent-stack/adapter-base':
         specifier: workspace:*
         version: link:../adapter-base
-      '@keeta-agent-sdk/adapter-keeta-transfer':
+      '@keeta-agent-stack/adapter-keeta-transfer':
         specifier: workspace:*
         version: link:../adapter-keeta-transfer
-      '@keeta-agent-sdk/adapter-mock-anchor':
+      '@keeta-agent-stack/adapter-mock-anchor':
         specifier: workspace:*
         version: link:../adapter-mock-anchor
-      '@keeta-agent-sdk/adapter-mock-cex':
+      '@keeta-agent-stack/adapter-mock-cex':
         specifier: workspace:*
         version: link:../adapter-mock-cex
-      '@keeta-agent-sdk/adapter-mock-dex':
+      '@keeta-agent-stack/adapter-mock-dex':
         specifier: workspace:*
         version: link:../adapter-mock-dex
-      '@keeta-agent-sdk/adapter-oracle-rail':
+      '@keeta-agent-stack/adapter-oracle-rail':
         specifier: workspace:*
         version: link:../adapter-oracle-rail
-      '@keeta-agent-sdk/adapter-solana-stub':
+      '@keeta-agent-stack/adapter-solana-stub':
         specifier: workspace:*
         version: link:../adapter-solana-stub
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -564,10 +564,10 @@ importers:
 
   packages/adapter-solana-stub:
     dependencies:
-      '@keeta-agent-sdk/adapter-base':
+      '@keeta-agent-stack/adapter-base':
         specifier: workspace:*
         version: link:../adapter-base
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -583,10 +583,10 @@ importers:
 
   packages/adapter-template:
     dependencies:
-      '@keeta-agent-sdk/adapter-base':
+      '@keeta-agent-stack/adapter-base':
         specifier: workspace:*
         version: link:../adapter-base
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -602,29 +602,29 @@ importers:
 
   packages/agent-runtime:
     dependencies:
-      '@keeta-agent-sdk/adapter-registry':
+      '@keeta-agent-stack/adapter-registry':
         specifier: workspace:*
         version: link:../adapter-registry
-      '@keeta-agent-sdk/policy':
+      '@keeta-agent-stack/policy':
         specifier: workspace:*
         version: link:../policy
-      '@keeta-agent-sdk/routing':
+      '@keeta-agent-stack/routing':
         specifier: workspace:*
         version: link:../routing
-      '@keeta-agent-sdk/sdk':
+      '@keeta-agent-stack/sdk':
         specifier: workspace:*
         version: link:../sdk
-      '@keeta-agent-sdk/simulator':
+      '@keeta-agent-stack/simulator':
         specifier: workspace:*
         version: link:../simulator
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
-      '@keeta-agent-sdk/wallet':
+      '@keeta-agent-stack/wallet':
         specifier: workspace:*
         version: link:../wallet
     devDependencies:
-      '@keeta-agent-sdk/adapter-mock-dex':
+      '@keeta-agent-stack/adapter-mock-dex':
         specifier: workspace:*
         version: link:../adapter-mock-dex
       tsup:
@@ -652,7 +652,7 @@ importers:
 
   packages/core:
     dependencies:
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -665,7 +665,7 @@ importers:
 
   packages/events:
     dependencies:
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
       zod:
@@ -681,25 +681,25 @@ importers:
 
   packages/integration-tests:
     dependencies:
-      '@keeta-agent-sdk/adapter-registry':
+      '@keeta-agent-stack/adapter-registry':
         specifier: workspace:*
         version: link:../adapter-registry
-      '@keeta-agent-sdk/api':
+      '@keeta-agent-stack/api':
         specifier: workspace:*
         version: link:../../apps/api
-      '@keeta-agent-sdk/keeta':
+      '@keeta-agent-stack/keeta':
         specifier: workspace:*
         version: link:../keeta
-      '@keeta-agent-sdk/routing':
+      '@keeta-agent-stack/routing':
         specifier: workspace:*
         version: link:../routing
-      '@keeta-agent-sdk/storage':
+      '@keeta-agent-stack/storage':
         specifier: workspace:*
         version: link:../storage
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
-      '@keeta-agent-sdk/worker':
+      '@keeta-agent-stack/worker':
         specifier: workspace:*
         version: link:../../apps/worker
       drizzle-orm:
@@ -712,7 +712,7 @@ importers:
         specifier: ^8.13.1
         version: 8.20.0
     devDependencies:
-      '@keeta-agent-sdk/adapter-mock-dex':
+      '@keeta-agent-stack/adapter-mock-dex':
         specifier: workspace:*
         version: link:../adapter-mock-dex
       '@types/node':
@@ -733,13 +733,13 @@ importers:
 
   packages/keeta:
     dependencies:
-      '@keeta-agent-sdk/config':
+      '@keeta-agent-stack/config':
         specifier: workspace:*
         version: link:../config
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
-      '@keeta-agent-sdk/wallet':
+      '@keeta-agent-stack/wallet':
         specifier: workspace:*
         version: link:../wallet
       '@keetanetwork/keetanet-client':
@@ -758,7 +758,7 @@ importers:
 
   packages/policy:
     dependencies:
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
       zod:
@@ -777,13 +777,13 @@ importers:
 
   packages/routing:
     dependencies:
-      '@keeta-agent-sdk/adapter-base':
+      '@keeta-agent-stack/adapter-base':
         specifier: workspace:*
         version: link:../adapter-base
-      '@keeta-agent-sdk/adapter-registry':
+      '@keeta-agent-stack/adapter-registry':
         specifier: workspace:*
         version: link:../adapter-registry
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -799,16 +799,16 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@keeta-agent-sdk/adapter-registry':
+      '@keeta-agent-stack/adapter-registry':
         specifier: workspace:*
         version: link:../adapter-registry
-      '@keeta-agent-sdk/keeta':
+      '@keeta-agent-stack/keeta':
         specifier: workspace:*
         version: link:../keeta
-      '@keeta-agent-sdk/policy':
+      '@keeta-agent-stack/policy':
         specifier: workspace:*
         version: link:../policy
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -824,10 +824,10 @@ importers:
 
   packages/simulator:
     dependencies:
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
-      '@keeta-agent-sdk/utils':
+      '@keeta-agent-stack/utils':
         specifier: workspace:*
         version: link:../utils
     devDependencies:
@@ -840,13 +840,13 @@ importers:
 
   packages/storage:
     dependencies:
-      '@keeta-agent-sdk/core':
+      '@keeta-agent-stack/core':
         specifier: workspace:*
         version: link:../core
-      '@keeta-agent-sdk/policy':
+      '@keeta-agent-stack/policy':
         specifier: workspace:*
         version: link:../policy
-      '@keeta-agent-sdk/types':
+      '@keeta-agent-stack/types':
         specifier: workspace:*
         version: link:../types
       drizzle-orm:

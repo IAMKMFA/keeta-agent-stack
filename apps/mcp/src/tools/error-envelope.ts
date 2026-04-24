@@ -10,7 +10,7 @@
  * can ship a single response handler instead of one per tool.
  */
 
-import { KtaOracleRequestError } from '@keeta-agent-sdk/keeta';
+import { KtaOracleRequestError } from '@keeta-agent-stack/keeta';
 
 export interface McpErrorEnvelope {
   ok: false;

@@ -1,4 +1,4 @@
-import { createClient, type SdkClientOptions } from '@keeta-agent-sdk/sdk';
+import { createClient, type SdkClientOptions } from '@keeta-agent-stack/sdk';
 
 const DEFAULT_API_URL = 'http://localhost:3001';
 

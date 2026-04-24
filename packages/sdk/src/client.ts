@@ -18,14 +18,14 @@ import type {
   WalletSettings,
   WebhookDelivery,
   WebhookSubscription,
-} from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/types';
 import {
   listBuiltinRailMetadata,
   listBuiltinRailsByTransport,
   mergeRailMetadata,
   type RailMetadataEntry,
   type RailTransport,
-} from '@keeta-agent-sdk/adapter-registry';
+} from '@keeta-agent-stack/adapter-registry';
 import type {
   PolicyComposition,
   PolicyAnchorBondHint,
@@ -36,12 +36,12 @@ import type {
   PolicyPortfolioStats,
   PolicyRule,
   PolicyRuleMetadata,
-} from '@keeta-agent-sdk/policy';
+} from '@keeta-agent-stack/policy';
 import {
   createKeetaWallet,
   type CreatedKeetaWallet,
   type KeetaWalletKeyAlgorithm,
-} from '@keeta-agent-sdk/keeta';
+} from '@keeta-agent-stack/keeta';
 
 export interface SdkClientOptions {
   baseUrl: string;

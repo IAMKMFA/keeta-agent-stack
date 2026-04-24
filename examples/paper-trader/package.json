@@ -1,13 +1,13 @@
 {
-  "name": "@keeta-agent-sdk/example-paper-trader",
+  "name": "@keeta-agent-stack/example-paper-trader",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "@keeta-agent-sdk/sdk": "workspace:*",
-    "@keeta-agent-sdk/types": "workspace:*"
+    "@keeta-agent-stack/sdk": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

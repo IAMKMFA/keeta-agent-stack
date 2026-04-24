@@ -1,4 +1,4 @@
-import type { Signer } from '@keeta-agent-sdk/wallet';
+import type { Signer } from '@keeta-agent-stack/wallet';
 
 /**
  * Bridge between Keeta transaction bytes and the wallet `Signer` interface.

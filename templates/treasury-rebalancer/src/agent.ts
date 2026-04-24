@@ -2,10 +2,10 @@
  * Wires the SDK client + agent runtime + policy pack into a single
  * `runRebalanceTick(cfg)` callable that the loop in `index.ts` invokes.
  */
-import { createKeetaAgent, type KeetaAgent } from '@keeta-agent-sdk/agent-runtime';
-import { createClient, type CreatePolicyPackRequest } from '@keeta-agent-sdk/sdk';
-import type { PolicyPack } from '@keeta-agent-sdk/policy';
-import type { ExecutionIntent, WalletBalancesResponse } from '@keeta-agent-sdk/types';
+import { createKeetaAgent, type KeetaAgent } from '@keeta-agent-stack/agent-runtime';
+import { createClient, type CreatePolicyPackRequest } from '@keeta-agent-stack/sdk';
+import type { PolicyPack } from '@keeta-agent-stack/policy';
+import type { ExecutionIntent, WalletBalancesResponse } from '@keeta-agent-stack/types';
 import type { RebalancerConfig } from './config.js';
 import { POLICY_PACK_NAME, buildPolicyPack } from './policy.js';
 import {

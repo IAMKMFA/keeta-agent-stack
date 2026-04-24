@@ -1,4 +1,4 @@
-import type { PolicyDecision, PolicyRuleContribution } from '@keeta-agent-sdk/types';
+import type { PolicyDecision, PolicyRuleContribution } from '@keeta-agent-stack/types';
 import type {
   PolicyEngineOptions,
   PolicyEntryKind,

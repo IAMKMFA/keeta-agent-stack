@@ -6,8 +6,8 @@ import {
   QUEUE_NAMES,
   getWorkerOptions,
   type AppEnv,
-} from '@keeta-agent-sdk/config';
-import { createDb, type Database } from '@keeta-agent-sdk/storage';
+} from '@keeta-agent-stack/config';
+import { createDb, type Database } from '@keeta-agent-stack/storage';
 import {
   intentRepo,
   quoteRepo,
@@ -29,9 +29,9 @@ import {
   journalRepo,
   operatorMetricsRepo,
   webhookRepo,
-} from '@keeta-agent-sdk/storage';
-import { createDefaultDevRegistry, type AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import { Router } from '@keeta-agent-sdk/routing';
+} from '@keeta-agent-stack/storage';
+import { createDefaultDevRegistry, type AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import { Router } from '@keeta-agent-stack/routing';
 import {
   applyPolicyPack,
   defaultPolicyConfigFromEnv,
@@ -43,8 +43,8 @@ import {
   type PolicyKeetaHints,
   type PolicyPack,
   type PolicyPortfolioStats,
-} from '@keeta-agent-sdk/policy';
-import { simulate } from '@keeta-agent-sdk/simulator';
+} from '@keeta-agent-stack/policy';
+import { simulate } from '@keeta-agent-stack/simulator';
 import {
   type AnchorBondRecord,
   AnchorBondStatusSchema,
@@ -70,7 +70,7 @@ import {
   type RouteStepRoutingContext,
   type SimulationScenario,
   type IntentPipelineState,
-} from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/types';
 import {
   createLogger,
   initTracing,
@@ -79,7 +79,7 @@ import {
   withLogContext,
   withSpan,
   type TelemetryAttributes,
-} from '@keeta-agent-sdk/telemetry';
+} from '@keeta-agent-stack/telemetry';
 import {
   OperatorMetricsCache,
   fetchOperatorMetrics,
@@ -93,7 +93,7 @@ import {
   readChainHealth,
   createSigningUserClient,
   type UserClient,
-} from '@keeta-agent-sdk/keeta';
+} from '@keeta-agent-stack/keeta';
 
 const log = createLogger('worker');
 const WEBHOOK_EVENT_CURSOR_KEY = 'webhook_event_delivery_cursor';
@@ -2268,7 +2268,7 @@ async function withDatabaseTransaction<T>(
         });
         const headers: Record<string, string> = {
           'content-type': 'application/json',
-          'user-agent': 'keeta-agent-sdk/webhook-delivery',
+          'user-agent': 'keeta-agent-stack/webhook-delivery',
           'x-keeta-event-type': payload.eventType,
           'x-keeta-delivery-id': delivery.id,
         };

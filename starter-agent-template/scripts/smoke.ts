@@ -4,7 +4,7 @@
  * Strategy:
  *   1. Copy the template into a temp directory (without node_modules / dist /
  *      pnpm-lock).
- *   2. If the @keeta-agent-sdk/* packages are present in the parent monorepo
+ *   2. If the @keeta-agent-stack/* packages are present in the parent monorepo
  *      (the typical PR / local case), build & pack them and rewrite the
  *      template's dependencies to point at the resulting tgz files via
  *      `file:` URLs. This is how we verify packaging without needing the
@@ -37,40 +37,40 @@ const work = mkdtempSync(join(tmpdir(), 'keeta-starter-smoke-'));
 /**
  * Direct dependencies declared by the template's package.json. The smoke test
  * still installs from these names, but pnpm.overrides redirects them (and
- * their transitive @keeta-agent-sdk/* deps) to local tarballs.
+ * their transitive @keeta-agent-stack/* deps) to local tarballs.
  */
 const TEMPLATE_DEPS = [
-  '@keeta-agent-sdk/types',
-  '@keeta-agent-sdk/sdk',
-  '@keeta-agent-sdk/agent-runtime',
+  '@keeta-agent-stack/types',
+  '@keeta-agent-stack/sdk',
+  '@keeta-agent-stack/agent-runtime',
 ];
 
 /**
- * Full transitive closure of @keeta-agent-sdk/* packages used by the template
+ * Full transitive closure of @keeta-agent-stack/* packages used by the template
  * deps. We pack every one and inject pnpm.overrides so workspace:* references
  * (already converted to "0.0.1" by pnpm pack) resolve to local tarballs
  * instead of the public registry.
  */
 const ALL_INTERNAL_PACKAGES = [
-  '@keeta-agent-sdk/types',
-  '@keeta-agent-sdk/utils',
-  '@keeta-agent-sdk/wallet',
-  '@keeta-agent-sdk/config',
-  '@keeta-agent-sdk/policy',
-  '@keeta-agent-sdk/adapter-base',
-  '@keeta-agent-sdk/adapter-mock-dex',
-  '@keeta-agent-sdk/adapter-mock-cex',
-  '@keeta-agent-sdk/adapter-mock-anchor',
-  '@keeta-agent-sdk/adapter-solana-stub',
-  '@keeta-agent-sdk/adapter-template',
-  '@keeta-agent-sdk/adapter-keeta-transfer',
-  '@keeta-agent-sdk/adapter-oracle-rail',
-  '@keeta-agent-sdk/adapter-registry',
-  '@keeta-agent-sdk/keeta',
-  '@keeta-agent-sdk/simulator',
-  '@keeta-agent-sdk/routing',
-  '@keeta-agent-sdk/sdk',
-  '@keeta-agent-sdk/agent-runtime',
+  '@keeta-agent-stack/types',
+  '@keeta-agent-stack/utils',
+  '@keeta-agent-stack/wallet',
+  '@keeta-agent-stack/config',
+  '@keeta-agent-stack/policy',
+  '@keeta-agent-stack/adapter-base',
+  '@keeta-agent-stack/adapter-mock-dex',
+  '@keeta-agent-stack/adapter-mock-cex',
+  '@keeta-agent-stack/adapter-mock-anchor',
+  '@keeta-agent-stack/adapter-solana-stub',
+  '@keeta-agent-stack/adapter-template',
+  '@keeta-agent-stack/adapter-keeta-transfer',
+  '@keeta-agent-stack/adapter-oracle-rail',
+  '@keeta-agent-stack/adapter-registry',
+  '@keeta-agent-stack/keeta',
+  '@keeta-agent-stack/simulator',
+  '@keeta-agent-stack/routing',
+  '@keeta-agent-stack/sdk',
+  '@keeta-agent-stack/agent-runtime',
 ];
 
 function run(cmd: string, args: string[], cwd: string): void {
@@ -81,8 +81,8 @@ function run(cmd: string, args: string[], cwd: string): void {
 }
 
 function packageDir(name: string): string {
-  // Convention: @keeta-agent-sdk/foo lives in packages/foo
-  const short = name.replace(/^@keeta-agent-sdk\//, '');
+  // Convention: @keeta-agent-stack/foo lives in packages/foo
+  const short = name.replace(/^@keeta-agent-stack\//, '');
   return join(monorepoPackagesDir, short);
 }
 
@@ -107,7 +107,7 @@ function topologicallySortPackages(packageNames: string[]): string[] {
         ...(pkg.peerDependencies ?? {}),
       };
       const internalDeps = Object.keys(deps).filter(
-        (dep) => dep.startsWith('@keeta-agent-sdk/') && packageNames.includes(dep)
+        (dep) => dep.startsWith('@keeta-agent-stack/') && packageNames.includes(dep)
       );
       if (internalDeps.every((dep) => built.has(dep))) {
         ordered.push(name);

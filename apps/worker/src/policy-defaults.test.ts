@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defaultPolicyConfigFromEnv } from '@keeta-agent-sdk/policy';
+import { defaultPolicyConfigFromEnv } from '@keeta-agent-stack/policy';
 
 describe('defaultPolicyConfigFromEnv (consumed by worker bootstrap)', () => {
   it('parses numeric env vars and CSV allowlists', () => {

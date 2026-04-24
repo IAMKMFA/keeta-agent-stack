@@ -3,14 +3,14 @@
  * Dashboard security linter.
  *
  * Phase A8 of the Dashboard V2 Security Addendum. Runs in CI via
- * `pnpm --filter @keeta-agent-sdk/dashboard lint:security` and
+ * `pnpm --filter @keeta-agent-stack/dashboard lint:security` and
  * short-circuits the merge pipeline on any violation.
  *
  * Checks:
  *   1. `OPS_API_KEY` must never appear in a file that begins with a
  *      `'use client'` directive — that would ship a server-only service
  *      credential into the browser bundle.
- *   2. Any `@keeta-agent-sdk/sdk` import in a client-directive file is
+ *   2. Any `@keeta-agent-stack/sdk` import in a client-directive file is
  *      rejected for the same reason (the SDK pulls server-only env vars).
  *   3. `.env*` files at the repo root must not declare any
  *      `NEXT_PUBLIC_*` variable whose name matches
@@ -79,12 +79,12 @@ async function check1And2(): Promise<Violation[]> {
         detail: 'OPS_API_KEY referenced in a "use client" file; this ships the key to the browser.',
       });
     }
-    if (/from\s+['"]@keeta-agent-sdk\/sdk['"]/.test(content)) {
+    if (/from\s+['"]@keeta-agent-stack\/sdk['"]/.test(content)) {
       violations.push({
         rule: 'sdk-in-client',
         file: path.relative(REPO_ROOT, abs),
         detail:
-          '@keeta-agent-sdk/sdk imported from a "use client" file. The SDK is server-only (reads OPS_API_KEY / API_URL).',
+          '@keeta-agent-stack/sdk imported from a "use client" file. The SDK is server-only (reads OPS_API_KEY / API_URL).',
       });
     }
   }

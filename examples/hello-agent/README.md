@@ -2,7 +2,7 @@
 
 The 60-second hello agent. One file, top-to-bottom, that:
 
-1. Pings the Keeta Agent SDK API.
+1. Pings the Keeta Agent Stack API.
 2. Creates a server-managed wallet.
 3. Creates a `USDC -> KTA` buy intent in `simulate` mode.
 4. Queues a quote.
@@ -25,10 +25,10 @@ pnpm dev:all
 ## Run
 
 ```bash
-pnpm --filter @keeta-agent-sdk/example-hello-agent start
+pnpm --filter @keeta-agent-stack/example-hello-agent start
 ```
 
-Or, if you've installed the published packages from npm in your own project, copy [`src/index.ts`](./src/index.ts) verbatim — it depends only on `@keeta-agent-sdk/sdk`.
+Or, if you've installed the published packages from npm in your own project, copy [`src/index.ts`](./src/index.ts) verbatim — it depends only on `@keeta-agent-stack/sdk`.
 
 ## Expected output
 

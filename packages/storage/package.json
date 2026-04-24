@@ -1,5 +1,5 @@
 {
-  "name": "@keeta-agent-sdk/storage",
+  "name": "@keeta-agent-stack/storage",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -21,9 +21,9 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
-    "@keeta-agent-sdk/core": "workspace:*",
-    "@keeta-agent-sdk/policy": "workspace:*",
-    "@keeta-agent-sdk/types": "workspace:*",
+    "@keeta-agent-stack/core": "workspace:*",
+    "@keeta-agent-stack/policy": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "pg": "^8.13.1"
   },

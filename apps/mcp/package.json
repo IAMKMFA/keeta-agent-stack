@@ -1,5 +1,5 @@
 {
-  "name": "@keeta-agent-sdk/mcp",
+  "name": "@keeta-agent-stack/mcp",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -14,9 +14,9 @@
     "docs:tools": "tsx scripts/dump-tools.ts"
   },
   "dependencies": {
-    "@keeta-agent-sdk/keeta": "workspace:*",
-    "@keeta-agent-sdk/policy": "workspace:*",
-    "@keeta-agent-sdk/sdk": "workspace:*",
+    "@keeta-agent-stack/keeta": "workspace:*",
+    "@keeta-agent-stack/policy": "workspace:*",
+    "@keeta-agent-stack/sdk": "workspace:*",
     "@keetanetwork/anchor": "^0.0.58",
     "@keetanetwork/keetanet-client": "^0.16.1",
     "@modelcontextprotocol/sdk": "^1.12.1",

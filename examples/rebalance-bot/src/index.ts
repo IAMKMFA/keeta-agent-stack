@@ -8,7 +8,7 @@
  *
  * Maps to the "Rebalance bot" row in the root README's Common Agent Patterns.
  */
-import { MockDexAdapter } from '@keeta-agent-sdk/adapter-mock-dex';
+import { MockDexAdapter } from '@keeta-agent-stack/adapter-mock-dex';
 
 async function main() {
   const dex = new MockDexAdapter({

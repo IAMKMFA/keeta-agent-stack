@@ -118,7 +118,7 @@ curl -X POST "${apiUrl}/intents/<intent-id>/execute"`,
         title: 'Implement the contract',
         body:
           'Adapters expose a narrow execution surface: pair support, quote generation, and execution. The registry and conformance tests do the rest, so new venues can slot into the runtime without worker rewrites.',
-        code: `import { BaseDexAdapter } from '@keeta-agent-sdk/adapter-base';
+        code: `import { BaseDexAdapter } from '@keeta-agent-stack/adapter-base';
 
 export class RegionalDexAdapter extends BaseDexAdapter {
   readonly id = 'regional-dex';
@@ -141,7 +141,7 @@ export class RegionalDexAdapter extends BaseDexAdapter {
         title: 'Register adapters',
         body:
           'The default dev registry is useful for demos, but integration tests and production stacks can inject their own registry instances. That makes venue combinations deterministic and testable.',
-        code: `import { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
+        code: `import { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
 
 const registry = new AdapterRegistry();
 registry.register(new RegionalDexAdapter());`,
@@ -150,7 +150,7 @@ registry.register(new RegionalDexAdapter());`,
         title: 'Verify behavior',
         body:
           'Use contract tests first, then integration tests with a custom registry. The router already supports multi-hop pathfinding, so a single well-formed adapter can participate in direct or intermediate routes immediately.',
-        code: `pnpm --filter @keeta-agent-sdk/adapter-base test
+        code: `pnpm --filter @keeta-agent-stack/adapter-base test
 pnpm test:integration`,
       },
     ],
@@ -164,7 +164,7 @@ pnpm test:integration`,
         title: 'Register a typed custom rule',
         body:
           'Rules accept optional Zod-backed config and run against the full policy context. The engine validates config before evaluation, so admin UIs can safely expose rule settings.',
-        code: `import { definePolicyRule, PolicyEngine } from '@keeta-agent-sdk/policy';
+        code: `import { definePolicyRule, PolicyEngine } from '@keeta-agent-stack/policy';
 import { z } from 'zod';
 
 const engine = new PolicyEngine({ includeDefaultRules: false });
@@ -186,7 +186,7 @@ engine.register(
         title: 'Compose rules',
         body:
           'The engine now supports composition definitions and per-entry toggles. That lets you express corridor bundles without unregistering the underlying rule set.',
-        code: `import { definePolicyComposition } from '@keeta-agent-sdk/policy';
+        code: `import { definePolicyComposition } from '@keeta-agent-stack/policy';
 
 engine.registerComposition(
   definePolicyComposition({
@@ -227,7 +227,7 @@ pnpm test:integration`,
           'Tracing is opt-in. Set an OTLP endpoint or turn on the console exporter, then the API and worker will emit connected spans across queue boundaries for the main execution path.',
         code: `export OTEL_ENABLED=true
 export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
-export OTEL_SERVICE_NAME=keeta-agent-sdk`,
+export OTEL_SERVICE_NAME=keeta-agent-stack`,
       },
       {
         title: 'Subscribe to events',
@@ -271,7 +271,7 @@ function renderShell({ current, title, eyebrow, lead, body, aside }) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escapeHtml(title)} | Keeta Agent SDK</title>
+    <title>${escapeHtml(title)} | Keeta Agent Stack</title>
     <style>
       :root {
         color-scheme: light;
@@ -463,7 +463,7 @@ function renderHome() {
   return renderShell({
     current: './index.html',
     title: 'Build Keeta-native agents with a durable execution fabric.',
-    eyebrow: 'Keeta Agent SDK',
+    eyebrow: 'Keeta Agent Stack',
     lead:
       'This docs bundle covers the SDK, the control plane API, the worker pipeline, and the operator workflows that make the stack production-oriented without hiding the moving parts.',
     body: `<section class="section">
@@ -557,7 +557,7 @@ for (const guide of guides) {
 // `openapi.json` is written by `scripts/snapshot-openapi.ts`, which calls the real
 // `buildOpenApiDocument()` from apps/api so this docs bundle ships the canonical
 // OpenAPI 3.1 spec (not the abbreviated `endpointGroups` summary above, which is
-// only used to render the HTML cards). Run `pnpm --filter @keeta-agent-sdk/docs build`
+// only used to render the HTML cards). Run `pnpm --filter @keeta-agent-stack/docs build`
 // to invoke both steps.
 void staticPaths;
 

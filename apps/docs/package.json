@@ -1,5 +1,5 @@
 {
-  "name": "@keeta-agent-sdk/docs",
+  "name": "@keeta-agent-stack/docs",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@keeta-agent-sdk/api": "workspace:*"
+    "@keeta-agent-stack/api": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

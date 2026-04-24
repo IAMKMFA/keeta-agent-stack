@@ -6,7 +6,7 @@ loop.
 
 ## Prerequisites
 
-- API running locally: `pnpm dev:all` from the repo root, or `pnpm --filter @keeta-agent-sdk/api dev`.
+- API running locally: `pnpm dev:all` from the repo root, or `pnpm --filter @keeta-agent-stack/api dev`.
 - (Optional) `API_URL` env override if you point at a remote control plane.
 
 ## Run it

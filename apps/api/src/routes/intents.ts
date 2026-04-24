@@ -1,8 +1,8 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { randomUUID } from 'node:crypto';
-import { ExecutionIntentSchema, canTransitionIntentStatus, type ExecutionIntent } from '@keeta-agent-sdk/types';
-import { intentRepo, routeRepo, auditRepo, routeOverrideRepo } from '@keeta-agent-sdk/storage';
-import { QUEUE_NAMES, getDefaultJobOptions } from '@keeta-agent-sdk/config';
+import { ExecutionIntentSchema, canTransitionIntentStatus, type ExecutionIntent } from '@keeta-agent-stack/types';
+import { intentRepo, routeRepo, auditRepo, routeOverrideRepo } from '@keeta-agent-stack/storage';
+import { QUEUE_NAMES, getDefaultJobOptions } from '@keeta-agent-stack/config';
 import { z } from 'zod';
 import { enqueueJobWithTelemetry } from '../lib/job-tracing.js';
 import { requireAdminAccess, requireOperatorAccess, requireViewerAccess } from '../lib/auth.js';

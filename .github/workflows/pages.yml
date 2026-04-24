@@ -35,8 +35,8 @@ jobs:
 
       - name: Build docs bundle
         env:
-          API_URL: https://sandbox.keeta-agent-sdk.dev
-        run: pnpm --filter @keeta-agent-sdk/docs build
+          API_URL: https://sandbox.keeta-agent-stack.dev
+        run: pnpm --filter @keeta-agent-stack/docs build
 
       - uses: actions/upload-pages-artifact@v3
         with:

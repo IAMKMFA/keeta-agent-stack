@@ -1,6 +1,6 @@
 import pg from 'pg';
 import { Redis } from 'ioredis';
-import { runUpMigrations } from '@keeta-agent-sdk/storage';
+import { runUpMigrations } from '@keeta-agent-stack/storage';
 
 export interface IntegrationRuntimeConfig {
   adminDatabaseUrl: string;

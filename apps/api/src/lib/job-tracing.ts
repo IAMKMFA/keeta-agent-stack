@@ -6,7 +6,7 @@ import {
   withSpan,
   type TelemetryAttributes,
   type TraceablePayload,
-} from '@keeta-agent-sdk/telemetry';
+} from '@keeta-agent-stack/telemetry';
 
 export function withRequestTelemetry<T extends Record<string, unknown>>(
   req: FastifyRequest,

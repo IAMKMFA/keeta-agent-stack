@@ -13,7 +13,7 @@ import nextPlugin from '@next/eslint-plugin-next';
  *        must go through the helpers in `lib/api.ts`, which already set
  *        `cache: 'no-store'`.
  *
- *   A8 — `@keeta-agent-sdk/sdk` cannot be imported from files that begin
+ *   A8 — `@keeta-agent-stack/sdk` cannot be imported from files that begin
  *        with a `'use client'` directive (enforced by the
  *        `no-sdk-in-client` project rule below at lint-security.ts time;
  *        here we simply block the import outright from any component
@@ -50,7 +50,7 @@ export default [
         {
           patterns: [
             {
-              group: ['**/apps/mcp/**', 'apps/mcp/**', '@keeta-agent-sdk/mcp', '@keeta-agent-sdk/mcp/**'],
+              group: ['**/apps/mcp/**', 'apps/mcp/**', '@keeta-agent-stack/mcp', '@keeta-agent-stack/mcp/**'],
               message:
                 'The dashboard must not import MCP internals. Move shared logic to packages/* or expose it via apps/api.',
             },

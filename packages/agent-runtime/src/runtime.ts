@@ -1,15 +1,15 @@
-import type { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
+import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
 import {
   PolicyEngine,
   type PolicyConfig,
   type PolicyEvaluationOverrides,
   type PolicyRuleDefinition,
   type PolicyRuleMetadata,
-} from '@keeta-agent-sdk/policy';
-import { Router } from '@keeta-agent-sdk/routing';
-import { simulate } from '@keeta-agent-sdk/simulator';
-import type { ExecutionIntent, PolicyDecision, RoutePlan, SimulationResult } from '@keeta-agent-sdk/types';
-import type { Signer } from '@keeta-agent-sdk/wallet';
+} from '@keeta-agent-stack/policy';
+import { Router } from '@keeta-agent-stack/routing';
+import { simulate } from '@keeta-agent-stack/simulator';
+import type { ExecutionIntent, PolicyDecision, RoutePlan, SimulationResult } from '@keeta-agent-stack/types';
+import type { Signer } from '@keeta-agent-stack/wallet';
 
 export interface AgentRuntimeHookContext {
   intent: ExecutionIntent;

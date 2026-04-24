@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { MockDexAdapter } from '@keeta-agent-sdk/adapter-mock-dex';
-import { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import type { ExecutionIntent } from '@keeta-agent-sdk/types';
+import { MockDexAdapter } from '@keeta-agent-stack/adapter-mock-dex';
+import { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import type { ExecutionIntent } from '@keeta-agent-stack/types';
 import { AgentRuntime } from './runtime.js';
 
 function createIntent(): ExecutionIntent {

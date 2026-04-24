@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyPluginAsync, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { KtaOracleClient, KtaOracleRequestError, buildOraclePaymentPlaybook } from '@keeta-agent-sdk/keeta';
+import { KtaOracleClient, KtaOracleRequestError, buildOraclePaymentPlaybook } from '@keeta-agent-stack/keeta';
 import { requireOperatorAccess, requireViewerAccess } from '../lib/auth.js';
 
 const rateQuerySchema = z.object({

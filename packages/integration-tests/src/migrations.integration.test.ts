@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import pg from 'pg';
-import { runDownMigrations, runUpMigrations } from '@keeta-agent-sdk/storage';
+import { runDownMigrations, runUpMigrations } from '@keeta-agent-stack/storage';
 import { createIsolatedDatabase, getIntegrationRuntimeConfig, shouldRunIntegrationTests } from './support.js';
 
 const integration = shouldRunIntegrationTests() ? describe : describe.skip;

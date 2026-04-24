@@ -1,7 +1,7 @@
 # Deployment Guide
 
 This guide walks operators from a local dev stack to a hardened production
-deployment of the Keeta Agent SDK. It covers topology, environment, scaling,
+deployment of the Keeta Agent Stack. It covers topology, environment, scaling,
 security, observability, zero-downtime rollouts, and platform-specific
 recipes.
 
@@ -36,10 +36,10 @@ flowchart LR
 
 | Component         | Process                 | State                | Scale dim                |
 | ----------------- | ----------------------- | -------------------- | ------------------------ |
-| API               | `pnpm --filter @keeta-agent-sdk/api start`     | stateless            | replicas behind LB        |
-| Worker            | `pnpm --filter @keeta-agent-sdk/worker start`  | stateless (Redis lease) | concurrency + replicas |
-| Dashboard         | `pnpm --filter @keeta-agent-sdk/dashboard start` | stateless           | replicas behind LB        |
-| MCP (optional)    | `pnpm --filter @keeta-agent-sdk/mcp start`     | stateless            | per-LLM tenant            |
+| API               | `pnpm --filter @keeta-agent-stack/api start`     | stateless            | replicas behind LB        |
+| Worker            | `pnpm --filter @keeta-agent-stack/worker start`  | stateless (Redis lease) | concurrency + replicas |
+| Dashboard         | `pnpm --filter @keeta-agent-stack/dashboard start` | stateless           | replicas behind LB        |
+| MCP (optional)    | `pnpm --filter @keeta-agent-stack/mcp start`     | stateless            | per-LLM tenant            |
 | Postgres          | `postgres:16-alpine`    | durable              | vertical, then read replicas |
 | Redis             | `redis:7-alpine`        | ephemeral (queues)   | vertical, then cluster   |
 
@@ -104,7 +104,7 @@ metrics from drifting against unrelated caches.
 
 ## Postgres Tuning
 
-- Run migrations on every deploy: `pnpm --filter @keeta-agent-sdk/api migrate`
+- Run migrations on every deploy: `pnpm --filter @keeta-agent-stack/api migrate`
   (or your equivalent CI step). Migrations live in
   [`infrastructure/migrations`](../infrastructure/migrations).
 - Pool: set `max_connections` ≥ `(api_replicas * api_pool) + (worker_replicas * worker_pool)`.
@@ -234,7 +234,7 @@ fly deploy --config apps/worker/fly.toml
 fly deploy --config apps/mcp/fly.toml
 ```
 
-Suggested public URL: `sandbox.keeta-agent-sdk.dev` (CNAME to the API
+Suggested public URL: `sandbox.keeta-agent-stack.dev` (CNAME to the API
 Fly app). Document the URL in the root `README.md` once it is live.
 
 ## Starter `docker-compose.prod.yml`
@@ -330,7 +330,7 @@ volumes:
 ```yaml
 apiVersion: v2
 name: keeta-agent
-description: Keeta Agent SDK (api + worker + dashboard + mcp)
+description: Keeta Agent Stack (api + worker + dashboard + mcp)
 type: application
 version: 0.1.0
 appVersion: '0.1.0'

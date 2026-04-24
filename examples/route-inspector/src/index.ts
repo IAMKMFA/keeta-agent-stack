@@ -7,9 +7,9 @@
  *
  * Maps to the "Route inspector" row in the root README's Common Agent Patterns.
  */
-import { AdapterRegistry, createDefaultDevAdapters } from '@keeta-agent-sdk/adapter-registry';
-import { Router } from '@keeta-agent-sdk/routing';
-import type { ExecutionIntent } from '@keeta-agent-sdk/types';
+import { AdapterRegistry, createDefaultDevAdapters } from '@keeta-agent-stack/adapter-registry';
+import { Router } from '@keeta-agent-stack/routing';
+import type { ExecutionIntent } from '@keeta-agent-stack/types';
 
 async function main() {
   const registry = new AdapterRegistry();

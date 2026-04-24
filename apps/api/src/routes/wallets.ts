@@ -1,8 +1,8 @@
 import type { FastifyInstance, FastifyPluginAsync, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { WalletSettingsSchema } from '@keeta-agent-sdk/types';
-import { balanceRepo, policyRepo, walletRepo } from '@keeta-agent-sdk/storage';
-import { createKeetaWallet, getBalances, KeetaConnectionError } from '@keeta-agent-sdk/keeta';
+import { WalletSettingsSchema } from '@keeta-agent-stack/types';
+import { balanceRepo, policyRepo, walletRepo } from '@keeta-agent-stack/storage';
+import { createKeetaWallet, getBalances, KeetaConnectionError } from '@keeta-agent-stack/keeta';
 import { requireOperatorAccess, requireViewerAccess } from '../lib/auth.js';
 
 const walletSettingsBody = WalletSettingsSchema.optional();

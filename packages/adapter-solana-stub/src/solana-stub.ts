@@ -14,14 +14,14 @@
  *   - implement true idempotency on (intentId, stepIndex)
  *   - cover with the shared `runAdapterContractSuite` once execute is real
  */
-import type { DexVenueAdapter, ExecuteContext } from '@keeta-agent-sdk/adapter-base';
-import { err, ok } from '@keeta-agent-sdk/adapter-base';
+import type { DexVenueAdapter, ExecuteContext } from '@keeta-agent-stack/adapter-base';
+import { err, ok } from '@keeta-agent-stack/adapter-base';
 import type {
   AdapterHealth,
   CapabilityMap,
   QuoteRequest,
   QuoteResponse,
-} from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/types';
 import { randomUUID } from 'node:crypto';
 
 const ENV_FLAG = 'KEETA_ENABLE_SOLANA_STUB';

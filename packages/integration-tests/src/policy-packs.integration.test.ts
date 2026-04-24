@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { policyRepo, settingsRepo } from '@keeta-agent-sdk/storage';
+import { policyRepo, settingsRepo } from '@keeta-agent-stack/storage';
 import { createIntegrationTestRuntime } from './harness.js';
 import { shouldRunIntegrationTests } from './support.js';
 

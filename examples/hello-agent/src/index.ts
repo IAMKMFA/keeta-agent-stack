@@ -1,7 +1,7 @@
 /**
  * The 60-second hello agent.
  *
- * Prereqs: a running Keeta Agent SDK API at $KEETA_API_URL (default
+ * Prereqs: a running Keeta Agent Stack API at $KEETA_API_URL (default
  * http://localhost:3001). Start one with `pnpm dev:all` from the repo root.
  *
  * What this does:
@@ -14,7 +14,7 @@
  * `client.routeIntent(...)`, `client.policyIntent(...)`, then
  * `client.executeIntent(...)`.
  */
-import { createClient } from '@keeta-agent-sdk/sdk';
+import { createClient } from '@keeta-agent-stack/sdk';
 
 const baseUrl = process.env.KEETA_API_URL ?? 'http://localhost:3001';
 const client = createClient({ baseUrl });

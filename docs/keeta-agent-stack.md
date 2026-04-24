@@ -1,4 +1,4 @@
-# Keeta Agent SDK
+# Keeta Agent Stack
 
 ## Status
 
@@ -8,7 +8,7 @@ Current state: in progress. This is a working build and not the final release ve
 
 ## Positioning
 
-The Keeta Agent SDK is now a full agent execution platform with five aligned layers:
+The Keeta Agent Stack is now a full agent execution platform with five aligned layers:
 
 1. SDK surface for external agent builders
 2. Shared typed contract layer
@@ -166,9 +166,9 @@ This matters because real agents need a real operating surface, not just develop
 Routing topology, policy gating, and the durable pipeline are real and live.
 **Live venue liquidity** today comes from two adapters:
 
-- `@keeta-agent-sdk/adapter-keeta-transfer` — native KTA transfers via the
+- `@keeta-agent-stack/adapter-keeta-transfer` — native KTA transfers via the
   worker's signing path.
-- `@keeta-agent-sdk/adapter-oracle-rail` — KTA Oracle for quotes plus a
+- `@keeta-agent-stack/adapter-oracle-rail` — KTA Oracle for quotes plus a
   configurable HTTP partner rail (CCTP-style) for execution.
 
 Everything else under `packages/adapter-*` is a synthetic mock used in tests
@@ -185,7 +185,7 @@ The SDK is already serious. To make it feel unmistakably category-defining, the 
 
 ### Public Developer Experience
 
-- publish `@keeta-agent-sdk/sdk`
+- publish `@keeta-agent-stack/sdk`
 - host the docs site
 - add copy-paste agent templates for key use cases
 

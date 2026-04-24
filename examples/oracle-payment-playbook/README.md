@@ -7,7 +7,7 @@ exchange instructions.
 ## Prerequisites
 
 - Either the live KTA Oracle (`KTA_ORACLE_BASE_URL`) or the bundled mock that
-  ships with `@keeta-agent-sdk/keeta`. The example falls back to the mock when
+  ships with `@keeta-agent-stack/keeta`. The example falls back to the mock when
   no env is set.
 - (Optional) `KTA_ORACLE_TIMEOUT_MS` to tighten the network timeout.
 

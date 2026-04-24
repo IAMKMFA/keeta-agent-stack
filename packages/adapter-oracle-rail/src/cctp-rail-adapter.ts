@@ -1,8 +1,8 @@
-import type { VenueAdapter } from '@keeta-agent-sdk/adapter-base';
-import { err, ok } from '@keeta-agent-sdk/adapter-base';
-import type { ExecuteContext } from '@keeta-agent-sdk/adapter-base';
-import { KtaOracleClient } from '@keeta-agent-sdk/keeta';
-import type { AdapterHealth, CapabilityMap, QuoteRequest } from '@keeta-agent-sdk/types';
+import type { VenueAdapter } from '@keeta-agent-stack/adapter-base';
+import { err, ok } from '@keeta-agent-stack/adapter-base';
+import type { ExecuteContext } from '@keeta-agent-stack/adapter-base';
+import { KtaOracleClient } from '@keeta-agent-stack/keeta';
+import type { AdapterHealth, CapabilityMap, QuoteRequest } from '@keeta-agent-stack/types';
 import { randomUUID } from 'node:crypto';
 
 const DEFAULT_ID = 'oracle-rail-cctp-usdc';

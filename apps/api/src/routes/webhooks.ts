@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import { webhookRepo } from '@keeta-agent-sdk/storage';
+import { webhookRepo } from '@keeta-agent-stack/storage';
 import { requireOperatorAccess } from '../lib/auth.js';
 
 const createWebhookSchema = z.object({

@@ -1,12 +1,12 @@
-import type { DexVenueAdapter } from '@keeta-agent-sdk/adapter-base';
-import { err, ok } from '@keeta-agent-sdk/adapter-base';
-import type { ExecuteContext } from '@keeta-agent-sdk/adapter-base';
+import type { DexVenueAdapter } from '@keeta-agent-stack/adapter-base';
+import { err, ok } from '@keeta-agent-stack/adapter-base';
+import type { ExecuteContext } from '@keeta-agent-stack/adapter-base';
 import type {
   AdapterHealth,
   CapabilityMap,
   QuoteRequest,
   QuoteResponse,
-} from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/types';
 import { randomUUID } from 'node:crypto';
 
 export interface MockDexConfig {

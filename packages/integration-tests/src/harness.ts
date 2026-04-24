@@ -1,7 +1,7 @@
 import { createHmac, randomUUID } from 'node:crypto';
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http';
 import { SignJWT } from 'jose';
-import type { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
+import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
 import {
   auditRepo,
   createDb,
@@ -11,8 +11,8 @@ import {
   simulationRepo,
   strategyRepo,
   webhookRepo,
-} from '@keeta-agent-sdk/storage';
-import type { ExecutionIntent, IntentPipelineState } from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/storage';
+import type { ExecutionIntent, IntentPipelineState } from '@keeta-agent-stack/types';
 import { buildApiApp } from '../../../apps/api/src/server.js';
 import { runWorkerApp } from '../../../apps/worker/src/index.js';
 import {
@@ -254,7 +254,7 @@ export async function createIntegrationTestRuntime(
         .setProtectedHeader({ alg: 'HS256' })
         .setSubject(`integration-${role}`)
         .setIssuer('integration-tests')
-        .setAudience('keeta-agent-sdk')
+        .setAudience('keeta-agent-stack')
         .setIssuedAt()
         .setExpirationTime('5m')
         .sign(new TextEncoder().encode(jwtSecret));

@@ -2,10 +2,10 @@ import type {
   AdapterHealth,
   CapabilityMap,
   QuoteRequest,
-} from '@keeta-agent-sdk/types';
+} from '@keeta-agent-stack/types';
 import type { ExecuteContext } from './context.js';
 import type { ExecuteAdapterResult, QuoteAdapterResult } from './result.js';
-import type { VenueKind } from '@keeta-agent-sdk/types';
+import type { VenueKind } from '@keeta-agent-stack/types';
 
 /** Base contract for any venue (DEX, anchor bridge, native transfer). */
 export interface VenueAdapter {

@@ -1,8 +1,8 @@
 import type { Redis } from 'ioredis';
-import type { Database } from '@keeta-agent-sdk/storage';
-import { operatorMetricsRepo } from '@keeta-agent-sdk/storage';
-import type { AppEnv } from '@keeta-agent-sdk/config';
-import type { RouteScoreAdjustment } from '@keeta-agent-sdk/types';
+import type { Database } from '@keeta-agent-stack/storage';
+import { operatorMetricsRepo } from '@keeta-agent-stack/storage';
+import type { AppEnv } from '@keeta-agent-stack/config';
+import type { RouteScoreAdjustment } from '@keeta-agent-stack/types';
 
 export interface OperatorMetrics {
   successRate?: number;       // 0–100 (rolling 24h)

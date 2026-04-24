@@ -35,9 +35,9 @@ export {
   type UpdatePolicyPackRequest,
   type WalletSummary,
 } from './client.js';
-export * from '@keeta-agent-sdk/types';
+export * from '@keeta-agent-stack/types';
 export type {
   PolicyComposition,
   PolicyPack,
   PolicyRule,
-} from '@keeta-agent-sdk/policy';
+} from '@keeta-agent-stack/policy';

@@ -1,12 +1,12 @@
 # Security Policy
 
-The Keeta Agent SDK ships infrastructure that touches signing keys, live
+The Keeta Agent Stack ships infrastructure that touches signing keys, live
 payments, and operator controls. We take security reports seriously and ask
 that you give us a chance to fix issues before they are made public.
 
 ## Supported Versions
 
-The Keeta Agent SDK is in active 0.x pre-release. Security fixes land on
+The Keeta Agent Stack is in active 0.x pre-release. Security fixes land on
 `main`. Tagged releases will be supported on a rolling-latest basis once
 1.0 ships.
 
@@ -23,7 +23,7 @@ Please **do not** open a public GitHub issue for security reports.
 Instead, use one of these private channels:
 
 1. **GitHub Security Advisories** — preferred. Go to the repository's
-   [Security tab](https://github.com/IAMKMFA/keeta-agent-sdk/security/advisories/new)
+   [Security tab](https://github.com/IAMKMFA/keeta-agent-stack/security/advisories/new)
    and click *Report a vulnerability*. This creates a private advisory only
    the maintainers can read.
 2. **Direct contact** — if you don't have a GitHub account, open an empty
@@ -49,7 +49,7 @@ In scope:
 - the API (`apps/api`), worker (`apps/worker`), dashboard (`apps/dashboard`),
   and MCP server (`apps/mcp`)
 - every package under `packages/`
-- the published `@keeta-agent-sdk/*` npm packages once they are released
+- the published `@keeta-agent-stack/*` npm packages once they are released
 - the starter template (`starter-agent-template/`)
 - documentation that recommends insecure defaults
 
@@ -69,7 +69,7 @@ logic**. Concretely:
 
 - **`KEETA_SIGNING_SEED`** is read **only by `apps/worker`** (and, for local
   development scripts, by your shell). The API, dashboard, MCP server, and
-  every published `@keeta-agent-sdk/*` package on npm are all designed to
+  every published `@keeta-agent-stack/*` package on npm are all designed to
   drive execution without ever needing the seed in their process.
 - **`apps/worker`** is the only process that materialises a signing
   `UserClient` and submits transactions. Live execution of native KTA

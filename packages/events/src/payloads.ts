@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EffectivePolicyPackSchema } from '@keeta-agent-sdk/types';
+import { EffectivePolicyPackSchema } from '@keeta-agent-stack/types';
 
 export const IntentCreatedPayloadSchema = z.object({
   intentId: z.string().uuid(),

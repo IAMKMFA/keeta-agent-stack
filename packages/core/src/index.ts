@@ -1,4 +1,4 @@
-import type { ExecutionIntent, RoutePlan } from '@keeta-agent-sdk/types';
+import type { ExecutionIntent, RoutePlan } from '@keeta-agent-stack/types';
 
 export type {
   VerifiableExecutionJournal,

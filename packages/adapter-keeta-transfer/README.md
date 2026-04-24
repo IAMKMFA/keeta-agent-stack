@@ -1,8 +1,8 @@
-# `@keeta-agent-sdk/adapter-keeta-transfer`
+# `@keeta-agent-stack/adapter-keeta-transfer`
 
-Live native KTA transfer adapter. Uses `@keeta-agent-sdk/keeta` to send transfers via the worker.
+Live native KTA transfer adapter. Uses `@keeta-agent-stack/keeta` to send transfers via the worker.
 
-Part of the [Keeta Agent SDK](https://github.com/IAMKMFA/keeta-agent-sdk). For end-user agent code, start with [`@keeta-agent-sdk/sdk`](https://www.npmjs.com/package/@keeta-agent-sdk/sdk) or [`@keeta-agent-sdk/agent-runtime`](https://www.npmjs.com/package/@keeta-agent-sdk/agent-runtime); this package is a building block.
+Part of the [Keeta Agent Stack](https://github.com/IAMKMFA/keeta-agent-stack). For end-user agent code, start with [`@keeta-agent-stack/sdk`](https://www.npmjs.com/package/@keeta-agent-stack/sdk) or [`@keeta-agent-stack/agent-runtime`](https://www.npmjs.com/package/@keeta-agent-stack/agent-runtime); this package is a building block.
 
 ## Status
 

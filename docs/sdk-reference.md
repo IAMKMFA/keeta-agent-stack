@@ -1,6 +1,6 @@
 # SDK Reference & OpenAPI
 
-The Keeta Agent SDK exposes two complementary reference surfaces. This page is also the front matter that Typedoc renders at the top of the generated HTML site.
+The Keeta Agent Stack exposes two complementary reference surfaces. This page is also the front matter that Typedoc renders at the top of the generated HTML site.
 
 ## OpenAPI (live API control plane)
 
@@ -26,7 +26,7 @@ You should be able to expand `/me`, `/intents`, and `/anchors/health`, click **T
 
 ```ts
 import { writeFileSync } from 'node:fs';
-import { buildOpenApiDocument } from '@keeta-agent-sdk/api/openapi';
+import { buildOpenApiDocument } from '@keeta-agent-stack/api/openapi';
 writeFileSync('openapi.json', JSON.stringify(buildOpenApiDocument({ serverUrl: 'https://api.your.tld' }), null, 2));
 ```
 
@@ -36,9 +36,9 @@ Drop the resulting file into your public docs site or hand it to a downstream co
 
 Typedoc renders the public TypeScript surface of the publishable packages:
 
-- [`@keeta-agent-sdk/sdk`](../packages/sdk) — typed HTTP client (`createClient`, request/response types).
-- [`@keeta-agent-sdk/agent-runtime`](../packages/agent-runtime) — `createKeetaAgent`, `AgentRuntime`, hook types.
-- [`@keeta-agent-sdk/types`](../packages/types) — shared Zod schemas (intent, route plan, simulation, policy, events).
+- [`@keeta-agent-stack/sdk`](../packages/sdk) — typed HTTP client (`createClient`, request/response types).
+- [`@keeta-agent-stack/agent-runtime`](../packages/agent-runtime) — `createKeetaAgent`, `AgentRuntime`, hook types.
+- [`@keeta-agent-stack/types`](../packages/types) — shared Zod schemas (intent, route plan, simulation, policy, events).
 
 ### Generate
 

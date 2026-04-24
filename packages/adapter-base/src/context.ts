@@ -1,4 +1,4 @@
-import type { ExecutionMode, RouteStep } from '@keeta-agent-sdk/types';
+import type { ExecutionMode, RouteStep } from '@keeta-agent-stack/types';
 
 export interface ExecuteContext {
   intentId: string;

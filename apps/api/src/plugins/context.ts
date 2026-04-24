@@ -1,9 +1,9 @@
 import fp from 'fastify-plugin';
-import type { AdapterRegistry } from '@keeta-agent-sdk/adapter-registry';
-import type { AppEnv } from '@keeta-agent-sdk/config';
-import type { Database } from '@keeta-agent-sdk/storage';
+import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import type { AppEnv } from '@keeta-agent-stack/config';
+import type { Database } from '@keeta-agent-stack/storage';
 import type { Queue } from 'bullmq';
-import type { TelemetryEmitter } from '@keeta-agent-sdk/telemetry';
+import type { TelemetryEmitter } from '@keeta-agent-stack/telemetry';
 import { Redis as RedisClass } from 'ioredis';
 
 type RedisConnection = InstanceType<typeof RedisClass>;

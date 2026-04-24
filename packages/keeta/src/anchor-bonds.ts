@@ -1,5 +1,5 @@
-import type { AnchorBondStatus, AnchorWithdrawalDelayDays } from '@keeta-agent-sdk/types';
-import type { AppEnv } from '@keeta-agent-sdk/config';
+import type { AnchorBondStatus, AnchorWithdrawalDelayDays } from '@keeta-agent-stack/types';
+import type { AppEnv } from '@keeta-agent-stack/config';
 
 export interface AnchorBondVerificationInput {
   paymentAnchorId: string;

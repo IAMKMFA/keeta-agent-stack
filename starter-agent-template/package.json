@@ -2,7 +2,7 @@
   "name": "keeta-starter-agent",
   "version": "0.1.0",
   "private": true,
-  "description": "Standalone starter project for building a Keeta agent with @keeta-agent-sdk/agent-runtime.",
+  "description": "Standalone starter project for building a Keeta agent with @keeta-agent-stack/agent-runtime.",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -11,9 +11,9 @@
     "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
-    "@keeta-agent-sdk/agent-runtime": "^0.0.1",
-    "@keeta-agent-sdk/sdk": "^0.0.1",
-    "@keeta-agent-sdk/types": "^0.0.1",
+    "@keeta-agent-stack/agent-runtime": "^0.0.1",
+    "@keeta-agent-stack/sdk": "^0.0.1",
+    "@keeta-agent-stack/types": "^0.0.1",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

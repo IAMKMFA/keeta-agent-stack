@@ -2,10 +2,10 @@ import type { PolicyConfig } from './types.js';
 
 /**
  * Subset of `AppEnv` relevant to building a `PolicyConfig`. Callers can pass the full
- * `AppEnv` from `@keeta-agent-sdk/config` — this interface type matches structurally.
+ * `AppEnv` from `@keeta-agent-stack/config` — this interface type matches structurally.
  *
- * Keeping the type structural avoids a circular dependency between `@keeta-agent-sdk/policy`
- * and `@keeta-agent-sdk/config` (config doesn't depend on policy today; this inverts cleanly).
+ * Keeping the type structural avoids a circular dependency between `@keeta-agent-stack/policy`
+ * and `@keeta-agent-stack/config` (config doesn't depend on policy today; this inverts cleanly).
  */
 export interface PolicyEnvInputs {
   KEETA_POLICY_ENABLED?: boolean;

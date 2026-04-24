@@ -1,4 +1,4 @@
-import type { PolicyComposition, PolicyRule } from '@keeta-agent-sdk/policy';
+import type { PolicyComposition, PolicyRule } from '@keeta-agent-stack/policy';
 import { index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { executionIntents } from './intents';
 

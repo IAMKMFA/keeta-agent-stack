@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AdapterHealthSchema, CapabilityMapSchema } from '@keeta-agent-sdk/types';
+import { AdapterHealthSchema, CapabilityMapSchema } from '@keeta-agent-stack/types';
 import { NotImplementedError, TemplateAdapter } from './template-adapter.js';
 
 describe('TemplateAdapter', () => {

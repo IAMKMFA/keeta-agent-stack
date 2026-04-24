@@ -39,7 +39,7 @@ function render(payload: unknown) {
 }
 
 export function registerAnchorTools(server: McpServer): void {
-  server.tool('keeta_list_payment_anchors', 'List payment anchors known to the Keeta Agent SDK API.', {}, async () => {
+  server.tool('keeta_list_payment_anchors', 'List payment anchors known to the Keeta Agent Stack API.', {}, async () => {
     try {
       return render(await requestJson('/anchors'));
     } catch (error) {
@@ -62,7 +62,7 @@ export function registerAnchorTools(server: McpServer): void {
 
   server.tool(
     'keeta_create_payment_anchor_draft',
-    'Create a draft payment anchor record in the local Keeta Agent SDK API.',
+    'Create a draft payment anchor record in the local Keeta Agent Stack API.',
     {
       adapter_id: z.string().min(1),
       label: z.string().min(1),
@@ -100,7 +100,7 @@ export function registerAnchorTools(server: McpServer): void {
 
   server.tool(
     'keeta_update_payment_anchor_status',
-    'Advance a payment anchor through its lifecycle using the local Keeta Agent SDK API.',
+    'Advance a payment anchor through its lifecycle using the local Keeta Agent Stack API.',
     {
       id: z.string().uuid(),
       status: z.enum([
@@ -131,7 +131,7 @@ export function registerAnchorTools(server: McpServer): void {
 
   server.tool(
     'keeta_update_payment_anchor_bond',
-    'Create or update the current bond record for a payment anchor in the local Keeta Agent SDK API.',
+    'Create or update the current bond record for a payment anchor in the local Keeta Agent Stack API.',
     {
       id: z.string().uuid(),
       amount_atomic: z.string().min(1),
