@@ -10,11 +10,32 @@ Build Keeta-native agents that can take an intent, find the best route, enforce 
 
 ## Status
 
-Active development (0.x pre-release).
-
-This repository is an active build of the Keeta Agent SDK. It is already powerful and end-to-end capable, but it is still evolving and should be treated as a working release track rather than a final public release.
+**`0.1.0-alpha.0` is published on npm.** The SDK family
+(`@keeta-agent-sdk/sdk`, `@keeta-agent-sdk/agent-runtime`,
+`@keeta-agent-sdk/types`, `@keeta-agent-sdk/policy`, plus 15 supporting
+packages — see [CHANGELOG](./CHANGELOG.md)) is installable today. Surface is
+labeled `alpha` because the API may still shift before `0.1.0`; everything
+below works against the current release.
 
 Quick links: [Docs index](./docs/README.md) | [Contributing](./CONTRIBUTING.md) | [Code of Conduct](./CODE_OF_CONDUCT.md) | [Security](./SECURITY.md) | [Changelog](./CHANGELOG.md)
+
+## Get started in 30 seconds
+
+```bash
+pnpm add @keeta-agent-sdk/sdk @keeta-agent-sdk/agent-runtime @keeta-agent-sdk/types
+```
+
+Three files to read first, in order:
+
+1. **[`examples/hello-agent`](./examples/hello-agent)** — minimal `createClient` -> wallet -> intent -> quote in <30 lines. Run it against the hosted sandbox or your own API.
+2. **[`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md)** — every one of the 81 MCP tools, grouped by module, with input schemas and read/write/signing classification. Auto-generated from the live Zod schemas, verified in CI.
+3. **[`templates/treasury-rebalancer`](./templates/treasury-rebalancer)** — the flagship template: a real drift-driven rebalance loop with a working policy pack (caps, slippage, venue + asset allowlists, daily-trade and unsettled gates), pinned to every emitted intent.
+
+Three more things you probably want next:
+
+- **Hosted OpenAPI spec** — published from `main` to GitHub Pages. Spec at <https://iamkmfa.github.io/keeta-agent-sdk/openapi.json>, full docs bundle at <https://iamkmfa.github.io/keeta-agent-sdk/>.
+- **Deploy your own sandbox** — multi-stage [`Dockerfile`](./Dockerfile), [`docker-compose.prod.yml`](./docker-compose.prod.yml), and Fly configs at [`apps/api/fly.toml`](./apps/api/fly.toml) / [`apps/worker/fly.toml`](./apps/worker/fly.toml) / [`apps/mcp/fly.toml`](./apps/mcp/fly.toml). Bootstrap commands in [`docs/deployment.md`](./docs/deployment.md#hosted-sandbox-flyio). Sandbox defaults: Keeta testnet, read-only, `MCP_ALLOW_INLINE_SEEDS=false`.
+- **Security model in one page** — [`SECURITY.md`](./SECURITY.md) covers `KEETA_SIGNING_SEED` handling (worker-only), `MCP_ALLOW_INLINE_SEEDS` rationale, seed rotation, and the `OPS_API_KEY` / `ADMIN_BYPASS_TOKEN` authorization surfaces.
 
 ## In One Minute
 
@@ -330,10 +351,11 @@ The integration suite runs the real API and worker against Postgres and Redis.
 ## Where to next
 
 - [Documentation index](./docs/README.md) - guided map across the long-form docs, generated references, and live API docs.
-- [Deployment guide](./docs/deployment.md) — topology, env, scaling, observability, platform recipes, and a reference `docker-compose.prod.yml` + Helm chart skeleton.
+- [Deployment guide](./docs/deployment.md) — topology, env, scaling, observability, the hosted-sandbox Fly recipe, and a reference `docker-compose.prod.yml` + Helm chart skeleton.
 - [Creating a new adapter](./docs/creating-new-adapter.md) — step-by-step from `packages/adapter-template/` through routing weights and tests.
 - [MCP + LLM integration](./examples/mcp-llm-integration.md) — Grok, Claude, and LangGraph wiring with the Oracle Payment Playbook walkthrough.
 - [Capability matrix](./docs/capability-matrix.md) — adapter coverage and parity tracking.
+- [Treasury rebalancer template](./templates/treasury-rebalancer) — flagship agent: drift math, working policy pack, hosted-sandbox-ready.
 - [Starter agent template](./starter-agent-template) — minimal standalone project that pins the published packages.
 
 ## Community & Governance
