@@ -90,17 +90,26 @@ It is intentionally precise. It describes what is first-class today, what is par
 
 ## Rails / Adapters
 
-| Capability | Backend/API | TypeScript SDK | MCP | Status | Notes |
-|---|---|---|---|---|---|
-| List adapters | Yes | Yes | No dedicated tool | Good | Backend returns `id` and `kind` |
-| Adapter health | Yes | Partial | No | Partial | Backend route exists; can be promoted in SDK/MCP |
-| Production vs mock labeling | Partial | Yes | Indirect | Good | SDK now clearly marks `mock-dex` and `mock-anchor` as non-production |
-| Shared built-in rail metadata | No public route | Yes | Indirect | Good | Shared local registry metadata source |
-| Enumerated fiat-push / fiat-pull / crypto rails (UAE, CAD, Plaid, PULL) | No public route | Yes (`listRailCatalog`, `filterRailCatalog`) | Yes (`keeta_list_available_rails`) | Good | Backed by `@keetanetwork/anchor` 0.0.58 enum surface |
-| Anchor chaining (resolveAssets / pathOwner / distance) | Indirect (via worker) | Types exposed on `ExecutionResult` | Yes (`keeta_anchor_chaining_*`) | Good | MCP tools require server-held seed unless `MCP_ALLOW_INLINE_SEEDS=true` |
-| Mock CEX adapter (`@keeta-agent-sdk/adapter-mock-cex`) | n/a | n/a | n/a | Good | In-memory CLOB-style adapter. Disabled unless `KEETA_ENABLE_MOCK_CEX=true`. Quote + simulate + live (in-memory balances) all real. |
-| Solana stub adapter (`@keeta-agent-sdk/adapter-solana-stub`) | n/a | n/a | n/a | Partial | Quote + simulate work for routing demos. `execute(mode='live')` throws `SolanaNotImplementedError`. Disabled unless `KEETA_ENABLE_SOLANA_STUB=true`. See [docs/creating-new-adapter.md](./creating-new-adapter.md). |
-| Adapter template (`@keeta-agent-sdk/adapter-template`) | n/a | n/a | n/a | Strong | Boilerplate; `execute` throws `NotImplementedError`. Use as a starting point for a real venue. |
+> **Adapter honesty caveat**: routing topology is live, but venue liquidity
+> today comes from **two integration adapters** (`keeta-transfer`, native;
+> `oracle-rail`, HTTP partner). Everything else is either a synthetic mock
+> useful for development, a stub that quotes and simulates but cannot
+> execute live, or a template you copy and fill in. See the per-adapter rows.
+
+| Adapter / Capability | Status | Notes |
+|---|---|---|
+| `@keeta-agent-sdk/adapter-keeta-transfer` (native KTA) | **Live** | Real native KTA transfers via `@keetanetwork/keetanet-client` 0.16.x. Signing happens in `apps/worker`. |
+| `@keeta-agent-sdk/adapter-oracle-rail` (HTTP partner) | **Live (with config)** | KTA Oracle for quotes; configurable live CCTP-style URL for execution. Set `ORACLE_RAIL_*` env vars before flipping `mode: 'live'`. |
+| `@keeta-agent-sdk/adapter-mock-dex` | **Synthetic** | Used by `examples/paper-trader` and the integration harness. Not a real venue. |
+| `@keeta-agent-sdk/adapter-mock-anchor` | **Synthetic** | Mock anchor venue. Used in tests and demos. |
+| `@keeta-agent-sdk/adapter-mock-cex` | **Synthetic** | In-memory CLOB-style adapter. Disabled unless `KEETA_ENABLE_MOCK_CEX=true`. Quote + simulate + live (in-memory balances) all real, but balances are ephemeral. |
+| `@keeta-agent-sdk/adapter-solana-stub` | **Stub (simulate only)** | Quote + simulate work for routing demos. `execute(mode='live')` throws `SolanaNotImplementedError`. Disabled unless `KEETA_ENABLE_SOLANA_STUB=true`. |
+| `@keeta-agent-sdk/adapter-template` | **Boilerplate** | `execute` throws `NotImplementedError`. Copy this when integrating a real venue. See [`docs/creating-new-adapter.md`](./creating-new-adapter.md). |
+| List adapters | Strong | `GET /adapters`; SDK `listAdapters()` |
+| Adapter health | Good | Backend route exists; SDK has `partial` exposure |
+| Shared built-in rail metadata | Good | Local registry metadata source; SDK `listRailCatalog()` / `filterRailCatalog()` |
+| Enumerated fiat-push / fiat-pull / crypto rails (UAE, CAD, Plaid, PULL) | Good | Backed by `@keetanetwork/anchor` 0.0.58 enum surface |
+| Anchor chaining (resolveAssets / pathOwner / distance) | Good | MCP tools `keeta_anchor_chaining_*`. Require server-held seed unless `MCP_ALLOW_INLINE_SEEDS=true`. |
 
 ## Keeta Network Primitive Coverage
 

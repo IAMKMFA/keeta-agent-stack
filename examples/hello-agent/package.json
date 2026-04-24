@@ -1,0 +1,16 @@
+{
+  "name": "@keeta-agent-sdk/example-hello-agent",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@keeta-agent-sdk/sdk": "workspace:*",
+    "@keeta-agent-sdk/types": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

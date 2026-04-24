@@ -194,10 +194,56 @@ metrics from drifting against unrelated caches.
   KEDA (`bullmq-scaler`).
 - Use a `PodDisruptionBudget` (`minAvailable: 1`) for both API and worker.
 
+## Hosted sandbox (Fly.io)
+
+The repo ships ready-to-use Fly configs for deploying the API, worker, and
+MCP against Keeta testnet:
+
+- [`apps/api/fly.toml`](../apps/api/fly.toml) — public HTTPS, healthchecked.
+- [`apps/worker/fly.toml`](../apps/worker/fly.toml) — internal-only, holds
+  `KEETA_SIGNING_SEED` (no other process should).
+- [`apps/mcp/fly.toml`](../apps/mcp/fly.toml) — stdio MCP, runnable behind
+  an HTTP/SSE bridge if you need to expose it remotely.
+
+Sandbox defaults are intentionally conservative:
+
+- `KEETA_NETWORK=test` — pinned to Keeta testnet, never mainnet.
+- `MCP_ALLOW_INLINE_SEEDS=false` — agents cannot pass raw seeds; signing
+  has to go through the worker via `OPS_API_KEY`-gated control-plane tools.
+- API stays effectively read-only for unauthenticated callers; mutating
+  endpoints require `OPS_API_KEY` (or `ADMIN_BYPASS_TOKEN` for dev).
+
+First-time bootstrap:
+
+```bash
+fly apps create keeta-agent-sandbox-api
+fly apps create keeta-agent-sandbox-worker
+fly apps create keeta-agent-sandbox-mcp
+fly postgres create --name keeta-agent-sandbox-pg
+fly postgres attach --app keeta-agent-sandbox-api keeta-agent-sandbox-pg
+fly redis create --name keeta-agent-sandbox-redis   # or use Upstash
+
+fly secrets set --app keeta-agent-sandbox-api  OPS_API_KEY=...
+fly secrets set --app keeta-agent-sandbox-worker \
+  DATABASE_URL=... REDIS_URL=... KEETA_SIGNING_SEED=...
+fly secrets set --app keeta-agent-sandbox-mcp \
+  KEETA_API_URL=https://keeta-agent-sandbox-api.fly.dev OPS_API_KEY=...
+
+fly deploy --config apps/api/fly.toml
+fly deploy --config apps/worker/fly.toml
+fly deploy --config apps/mcp/fly.toml
+```
+
+Suggested public URL: `sandbox.keeta-agent-sdk.dev` (CNAME to the API
+Fly app). Document the URL in the root `README.md` once it is live.
+
 ## Starter `docker-compose.prod.yml`
 
-Drop this beside the existing `docker-compose.yml`, populate `.env.production`,
-then run `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`.
+A working version lives at the repo root as
+[`docker-compose.prod.yml`](../docker-compose.prod.yml) — populate
+`.env.production`, then run
+`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`.
+The snippet below is kept for reference / Helm comparison.
 
 ```yaml
 services:

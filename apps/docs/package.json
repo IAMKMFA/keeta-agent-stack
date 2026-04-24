@@ -2,11 +2,20 @@
   "name": "@keeta-agent-sdk/docs",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "node build.mjs",
-    "build": "node build.mjs",
+    "dev": "node build.mjs && tsx scripts/snapshot-openapi.ts",
+    "build": "node build.mjs && tsx scripts/snapshot-openapi.ts",
+    "snapshot:openapi": "tsx scripts/snapshot-openapi.ts",
     "lint": "node -e \"console.log('skip')\"",
     "typecheck": "node -e \"console.log('skip')\"",
     "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@keeta-agent-sdk/api": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }

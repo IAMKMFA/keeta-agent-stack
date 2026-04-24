@@ -26,13 +26,19 @@
     "demo": "bash scripts/demo.sh",
     "docs:generate": "typedoc",
     "docs:serve": "pnpm --filter @keeta-agent-sdk/api dev",
-    "docs:publish": "echo 'Configure your hosting target (e.g. gh-pages, S3) before running. See docs/sdk-reference.md.'"
+    "docs:publish": "echo 'Configure your hosting target (e.g. gh-pages, S3) before running. See docs/sdk-reference.md.'",
+    "changeset": "changeset",
+    "release": "pnpm build && changeset publish",
+    "publint:all": "node scripts/publint-all.mjs"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
     "@eslint/js": "^9.17.0",
     "@types/node": "^22.10.2",
     "eslint": "^9.17.0",
     "prettier": "^3.4.2",
+    "publint": "^0.3.18",
+    "tinyglobby": "^0.2.16",
     "turbo": "^2.3.3",
     "typedoc": "^0.28.19",
     "typescript": "^5.7.2",

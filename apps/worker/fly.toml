@@ -1,0 +1,36 @@
+# Fly.io app config for the Keeta Agent SDK worker.
+#
+# The worker is the only process that should ever hold KEETA_SIGNING_SEED.
+# It runs BullMQ processors for quote/route/policy/execute/simulation/etc.
+#
+# Bootstrap once:
+#   fly apps create keeta-agent-sandbox-worker
+#   fly secrets set --app keeta-agent-sandbox-worker \
+#     DATABASE_URL=$(fly secrets list --app keeta-agent-sandbox-api | grep DATABASE_URL ...) \
+#     REDIS_URL=...                   # share Upstash with API
+#     KEETA_SIGNING_SEED=...          # only the worker, never the API or MCP
+#
+# Deploy from repo root:
+#   fly deploy --config apps/worker/fly.toml --build-arg APP=worker --dockerfile Dockerfile
+
+app = "keeta-agent-sandbox-worker"
+primary_region = "iad"
+
+[build]
+  dockerfile = "../../Dockerfile"
+  [build.args]
+    APP = "worker"
+
+[env]
+  NODE_ENV = "production"
+  KEETA_NETWORK = "test"
+  LOG_LEVEL = "info"
+
+# Worker exposes no public ports; Fly still wants a process group entry.
+[processes]
+  worker = "pnpm --filter @keeta-agent-sdk/worker start"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "512mb"

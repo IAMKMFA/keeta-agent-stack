@@ -1,0 +1,47 @@
+# Fly.io app config for the Keeta Agent SDK API.
+#
+# Bootstrap once:
+#   fly apps create keeta-agent-sandbox-api
+#   fly postgres create --name keeta-agent-sandbox-pg
+#   fly postgres attach --app keeta-agent-sandbox-api keeta-agent-sandbox-pg
+#   fly redis create     # or use Upstash and `fly secrets set REDIS_URL=...`
+#   fly secrets set --app keeta-agent-sandbox-api \
+#     OPS_API_KEY=...                 # required for any control-plane mutation
+#     ADMIN_BYPASS_TOKEN=...          # optional, dev convenience only
+#
+# Deploy from repo root:
+#   fly deploy --config apps/api/fly.toml --build-arg APP=api --dockerfile Dockerfile
+
+app = "keeta-agent-sandbox-api"
+primary_region = "iad"
+
+[build]
+  dockerfile = "../../Dockerfile"
+  [build.args]
+    APP = "api"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3001"
+  # Sandbox is pinned to Keeta testnet; promote a separate Fly app for mainnet.
+  KEETA_NETWORK = "test"
+  LOG_LEVEL = "info"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "get"
+    path = "/healthz"
+    timeout = "5s"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "512mb"

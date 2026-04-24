@@ -1,0 +1,42 @@
+# Fly.io app config for the Keeta Agent SDK MCP server.
+#
+# Note: the MCP server speaks the stdio transport today (see
+# `apps/mcp/src/index.ts`), so this Fly app is intended for operators who
+# wrap it in an HTTP/SSE transport (e.g. via mcp-server-proxy) before
+# exposing it. The default `pnpm start` will run, but cannot be reached
+# directly over the public internet without a transport bridge.
+#
+# MCP_ALLOW_INLINE_SEEDS=false is the sandbox default — signing must go
+# through the worker via OPS_API_KEY-gated control-plane tools.
+#
+# Bootstrap once:
+#   fly apps create keeta-agent-sandbox-mcp
+#   fly secrets set --app keeta-agent-sandbox-mcp \
+#     KEETA_API_URL=https://keeta-agent-sandbox-api.fly.dev \
+#     OPS_API_KEY=...                 # same value as the API
+#     MCP_ALLOW_INLINE_SEEDS=false    # default, do not flip in the sandbox
+#
+# Deploy from repo root:
+#   fly deploy --config apps/mcp/fly.toml --build-arg APP=mcp --dockerfile Dockerfile
+
+app = "keeta-agent-sandbox-mcp"
+primary_region = "iad"
+
+[build]
+  dockerfile = "../../Dockerfile"
+  [build.args]
+    APP = "mcp"
+
+[env]
+  NODE_ENV = "production"
+  KEETA_NETWORK = "test"
+  LOG_LEVEL = "info"
+  MCP_ALLOW_INLINE_SEEDS = "false"
+
+# MCP currently uses stdio. If you wire up an HTTP/SSE transport, add an
+# [http_service] block here with the appropriate internal_port.
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "512mb"

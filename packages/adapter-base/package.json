@@ -1,8 +1,25 @@
 {
   "name": "@keeta-agent-sdk/adapter-base",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.1.0-alpha.0",
+  "description": "@keeta-agent-sdk/adapter-base - part of the Keeta Agent SDK",
+  "license": "Apache-2.0",
+  "author": "Keeta Agent SDK contributors",
+  "homepage": "https://github.com/IAMKMFA/keeta-agent-sdk#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IAMKMFA/keeta-agent-sdk.git",
+    "directory": "packages/adapter-base"
+  },
+  "bugs": {
+    "url": "https://github.com/IAMKMFA/keeta-agent-sdk/issues"
+  },
+  "keywords": [
+    "keeta",
+    "adapter",
+    "contract"
+  ],
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -13,10 +30,22 @@
     "./contract": {
       "types": "./dist/contract.d.ts",
       "import": "./dist/contract.js"
+    },
+    "./conformance": {
+      "types": "./dist/conformance.d.ts",
+      "import": "./dist/conformance.js"
     }
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "tsup src/index.ts src/contract.ts --format esm --dts --clean",
+    "build": "tsup src/index.ts src/contract.ts src/conformance.ts --format esm --dts --clean",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",

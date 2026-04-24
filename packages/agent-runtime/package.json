@@ -1,15 +1,43 @@
 {
   "name": "@keeta-agent-sdk/agent-runtime",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.1.0-alpha.0",
+  "description": "@keeta-agent-sdk/agent-runtime - part of the Keeta Agent SDK",
+  "license": "Apache-2.0",
+  "author": "Keeta Agent SDK contributors",
+  "homepage": "https://github.com/IAMKMFA/keeta-agent-sdk#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IAMKMFA/keeta-agent-sdk.git",
+    "directory": "packages/agent-runtime"
+  },
+  "bugs": {
+    "url": "https://github.com/IAMKMFA/keeta-agent-sdk/issues"
+  },
+  "keywords": [
+    "keeta",
+    "agent",
+    "runtime",
+    "autonomous",
+    "orchestration"
+  ],
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",

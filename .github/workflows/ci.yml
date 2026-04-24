@@ -46,6 +46,17 @@ jobs:
       - name: Build docs bundle
         run: pnpm --filter @keeta-agent-sdk/docs build
 
+      - name: Verify publishable packages (publint)
+        run: pnpm publint:all
+
+      - name: Verify MCP TOOLS.md is up to date
+        run: |
+          pnpm --filter @keeta-agent-sdk/mcp docs:tools
+          if ! git diff --exit-code -- apps/mcp/TOOLS.md; then
+            echo "::error::apps/mcp/TOOLS.md is stale. Run 'pnpm --filter @keeta-agent-sdk/mcp docs:tools' and commit."
+            exit 1
+          fi
+
   security-audit:
     name: Dependency Audit
     runs-on: ubuntu-latest

@@ -554,28 +554,11 @@ for (const guide of guides) {
   await writeFile(resolve(guidesRoot, `${guide.slug}.html`), renderGuide(guide), 'utf8');
 }
 
-await writeFile(
-  resolve(docsRoot, 'openapi.json'),
-  JSON.stringify(
-    {
-      openapi: '3.1.0',
-      info: {
-        title: 'Keeta Agent SDK API',
-        version: '0.0.1',
-        description: 'Static docs snapshot. See the live API for the canonical OpenAPI document.',
-      },
-      servers: [{ url: apiUrl }],
-      externalDocs: {
-        description: 'Live OpenAPI document',
-        url: `${apiUrl}/openapi.json`,
-      },
-      tags: endpointGroups.map((group) => ({ name: group.name, description: group.description })),
-      paths: staticPaths,
-    },
-    null,
-    2
-  ),
-  'utf8'
-);
+// `openapi.json` is written by `scripts/snapshot-openapi.ts`, which calls the real
+// `buildOpenApiDocument()` from apps/api so this docs bundle ships the canonical
+// OpenAPI 3.1 spec (not the abbreviated `endpointGroups` summary above, which is
+// only used to render the HTML cards). Run `pnpm --filter @keeta-agent-sdk/docs build`
+// to invoke both steps.
+void staticPaths;
 
 console.log(`Docs written to ${resolve(docsRoot, 'index.html')}`);

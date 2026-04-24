@@ -10,12 +10,13 @@
     "test": "vitest run",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "docs:tools": "tsx scripts/dump-tools.ts"
   },
   "dependencies": {
+    "@keeta-agent-sdk/keeta": "workspace:*",
     "@keeta-agent-sdk/policy": "workspace:*",
     "@keeta-agent-sdk/sdk": "workspace:*",
-    "@keeta-agent-sdk/keeta": "workspace:*",
     "@keetanetwork/anchor": "^0.0.58",
     "@keetanetwork/keetanet-client": "^0.16.1",
     "@modelcontextprotocol/sdk": "^1.12.1",
@@ -25,6 +26,7 @@
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "zod-to-json-schema": "^3.25.2"
   }
 }

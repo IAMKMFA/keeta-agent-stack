@@ -1,0 +1,26 @@
+{
+  "name": "keeta-treasury-rebalancer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Flagship Keeta agent template that rebalances a treasury wallet against a target allocation on a fixed cadence.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "rebalance:once": "tsx src/index.ts --once"
+  },
+  "dependencies": {
+    "@keeta-agent-sdk/agent-runtime": "^0.1.0-alpha.0",
+    "@keeta-agent-sdk/policy": "^0.1.0-alpha.0",
+    "@keeta-agent-sdk/sdk": "^0.1.0-alpha.0",
+    "@keeta-agent-sdk/types": "^0.1.0-alpha.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

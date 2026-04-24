@@ -1,5 +1,9 @@
 # Keeta Agent SDK
 
+[![CI](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/ci.yml)
+[![Template smoke](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/template-smoke.yml/badge.svg?branch=main)](https://github.com/IAMKMFA/keeta-agent-sdk/actions/workflows/template-smoke.yml)
+[![npm: @keeta-agent-sdk/sdk](https://img.shields.io/npm/v/@keeta-agent-sdk/sdk?label=%40keeta-agent-sdk%2Fsdk&color=cb3837&logo=npm)](https://www.npmjs.com/package/@keeta-agent-sdk/sdk)
+[![npm: @keeta-agent-sdk/agent-runtime](https://img.shields.io/npm/v/@keeta-agent-sdk/agent-runtime?label=%40keeta-agent-sdk%2Fagent-runtime&color=cb3837&logo=npm)](https://www.npmjs.com/package/@keeta-agent-sdk/agent-runtime)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 
 Build Keeta-native agents that can take an intent, find the best route, enforce policy, simulate risk, execute safely, and keep users and operators informed in real time.
@@ -38,7 +42,7 @@ This is not a prompt wrapper. It is an execution platform.
 ## What The Agent Gets
 
 - A durable `intent -> quote -> route -> policy -> execute` pipeline
-- Adapter-driven venue access through a shared contract and registry
+- Adapter-driven venue access through a shared contract and registry — routing topology is live; venue liquidity today is **two integration adapters** (`keeta-transfer` native, `oracle-rail` HTTP partner) plus mocks for `dex`/`anchor`/`cex` and a `solana` stub. See the [capability matrix](./docs/capability-matrix.md#rails--adapters).
 - Multi-hop routing with explainable scoring and route adjustments
 - A policy engine with custom rules, toggles, metadata, and composition
 - Simulation modes for safer decision-making before live execution
@@ -233,6 +237,7 @@ Five turn-key reference agents live under [`examples/`](./examples). Each folder
 
 | Pattern | Folder | What it shows |
 |---|---|---|
+| Hello agent (60-second smoke) | [`examples/hello-agent`](./examples/hello-agent) | Minimal `createClient` -> wallet -> intent -> quote in one file. Start here. |
 | Paper trader | [`examples/paper-trader`](./examples/paper-trader) | Hands-off simulation loop using `createKeetaAgent` and the mock DEX. |
 | Rebalance bot | [`examples/rebalance-bot`](./examples/rebalance-bot) | Periodic portfolio rebalancing via policy-gated route execution. |
 | Oracle payment playbook | [`examples/oracle-payment-playbook`](./examples/oracle-payment-playbook) | Oracle-priced fiat → KTA payment with the new `oracle.payment.*` MCP tools. |
@@ -241,12 +246,17 @@ Five turn-key reference agents live under [`examples/`](./examples). Each folder
 
 For an end-to-end smoke harness that exercises the API + worker together, see [`examples/mock-live-run`](./examples/mock-live-run).
 
+For a fully-formed flagship agent that points at the hosted sandbox out of the box, see [`templates/treasury-rebalancer`](./templates/treasury-rebalancer) — a real rebalance loop with a working policy pack, drift math, and structured-event logs.
+
 LLM integration recipes (Grok, Claude, LangGraph) are documented in [`examples/mcp-llm-integration.md`](./examples/mcp-llm-integration.md).
+
+The full MCP tool inventory (81 tools, with input schemas and read/write/signing classification) lives in [`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md). It is auto-generated from the Zod schemas in `apps/mcp/src/tools/*` and verified in CI.
 
 ## SDK Reference & OpenAPI
 
-- `pnpm dev:all` (or `pnpm --filter @keeta-agent-sdk/api dev`) serves the live API. Browse [`http://localhost:3001/docs`](http://localhost:3001/docs) for the Swagger UI (Try-It-Out enabled).
-- `pnpm docs:generate` builds Typedoc HTML for `@keeta-agent-sdk/sdk`, `@keeta-agent-sdk/agent-runtime`, and `@keeta-agent-sdk/types` into `docs/typedoc/`.
+- **Hosted OpenAPI snapshot** — published from `main` to GitHub Pages by [`.github/workflows/pages.yml`](./.github/workflows/pages.yml). Once Pages is enabled for this repo, the canonical spec lives at `https://iamkmfa.github.io/keeta-agent-sdk/openapi.json` and the full docs bundle at `https://iamkmfa.github.io/keeta-agent-sdk/`.
+- **Local Swagger UI** — `pnpm dev:all` (or `pnpm --filter @keeta-agent-sdk/api dev`) serves the live API. Browse [`http://localhost:3001/docs`](http://localhost:3001/docs) for the Try-It-Out UI.
+- **Typedoc** — `pnpm docs:generate` builds API docs for `@keeta-agent-sdk/sdk`, `@keeta-agent-sdk/agent-runtime`, and `@keeta-agent-sdk/types` into `docs/typedoc/`.
 - A higher-level guided tour of both surfaces lives in [`docs/sdk-reference.md`](./docs/sdk-reference.md).
 
 ## Live Keeta Mode

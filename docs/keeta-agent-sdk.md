@@ -157,11 +157,27 @@ This matters because real agents need a real operating surface, not just develop
 
 ### Still Frontier, Not Failure
 
-- Public packaging and distribution
-- Hosted docs experience
 - Full OpenTelemetry deployment story
 - On-chain bond proof
-- More flagship production adapters
+- More live integration adapters beyond the current two
+
+### Adapter status (honest read)
+
+Routing topology, policy gating, and the durable pipeline are real and live.
+**Live venue liquidity** today comes from two adapters:
+
+- `@keeta-agent-sdk/adapter-keeta-transfer` — native KTA transfers via the
+  worker's signing path.
+- `@keeta-agent-sdk/adapter-oracle-rail` — KTA Oracle for quotes plus a
+  configurable HTTP partner rail (CCTP-style) for execution.
+
+Everything else under `packages/adapter-*` is a synthetic mock used in tests
+and demos (`mock-dex`, `mock-anchor`, `mock-cex`), a stub that quotes and
+simulates but cannot execute live (`solana-stub` — `execute` throws
+`SolanaNotImplementedError`), or a starting point for new venues
+(`adapter-template`). The
+[capability matrix](./capability-matrix.md#rails--adapters) has the
+per-adapter breakdown.
 
 ## What Would Make It Feel Groundbreaking
 

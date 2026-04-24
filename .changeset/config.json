@@ -1,0 +1,44 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.4/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [
+    [
+      "@keeta-agent-sdk/types",
+      "@keeta-agent-sdk/config",
+      "@keeta-agent-sdk/utils",
+      "@keeta-agent-sdk/wallet",
+      "@keeta-agent-sdk/keeta",
+      "@keeta-agent-sdk/policy",
+      "@keeta-agent-sdk/adapter-base",
+      "@keeta-agent-sdk/adapter-template",
+      "@keeta-agent-sdk/adapter-mock-anchor",
+      "@keeta-agent-sdk/adapter-mock-cex",
+      "@keeta-agent-sdk/adapter-mock-dex",
+      "@keeta-agent-sdk/adapter-solana-stub",
+      "@keeta-agent-sdk/adapter-keeta-transfer",
+      "@keeta-agent-sdk/adapter-oracle-rail",
+      "@keeta-agent-sdk/adapter-registry",
+      "@keeta-agent-sdk/routing",
+      "@keeta-agent-sdk/simulator",
+      "@keeta-agent-sdk/sdk",
+      "@keeta-agent-sdk/agent-runtime"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "@keeta-agent-sdk/api",
+    "@keeta-agent-sdk/worker",
+    "@keeta-agent-sdk/dashboard",
+    "@keeta-agent-sdk/mcp",
+    "@keeta-agent-sdk/docs",
+    "@keeta-agent-sdk/storage",
+    "@keeta-agent-sdk/telemetry",
+    "@keeta-agent-sdk/events",
+    "@keeta-agent-sdk/core",
+    "@keeta-agent-sdk/integration-tests"
+  ]
+}

@@ -1,0 +1,78 @@
+# Production-shaped docker-compose for the hosted sandbox.
+#
+# Usage:
+#   cp .env.example .env.production && edit
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Defaults are pinned at Keeta testnet, with the API/MCP starting in
+# read-only mode (KEETA_NETWORK=test, OPS_API_KEY required for any
+# control-plane mutation, MCP_ALLOW_INLINE_SEEDS=false). Override these via
+# `.env.production` when promoting the same compose file beyond the sandbox.
+
+x-app-defaults: &app-defaults
+  env_file: .env.production
+  restart: unless-stopped
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  environment:
+    NODE_ENV: production
+    KEETA_NETWORK: ${KEETA_NETWORK:-test}
+    DATABASE_URL: ${DATABASE_URL:-postgres://keeta:keeta@postgres:5432/keeta_agent}
+    REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+    LOG_LEVEL: ${LOG_LEVEL:-info}
+
+services:
+  api:
+    <<: *app-defaults
+    build:
+      context: .
+      args:
+        APP: api
+    image: keeta-agent/api:${KEETA_IMAGE_TAG:-latest}
+    ports:
+      - '3001:3001'
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      KEETA_NETWORK: ${KEETA_NETWORK:-test}
+      DATABASE_URL: ${DATABASE_URL:-postgres://keeta:keeta@postgres:5432/keeta_agent}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      OPS_API_KEY: ${OPS_API_KEY:?set OPS_API_KEY in .env.production}
+      ADMIN_BYPASS_TOKEN: ${ADMIN_BYPASS_TOKEN:-}
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3001/healthz']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  worker:
+    <<: *app-defaults
+    build:
+      context: .
+      args:
+        APP: worker
+    image: keeta-agent/worker:${KEETA_IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      KEETA_NETWORK: ${KEETA_NETWORK:-test}
+      DATABASE_URL: ${DATABASE_URL:-postgres://keeta:keeta@postgres:5432/keeta_agent}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      KEETA_SIGNING_SEED: ${KEETA_SIGNING_SEED:-}
+
+  mcp:
+    <<: *app-defaults
+    build:
+      context: .
+      args:
+        APP: mcp
+    image: keeta-agent/mcp:${KEETA_IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      KEETA_API_URL: ${KEETA_API_URL:-http://api:3001}
+      MCP_ALLOW_INLINE_SEEDS: ${MCP_ALLOW_INLINE_SEEDS:-false}
+      OPS_API_KEY: ${OPS_API_KEY:-}

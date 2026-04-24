@@ -1,9 +1,64 @@
 # Changelog
 
-All notable changes to the Keeta Agent SDK are documented here. Sections follow the phased plan
-used during the upstream-sync + deep-audit refactor.
+All notable changes to the Keeta Agent SDK are documented here. Subsequent
+entries are managed by [Changesets](https://github.com/changesets/changesets):
+`pnpm changeset` to record an intent, `pnpm release` to cut versions and tags
+(automated in [`.github/workflows/release.yml`](./.github/workflows/release.yml)).
 
 ## Unreleased
+
+### Hosted sandbox & flagship template
+
+- Added a multi-stage [`Dockerfile`](./Dockerfile) that builds slim images for
+  any of `api`, `worker`, or `mcp` from a single context.
+- Added [`docker-compose.prod.yml`](./docker-compose.prod.yml) for one-command
+  prod-shaped local stacks, with sensible read-only defaults
+  (`KEETA_NETWORK=test`, `MCP_ALLOW_INLINE_SEEDS=false`,
+  `OPS_API_KEY` required for control-plane mutations).
+- Added Fly.io configs for the hosted sandbox: [`apps/api/fly.toml`](./apps/api/fly.toml),
+  [`apps/worker/fly.toml`](./apps/worker/fly.toml), and
+  [`apps/mcp/fly.toml`](./apps/mcp/fly.toml). Bootstrap and deploy commands
+  are documented in [`docs/deployment.md`](./docs/deployment.md#hosted-sandbox-flyio).
+- Added the flagship treasury rebalancer template under
+  [`templates/treasury-rebalancer/`](./templates/treasury-rebalancer): a real
+  drift-driven rebalance loop with a working `treasury-rebalancer` policy
+  pack (caps, slippage, venue + asset allowlists, daily-trade and
+  unsettled-execution gates), pinned to every emitted intent.
+
+## 0.1.0-alpha.0
+
+First public alpha release of the `@keeta-agent-sdk/*` family on npm.
+
+### Distribution
+
+- Published the SDK family to npm under `@keeta-agent-sdk/*`: `sdk`, `agent-runtime`,
+  `types`, `policy`, `keeta`, `routing`, `simulator`, `wallet`, `utils`, `config`,
+  `adapter-base` (+ `/contract` and `/conformance` subpaths), `adapter-registry`,
+  `adapter-keeta-transfer`, `adapter-oracle-rail`, `adapter-template`,
+  `adapter-mock-dex`, `adapter-mock-anchor`, `adapter-mock-cex`,
+  `adapter-solana-stub`. Apps (`api`, `worker`, `dashboard`, `mcp`) remain private.
+- Added Changesets, a `release` GitHub Actions workflow gated on `NPM_TOKEN`,
+  and `pnpm publint:all` in CI to catch broken `exports`/`files` before a publish.
+- Fixed an adapter-base packaging bug where the main barrel re-exported test
+  helpers (`./contract`, `./conformance`), which forced `vitest` into every
+  runtime consumer of `@keeta-agent-sdk/sdk`. Test helpers are now subpath-only.
+
+### Examples & docs
+
+- New top-of-funnel example [`examples/hello-agent`](./examples/hello-agent):
+  one file, real `createClient` factory, intent + quote in <30 lines.
+- Auto-generated [`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md) (81 tools, 9 modules)
+  from the live Zod input schemas via `apps/mcp/scripts/dump-tools.ts`. CI
+  fails if it's stale.
+- Hosted [OpenAPI spec](./apps/docs/scripts/snapshot-openapi.ts) snapshot:
+  `apps/docs` now ships the canonical 3.1 document from the API
+  (45 paths, ~58 KB) instead of an abbreviated stub. Deployed to GitHub Pages
+  via [`.github/workflows/pages.yml`](./.github/workflows/pages.yml).
+
+## 0.0.1 — pre-release scaffolding
+
+The history below predates the alpha cut and was the working notes during the
+upstream-sync + deep-audit refactor. Preserved for traceability.
 
 ### Phase 1 — Upstream dependency sync
 
