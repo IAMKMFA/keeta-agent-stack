@@ -3,6 +3,11 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.4",
+  "pnpm": {
+    "overrides": {
+      "protobufjs": "^7.5.5"
+    }
+  },
   "scripts": {
     "dev": "turbo run dev --filter=@keeta-agent-sdk/api --filter=@keeta-agent-sdk/worker --filter=@keeta-agent-sdk/dashboard",
     "dev:all": "turbo run dev --filter=@keeta-agent-sdk/api --filter=@keeta-agent-sdk/worker --filter=@keeta-agent-sdk/dashboard --filter=@keeta-agent-sdk/mcp",

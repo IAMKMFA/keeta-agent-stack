@@ -4,6 +4,7 @@
     "noEmit": true,
     "types": ["node"],
     "paths": {
+      "@keeta-agent-sdk/routing": ["../../packages/routing/dist/index.d.ts"],
       "@keeta-agent-sdk/storage": ["../../packages/storage/dist/index.d.ts"]
     }
   },

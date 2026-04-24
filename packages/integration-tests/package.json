@@ -14,7 +14,7 @@
     "@keeta-agent-sdk/adapter-registry": "workspace:*",
     "@keeta-agent-sdk/storage": "workspace:*",
     "@keeta-agent-sdk/types": "workspace:*",
-    "drizzle-orm": "^0.38.3",
+    "drizzle-orm": "^0.45.2",
     "ioredis": "^5.4.2",
     "pg": "^8.13.1"
   },
