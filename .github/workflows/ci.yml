@@ -49,9 +49,6 @@ jobs:
   security-audit:
     name: Dependency Audit
     runs-on: ubuntu-latest
-    # Don't fail the overall workflow on audit findings; surface them via GitHub annotations.
-    # CI will still set a non-zero job status for the individual steps below.
-    continue-on-error: true
 
     steps:
       - name: Checkout
@@ -74,7 +71,8 @@ jobs:
       - name: pnpm audit (high+ severity)
         run: pnpm audit --prod --audit-level high
 
-      - name: OSV Scanner
+      - name: OSV Scanner (advisory)
+        continue-on-error: true
         uses: google/osv-scanner-action/osv-scanner-action@v1.9.1
         with:
           scan-args: |-

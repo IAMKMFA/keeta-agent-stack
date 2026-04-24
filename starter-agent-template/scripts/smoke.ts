@@ -90,10 +90,44 @@ function localPackagesAvailable(): boolean {
   return ALL_INTERNAL_PACKAGES.every((name) => existsSync(join(packageDir(name), 'package.json')));
 }
 
+function topologicallySortPackages(packageNames: string[]): string[] {
+  const remaining = new Set(packageNames);
+  const built = new Set<string>();
+  const ordered: string[] = [];
+
+  while (remaining.size > 0) {
+    let progressed = false;
+    for (const name of [...remaining]) {
+      const pkg = JSON.parse(readFileSync(join(packageDir(name), 'package.json'), 'utf8')) as {
+        dependencies?: Record<string, string>;
+        peerDependencies?: Record<string, string>;
+      };
+      const deps = {
+        ...(pkg.dependencies ?? {}),
+        ...(pkg.peerDependencies ?? {}),
+      };
+      const internalDeps = Object.keys(deps).filter(
+        (dep) => dep.startsWith('@keeta-agent-sdk/') && packageNames.includes(dep)
+      );
+      if (internalDeps.every((dep) => built.has(dep))) {
+        ordered.push(name);
+        built.add(name);
+        remaining.delete(name);
+        progressed = true;
+      }
+    }
+
+    if (!progressed) {
+      throw new Error(`Unable to determine smoke build order for: ${[...remaining].join(', ')}`);
+    }
+  }
+
+  return ordered;
+}
+
 function buildAndPackAll(): Record<string, string> {
   const tarballs: Record<string, string> = {};
-  // Build each package once. Order doesn't matter — pnpm filter respects deps.
-  for (const name of ALL_INTERNAL_PACKAGES) {
+  for (const name of topologicallySortPackages(ALL_INTERNAL_PACKAGES)) {
     run('pnpm', ['--filter', name, 'build'], repoRoot);
   }
   for (const name of ALL_INTERNAL_PACKAGES) {
