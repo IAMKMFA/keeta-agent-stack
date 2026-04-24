@@ -14,7 +14,7 @@
     "dev:mcp": "pnpm --filter @keeta-agent-stack/mcp dev",
     "build": "turbo run build",
     "test": "turbo run test",
-    "test:integration": "RUN_INTEGRATION_TESTS=true pnpm --filter @keeta-agent-stack/integration-tests test",
+    "test:integration": "RUN_INTEGRATION_TESTS=true pnpm exec turbo run test --filter=@keeta-agent-stack/integration-tests",
     "lint": "turbo run lint",
     "lint:security": "turbo run lint:security",
     "typecheck": "turbo run typecheck",
