@@ -47,7 +47,7 @@ const agent = createKeetaAgent({ name: 'live-agent', sdk });
 const result = await agent.execute({ ...intent, mode: 'live' });
 ```
 
-The signing key never leaves the worker process. Your agent process is safe to host externally.
+The signing key never leaves the worker process. Your agent process is safe to host externally. A live result is `kind: "executed"` only after the runtime observes a terminal execution event; if no terminal event arrives before the timeout, the result is `kind: "pending"` with the observed events attached.
 
 ## Status
 

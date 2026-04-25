@@ -17,18 +17,29 @@ pinned to every emitted intent — so caps, slippage, venue and asset
 allowlists, daily-trade counts, and unsettled-execution gates all apply
 even though the agent is running outside the dashboard.
 
-## Try it against the hosted sandbox
+## Try it locally
 
 ```bash
 git clone https://github.com/IAMKMFA/keeta-agent-stack
+cd keeta-agent-stack
+pnpm install
+docker compose up -d
+cp .env.example .env
+pnpm db:migrate
+pnpm dev:all
+```
+
+In a second terminal:
+
+```bash
 cd keeta-agent-stack/templates/treasury-rebalancer
 
 cp .env.example .env
-# Create a wallet against the sandbox and copy the id into KEETA_WALLET_ID:
+source .env
+# Create a wallet against the local API and copy the id into KEETA_WALLET_ID:
 curl -X POST $KEETA_API_URL/wallets -H 'content-type: application/json' \
   -d '{"label":"treasury"}' | jq -r .id
 
-pnpm install
 pnpm dev            # runs the loop, defaults to simulate mode
 ```
 
@@ -36,7 +47,7 @@ What you should see (~once per minute, per the default
 `REBALANCE_INTERVAL_SECONDS=60`):
 
 ```text
-{"ts":"...","stage":"boot","apiUrl":"https://keeta-agent-sandbox-api.fly.dev",...}
+{"ts":"...","stage":"boot","apiUrl":"http://localhost:3001",...}
 {"ts":"...","stage":"policy.pack.create","name":"treasury-rebalancer"}
 {"ts":"...","stage":"balances.synthetic","reason":"wallet has no on-chain balances; using synthetic 70/30 split for demo"}
 {"ts":"...","stage":"balances.snapshot","balances":[{"asset":"KTA","amount":7000},{"asset":"USDC","amount":3000}]}
@@ -50,8 +61,10 @@ What you should see (~once per minute, per the default
 
 The line that proves it worked is
 `"stage":"agent.result","kind":"simulated"` (or `"executed"` once you flip
-`REBALANCE_INTENT_MODE=live` against your own deployment) — the agent ran a
-full rebalance leg through the policy pack.
+`REBALANCE_INTENT_MODE=live` against your own deployment). In live mode,
+`"pending"` means the API accepted the execute step but the runtime timed out
+before seeing a terminal execution event. Either way, the agent ran a full
+rebalance leg through the policy pack.
 
 ## Configuration
 
@@ -59,22 +72,21 @@ All knobs live in `.env`:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `KEETA_API_URL` | _(required)_ | Sandbox or your own deployment. |
+| `KEETA_API_URL` | `http://localhost:3001` | Local API, your own sandbox, or your production deployment. |
 | `KEETA_API_TOKEN` | _(empty)_ | Bearer token. Required for `OPS_API_KEY`-protected APIs. |
 | `KEETA_WALLET_ID` | _(required)_ | The wallet UUID returned by `POST /wallets`. |
 | `REBALANCE_INTERVAL_SECONDS` | `60` | Loop cadence. |
 | `REBALANCE_DRIFT_THRESHOLD_BPS` | `200` | Skip ticks unless worst drift exceeds this. |
 | `REBALANCE_MAX_LEG_NOTIONAL` | `10000` | Hard cap mirrored into the policy pack. |
 | `REBALANCE_MAX_SLIPPAGE_BPS` | `50` | Slippage cap mirrored into the policy pack. |
-| `REBALANCE_INTENT_MODE` | `simulate` | `simulate` against the sandbox; `live` against your own API. |
+| `REBALANCE_INTENT_MODE` | `simulate` | `simulate` locally; `live` against your own API. |
 
 Target allocation lives in `src/config.ts` (`DEFAULT_TARGETS`). Edit the
 weights — they must sum to 1.
 
 ## Going live
 
-The default sandbox is read-only and runs against Keeta testnet. To run this
-agent against your own deployment in `live` mode:
+To run this agent against your own deployment in `live` mode:
 
 1. Stand up the API + worker per [`docs/deployment.md`](../../docs/deployment.md)
    (`docker-compose.prod.yml` or the Fly configs in `apps/*/fly.toml`).
@@ -107,5 +119,5 @@ templates/treasury-rebalancer/
 `starter-agent-template/` is intentionally minimal — one intent, one hook
 table, no policy pack — so users can copy it and start from blank. The
 treasury rebalancer is the opinionated end of that spectrum: a real loop
-with a real policy pack and real drift math, ready to point at the hosted
-sandbox.
+with a real policy pack and real drift math, ready to point at your local API
+or your own sandbox.

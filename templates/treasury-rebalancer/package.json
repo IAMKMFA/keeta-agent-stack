@@ -12,10 +12,10 @@
     "rebalance:once": "tsx src/index.ts --once"
   },
   "dependencies": {
-    "@keeta-agent-stack/agent-runtime": "^0.1.0-alpha.0",
-    "@keeta-agent-stack/policy": "^0.1.0-alpha.0",
-    "@keeta-agent-stack/sdk": "^0.1.0-alpha.0",
-    "@keeta-agent-stack/types": "^0.1.0-alpha.0",
+    "@keeta-agent-stack/agent-runtime": "workspace:*",
+    "@keeta-agent-stack/policy": "workspace:*",
+    "@keeta-agent-stack/sdk": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

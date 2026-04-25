@@ -72,6 +72,9 @@ Highlighted variables are **required** in production:
 | `AUTH_JWT_*` (one of secret/JWKS/OIDC)  | Replaces dev-mode bypass auth                                  |
 | `AUTH_ALLOW_LEGACY_OPS_API_KEY=false`   | Forces JWT for operators in production                         |
 | `AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION=false` | Disables `ADMIN_BYPASS_TOKEN` unless audited and intentional |
+| `ALLOW_DEV_SIGNER=false`                | Required; production boot refuses the dev signer               |
+| `API_CORS_ORIGINS`                         | Comma-separated browser origin allowlist; leave empty only for non-browser/private API access |
+| `API_SWAGGER_TRY_IT_OUT_ENABLED=false`     | Keeps Swagger UI from becoming an interactive production console |
 | `MCP_ALLOW_INLINE_SEEDS=false`          | Forces the worker-held seed; keeps signing material out of MCP |
 | `KEETA_SIGNING_SEED`                    | Worker-only; load from KMS / sealed secret                     |
 | `KEETA_NETWORK=main`                    | Pin the Keeta network                                          |
@@ -194,10 +197,10 @@ metrics from drifting against unrelated caches.
   KEDA (`bullmq-scaler`).
 - Use a `PodDisruptionBudget` (`minAvailable: 1`) for both API and worker.
 
-## Hosted sandbox (Fly.io)
+## Self-hosted sandbox (Fly.io)
 
-The repo ships ready-to-use Fly configs for deploying the API, worker, and
-MCP against Keeta testnet:
+The repo ships ready-to-use Fly configs for deploying your own API, worker,
+and MCP sandbox against Keeta testnet:
 
 - [`apps/api/fly.toml`](../apps/api/fly.toml) — public HTTPS, healthchecked.
 - [`apps/worker/fly.toml`](../apps/worker/fly.toml) — internal-only, holds
@@ -235,7 +238,8 @@ fly deploy --config apps/mcp/fly.toml
 ```
 
 Suggested public URL: `sandbox.keeta-agent-stack.dev` (CNAME to the API
-Fly app). Document the URL in the root `README.md` once it is live.
+Fly app). Document the URL in the root `README.md` only once it is live and
+healthchecked.
 
 ## Starter `docker-compose.prod.yml`
 

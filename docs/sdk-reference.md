@@ -9,7 +9,7 @@ The Fastify API in [`apps/api`](../apps/api) emits a fully-typed OpenAPI 3.1 doc
 | Endpoint | Purpose |
 |---|---|
 | `GET /openapi.json` | Raw spec, cached for 5 minutes via `cache-control: public, max-age=300`. |
-| `GET /docs` | Interactive Swagger UI (Try-It-Out enabled) backed by [`@fastify/swagger-ui`](https://www.npmjs.com/package/@fastify/swagger-ui). |
+| `GET /docs` | Swagger UI backed by [`@fastify/swagger-ui`](https://www.npmjs.com/package/@fastify/swagger-ui). Try-It-Out is enabled by default outside production and can be explicitly gated with `API_SWAGGER_TRY_IT_OUT_ENABLED`. |
 
 ### Try it locally
 
@@ -18,11 +18,19 @@ pnpm dev:all
 # then open http://localhost:3001/docs
 ```
 
-You should be able to expand `/me`, `/intents`, and `/anchors/health`, click **Try it out**, and execute a request directly against the running API.
+In local development you should be able to expand `/me`, `/intents`, and `/anchors/health`, click **Try it out**, and execute a request directly against the running API.
 
 ### Publish to a static host
 
-`buildOpenApiDocument()` in `apps/api/src/openapi.ts` is pure — call it from any script and write the result to disk:
+The repo ships a small static docs bundle that includes the canonical OpenAPI snapshot:
+
+```bash
+pnpm --filter @keeta-agent-stack/docs build
+```
+
+The bundle is written to `apps/docs/dist/`. GitHub Pages publishes the same output only when the repository variable `ENABLE_GITHUB_PAGES=true`; set `PUBLIC_SANDBOX_URL` if you want the generated docs to point at a live API instead of `http://localhost:3001`.
+
+`buildOpenApiDocument()` in `apps/api/src/openapi.ts` is also pure, so custom docs pipelines can call it directly and write the result to disk:
 
 ```ts
 import { writeFileSync } from 'node:fs';
@@ -47,6 +55,10 @@ pnpm docs:generate
 ```
 
 Output is written to [`docs/typedoc/`](./typedoc) (gitignored). Open `docs/typedoc/index.html` in your browser, or serve it with any static file server.
+
+### Agent runtime live results
+
+`createKeetaAgent({ sdk })` walks a live intent through quote, route, policy, and execute. The runtime returns `kind: "executed"` or `kind: "failed"` only after observing a terminal execution event. If no terminal event arrives before the polling timeout, it returns `kind: "pending"` with the observed event list so callers can continue watching through `sdk.subscribeEvents(...)` or `sdk.listEvents(...)`.
 
 ### Publish
 

@@ -64,6 +64,12 @@ export type ExecutionResult =
       executionId?: string;
       events?: EventStreamEvent[];
     }
+  | {
+      kind: 'pending';
+      detail: { intentId: string; reason: string };
+      executionId?: string;
+      events?: EventStreamEvent[];
+    }
   | { kind: 'failed'; detail: { error: string; cause?: unknown }; events?: EventStreamEvent[] };
 
 export interface KeetaAgent {
@@ -124,39 +130,61 @@ function toCreateIntentRequest(intent: ExecutionIntent): CreateIntentRequest {
 async function pollForTerminalEvents(
   sdk: KeetaSDK,
   intentId: string,
+  after: string,
   timeoutMs: number
-): Promise<{ events: EventStreamEvent[]; executionId?: string; failed: boolean }> {
+): Promise<{ events: EventStreamEvent[]; executionId?: string; failed: boolean; terminalObserved: boolean }> {
   const events: EventStreamEvent[] = [];
+  const seenIds = new Set<string>();
   let executionId: string | undefined;
   let failed = false;
+  let terminalObserved = false;
+
+  const recordEvent = (event: EventStreamEvent) => {
+    if (seenIds.has(event.id)) return;
+    seenIds.add(event.id);
+    events.push(event);
+    if (event.executionId) executionId = event.executionId;
+    if (TERMINAL_INTENT_EVENT_TYPES.has(event.eventType)) {
+      terminalObserved = true;
+      if (event.eventType.endsWith('.failed')) failed = true;
+    }
+  };
 
   const stream: EventSubscription = sdk.subscribeEvents(
-    { intentId },
+    { intentId, after },
     {
       onEvent: (event: EventStreamEvent) => {
-        events.push(event);
-        if (event.executionId) executionId = event.executionId;
-        if (TERMINAL_INTENT_EVENT_TYPES.has(event.eventType)) {
-          if (event.eventType.endsWith('.failed')) failed = true;
+        recordEvent(event);
+        if (terminalObserved) {
           stream.close();
         }
       },
     }
   );
 
+  let timeout: ReturnType<typeof setTimeout> | undefined;
   const timeoutPromise = new Promise<void>((resolve) => {
-    setTimeout(() => {
+    timeout = setTimeout(() => {
       stream.close();
       resolve();
-    }, timeoutMs).unref?.();
+    }, timeoutMs);
+    timeout.unref?.();
   });
 
   await Promise.race([
     stream.done.catch(() => undefined),
     timeoutPromise,
   ]);
+  if (timeout) clearTimeout(timeout);
 
-  return { events, executionId, failed };
+  if (!terminalObserved) {
+    const listed = await sdk.listEvents({ intentId, after, limit: 500 });
+    for (const event of listed.events) {
+      recordEvent(event);
+    }
+  }
+
+  return { events, executionId, failed, terminalObserved };
 }
 
 export function createKeetaAgent(opts: CreateKeetaAgentOptions): KeetaAgent {
@@ -206,10 +234,12 @@ export function createKeetaAgent(opts: CreateKeetaAgentOptions): KeetaAgent {
       const created = await sdk.createIntent(toCreateIntentRequest(ctx.intent));
       await runHook(hooks?.beforeExecution, ctx);
 
+      let terminalEventCursor: string;
       try {
         await sdk.quoteIntent(created.id);
         await sdk.routeIntent(created.id);
         await sdk.policyIntent(created.id);
+        terminalEventCursor = new Date().toISOString();
         await sdk.executeIntent(created.id);
       } catch (jobError) {
         return {
@@ -221,18 +251,33 @@ export function createKeetaAgent(opts: CreateKeetaAgentOptions): KeetaAgent {
         };
       }
 
-      const { events, executionId, failed } = await pollForTerminalEvents(
+      const { events, executionId, failed, terminalObserved } = await pollForTerminalEvents(
         sdk,
         created.id,
+        terminalEventCursor,
         pollTimeoutMs ?? DEFAULT_POLL_TIMEOUT_MS
       );
 
-      await runHook(hooks?.afterExecution, ctx);
+      if (terminalObserved) {
+        await runHook(hooks?.afterExecution, ctx);
+      }
 
       if (failed) {
         return {
           kind: 'failed',
           detail: { error: 'Intent reached terminal failed state' },
+          events,
+        };
+      }
+
+      if (!terminalObserved) {
+        return {
+          kind: 'pending',
+          detail: {
+            intentId: created.id,
+            reason: 'Timed out waiting for terminal execution event',
+          },
+          executionId,
           events,
         };
       }

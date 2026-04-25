@@ -240,6 +240,15 @@ curl -X POST "${apiUrl}/ops/webhooks" \\
   -H "x-ops-key: $OPS_API_KEY" \\
   -d '{"targetUrl":"https://example.com/keeta","eventTypes":["execution.completed"],"secret":"super-secret"}'`,
       },
+      {
+        title: 'Expose the API intentionally',
+        body:
+          'Production boot refuses the development signer, disables browser cross-origin access unless you set an allowlist, and keeps Swagger Try-It-Out off unless you explicitly opt in.',
+        code: `export NODE_ENV=production
+export ALLOW_DEV_SIGNER=false
+export API_CORS_ORIGINS=https://dashboard.example
+export API_SWAGGER_TRY_IT_OUT_ENABLED=false`,
+      },
     ],
   },
 ];

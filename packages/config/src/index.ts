@@ -29,6 +29,16 @@ const EnvSchema = z.object({
         .map((entry) => entry.trim())
         .filter(Boolean) ?? []
     ),
+  API_CORS_ORIGINS: z
+    .string()
+    .optional()
+    .transform((value) =>
+      value
+        ?.split(',')
+        .map((entry) => entry.trim())
+        .filter(Boolean) ?? []
+    ),
+  API_SWAGGER_TRY_IT_OUT_ENABLED: boolFromEnv.optional(),
   LIVE_MODE_ENABLED: boolFromEnv.default(false),
   ALLOW_DEV_SIGNER: boolFromEnv.default(false),
   MOCK_DEX_SPREAD_BPS: z.coerce.number().optional(),
@@ -138,6 +148,9 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): AppEnv {
   if (!parsed.success) {
     const msg = parsed.error.flatten().fieldErrors;
     throw new Error(`Invalid environment: ${JSON.stringify(msg)}`);
+  }
+  if (parsed.data.NODE_ENV === 'production' && parsed.data.ALLOW_DEV_SIGNER) {
+    throw new Error('Invalid environment: ALLOW_DEV_SIGNER must be false in production');
   }
   return parsed.data;
 }

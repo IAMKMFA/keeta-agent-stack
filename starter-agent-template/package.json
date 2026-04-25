@@ -8,12 +8,12 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "smoke": "tsx scripts/smoke.ts"
+    "smoke": "pnpm dlx tsx scripts/smoke.ts"
   },
   "dependencies": {
-    "@keeta-agent-stack/agent-runtime": "^0.0.1",
-    "@keeta-agent-stack/sdk": "^0.0.1",
-    "@keeta-agent-stack/types": "^0.0.1",
+    "@keeta-agent-stack/agent-runtime": "^0.1.0-alpha.0",
+    "@keeta-agent-stack/sdk": "^0.1.0-alpha.0",
+    "@keeta-agent-stack/types": "^0.1.0-alpha.0",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

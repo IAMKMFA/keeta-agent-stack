@@ -40,14 +40,14 @@ pnpm add @keeta-agent-stack/sdk @keeta-agent-stack/agent-runtime @keeta-agent-st
 
 Three files to read first, in order:
 
-1. **[`examples/hello-agent`](./examples/hello-agent)** — minimal `createClient` -> wallet -> intent -> quote in <30 lines. Run it against the hosted sandbox or your own API.
+1. **[`examples/hello-agent`](./examples/hello-agent)** — minimal `createClient` -> wallet -> intent -> quote in <30 lines. Run it against your local dev stack or your own API.
 2. **[`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md)** — every one of the 81 MCP tools, grouped by module, with input schemas and read/write/signing classification. Auto-generated from the live Zod schemas, verified in CI.
 3. **[`templates/treasury-rebalancer`](./templates/treasury-rebalancer)** — the flagship template: a real drift-driven rebalance loop with a working policy pack (caps, slippage, venue + asset allowlists, daily-trade and unsettled gates), pinned to every emitted intent.
 
 Three more things you probably want next:
 
-- **Hosted OpenAPI spec** — published from `main` to GitHub Pages. Spec at <https://iamkmfa.github.io/keeta-agent-stack/openapi.json>, full docs bundle at <https://iamkmfa.github.io/keeta-agent-stack/>.
-- **Deploy your own sandbox** — multi-stage [`Dockerfile`](./Dockerfile), [`docker-compose.prod.yml`](./docker-compose.prod.yml), and Fly configs at [`apps/api/fly.toml`](./apps/api/fly.toml) / [`apps/worker/fly.toml`](./apps/worker/fly.toml) / [`apps/mcp/fly.toml`](./apps/mcp/fly.toml). Bootstrap commands in [`docs/deployment.md`](./docs/deployment.md#hosted-sandbox-flyio). Sandbox defaults: Keeta testnet, read-only, `MCP_ALLOW_INLINE_SEEDS=false`.
+- **Generated docs + OpenAPI** — build locally with `pnpm --filter @keeta-agent-stack/docs build`; the static bundle lands in `apps/docs/dist` with `openapi.json`. GitHub Pages publication is gated on `ENABLE_GITHUB_PAGES=true`, so hosted links are coming soon.
+- **Deploy your own sandbox** — multi-stage [`Dockerfile`](./Dockerfile), [`docker-compose.prod.yml`](./docker-compose.prod.yml), and Fly configs at [`apps/api/fly.toml`](./apps/api/fly.toml) / [`apps/worker/fly.toml`](./apps/worker/fly.toml) / [`apps/mcp/fly.toml`](./apps/mcp/fly.toml). Bootstrap commands in [`docs/deployment.md`](./docs/deployment.md#self-hosted-sandbox-flyio). Sandbox defaults: Keeta testnet, read-only, `MCP_ALLOW_INLINE_SEEDS=false`.
 - **Security model in one page** — [`SECURITY.md`](./SECURITY.md) covers `KEETA_SIGNING_SEED` handling (worker-only), `MCP_ALLOW_INLINE_SEEDS` rationale, seed rotation, and the `OPS_API_KEY` / `ADMIN_BYPASS_TOKEN` authorization surfaces.
 
 ## In One Minute
@@ -172,7 +172,7 @@ pnpm demo
 
 ## Build Your First Trading Agent in 10 Minutes
 
-This walkthrough takes you from a fresh clone to a running agent that prices a swap, runs it through policy, simulates the result, and is ready to flip to live execution. Everything below uses the published `createKeetaAgent` factory in `@keeta-agent-stack/agent-runtime`.
+This walkthrough takes you from a fresh clone to a running agent that prices a swap, runs it through policy, simulates the result, and is ready to flip to live execution. Everything below uses the `createKeetaAgent` factory in `@keeta-agent-stack/agent-runtime`.
 
 ### 1. Install and start the dev stack
 
@@ -239,11 +239,11 @@ const result = await agent.execute(intent);
 console.log(result.kind, result);
 ```
 
-`result.kind` is one of `'denied' | 'simulated' | 'executed' | 'failed'`. With the inputs above you should see `simulated`.
+`result.kind` is one of `'denied' | 'simulated' | 'executed' | 'pending' | 'failed'`. With the inputs above you should see `simulated`.
 
 ### 3. Flip to live execution
 
-Drop the `registry` + `policy` and pass an SDK client instead. The factory will create the intent, walk it through the API pipeline, and resolve once a terminal `intent.executed` / `intent.failed` event arrives.
+Drop the `registry` + `policy` and pass an SDK client instead. The factory will create the intent, walk it through the API pipeline, and return `executed` or `failed` once a terminal event arrives. If the worker has not emitted a terminal event before the polling timeout, the result is `pending` with the events observed so far.
 
 ```ts
 import { createClient } from '@keeta-agent-stack/sdk';
@@ -280,7 +280,7 @@ Five turn-key reference agents live under [`examples/`](./examples). Each folder
 
 For an end-to-end smoke harness that exercises the API + worker together, see [`examples/mock-live-run`](./examples/mock-live-run).
 
-For a fully-formed flagship agent that points at the hosted sandbox out of the box, see [`templates/treasury-rebalancer`](./templates/treasury-rebalancer) — a real rebalance loop with a working policy pack, drift math, and structured-event logs.
+For a fully-formed flagship agent that points at your local API out of the box, see [`templates/treasury-rebalancer`](./templates/treasury-rebalancer) — a real rebalance loop with a working policy pack, drift math, and structured-event logs.
 
 LLM integration recipes (Grok, Claude, LangGraph) are documented in [`examples/mcp-llm-integration.md`](./examples/mcp-llm-integration.md).
 
@@ -288,8 +288,8 @@ The full MCP tool inventory (81 tools, with input schemas and read/write/signing
 
 ## SDK Reference & OpenAPI
 
-- **Hosted OpenAPI snapshot** — published from `main` to GitHub Pages by [`.github/workflows/pages.yml`](./.github/workflows/pages.yml). Once Pages is enabled for this repo, the canonical spec lives at `https://iamkmfa.github.io/keeta-agent-stack/openapi.json` and the full docs bundle at `https://iamkmfa.github.io/keeta-agent-stack/`.
-- **Local Swagger UI** — `pnpm dev:all` (or `pnpm --filter @keeta-agent-stack/api dev`) serves the live API. Browse [`http://localhost:3001/docs`](http://localhost:3001/docs) for the Try-It-Out UI.
+- **Static OpenAPI snapshot** — generated by `pnpm --filter @keeta-agent-stack/docs build` into `apps/docs/dist/openapi.json`. [`.github/workflows/pages.yml`](./.github/workflows/pages.yml) publishes the same bundle only when `ENABLE_GITHUB_PAGES=true`.
+- **Local Swagger UI** — `pnpm dev:all` (or `pnpm --filter @keeta-agent-stack/api dev`) serves the live API. Browse [`http://localhost:3001/docs`](http://localhost:3001/docs) for the Try-It-Out UI; production disables Try-It-Out unless `API_SWAGGER_TRY_IT_OUT_ENABLED=true`.
 - **Typedoc** — `pnpm docs:generate` builds API docs for `@keeta-agent-stack/sdk`, `@keeta-agent-stack/agent-runtime`, and `@keeta-agent-stack/types` into `docs/typedoc/`.
 - A higher-level guided tour of both surfaces lives in [`docs/sdk-reference.md`](./docs/sdk-reference.md).
 
@@ -364,12 +364,12 @@ The integration suite runs the real API and worker against Postgres and Redis.
 ## Where to next
 
 - [Documentation index](./docs/README.md) - guided map across the long-form docs, generated references, and live API docs.
-- [Deployment guide](./docs/deployment.md) — topology, env, scaling, observability, the hosted-sandbox Fly recipe, and a reference `docker-compose.prod.yml` + Helm chart skeleton.
+- [Deployment guide](./docs/deployment.md) — topology, env, scaling, observability, the self-hosted sandbox Fly recipe, and a reference `docker-compose.prod.yml` + Helm chart skeleton.
 - [Creating a new adapter](./docs/creating-new-adapter.md) — step-by-step from `packages/adapter-template/` through routing weights and tests.
 - [MCP + LLM integration](./examples/mcp-llm-integration.md) — Grok, Claude, and LangGraph wiring with the Oracle Payment Playbook walkthrough.
 - [Capability matrix](./docs/capability-matrix.md) — adapter coverage and parity tracking.
-- [Treasury rebalancer template](./templates/treasury-rebalancer) — flagship agent: drift math, working policy pack, hosted-sandbox-ready.
-- [Starter agent template](./starter-agent-template) — minimal standalone project that pins the published packages.
+- [Treasury rebalancer template](./templates/treasury-rebalancer) — flagship agent: drift math, working policy pack, local API ready.
+- [Starter agent template](./starter-agent-template) — minimal standalone project; until npm publish, use its smoke script to install local tarballs from this monorepo.
 
 ## Community & Governance
 

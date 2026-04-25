@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { MockDexAdapter } from '@keeta-agent-stack/adapter-mock-dex';
 import { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
-import type { ExecutionIntent } from '@keeta-agent-stack/types';
-import { createKeetaAgent } from './factory.js';
+import type { EventStreamEvent, ExecutionIntent } from '@keeta-agent-stack/types';
+import { createKeetaAgent, type KeetaSDK } from './factory.js';
 
 function createIntent(overrides: Partial<ExecutionIntent> = {}): ExecutionIntent {
   return {
@@ -150,5 +150,106 @@ describe('createKeetaAgent (offline mode)', () => {
       expect(result.detail.error).toBe('synthetic hook failure');
     }
     expect(captured).toHaveLength(1);
+  });
+});
+
+describe('createKeetaAgent (SDK execution)', () => {
+  it('recovers a terminal event emitted before the stream subscription observes it', async () => {
+    const events: EventStreamEvent[] = [];
+    const streamParams: Array<{ intentId?: string; after?: string }> = [];
+    const listParams: Array<{ intentId?: string; after?: string }> = [];
+    const agent = createKeetaAgent({
+      name: 'live-fast-worker',
+      sdk: {
+        createIntent: async (body) => ({
+          ...body,
+          id: '550e8400-e29b-41d4-a716-446655440999',
+          createdAt: new Date().toISOString(),
+        }),
+        quoteIntent: async () => ({ jobId: 'quote-job', queue: 'quote' }),
+        routeIntent: async () => ({ jobId: 'route-job', queue: 'route' }),
+        policyIntent: async () => ({ jobId: 'policy-job', queue: 'policy' }),
+        executeIntent: async (intentId) => {
+          events.push({
+            id: '550e8400-e29b-41d4-a716-446655440998',
+            source: 'audit',
+            eventType: 'execution.confirmed',
+            intentId,
+            executionId: '550e8400-e29b-41d4-a716-446655440997',
+            payload: {},
+            createdAt: new Date().toISOString(),
+          });
+          return { jobId: 'execute-job', queue: 'execute' };
+        },
+        subscribeEvents: (params = {}) => {
+          streamParams.push(params);
+          let resolveDone!: () => void;
+          return {
+            close: () => resolveDone(),
+            done: new Promise<void>((resolve) => {
+              resolveDone = resolve;
+            }),
+          };
+        },
+        listEvents: async (params = {}) => {
+          listParams.push(params);
+          const afterMs = params.after ? Date.parse(params.after) : 0;
+          return {
+            events: events.filter(
+              (event) =>
+                (!params.intentId || event.intentId === params.intentId) &&
+                Date.parse(event.createdAt) >= afterMs
+            ),
+          };
+        },
+      } as Partial<KeetaSDK> as KeetaSDK,
+      pollTimeoutMs: 1,
+    });
+
+    const result = await agent.execute(createIntent({ mode: 'live' }));
+
+    expect(streamParams[0]?.after).toBeDefined();
+    expect(listParams[0]?.after).toBe(streamParams[0]?.after);
+    expect(result.kind).toBe('executed');
+    if (result.kind === 'executed') {
+      expect(result.executionId).toBe('550e8400-e29b-41d4-a716-446655440997');
+      expect(result.events).toHaveLength(1);
+    }
+  });
+
+  it('returns pending instead of executed when no terminal event is observed', async () => {
+    const agent = createKeetaAgent({
+      name: 'live-no-terminal-event',
+      sdk: {
+        createIntent: async (body) => ({
+          ...body,
+          id: '550e8400-e29b-41d4-a716-446655440888',
+          createdAt: new Date().toISOString(),
+        }),
+        quoteIntent: async () => ({ jobId: 'quote-job', queue: 'quote' }),
+        routeIntent: async () => ({ jobId: 'route-job', queue: 'route' }),
+        policyIntent: async () => ({ jobId: 'policy-job', queue: 'policy' }),
+        executeIntent: async () => ({ jobId: 'execute-job', queue: 'execute' }),
+        subscribeEvents: () => {
+          let resolveDone!: () => void;
+          return {
+            close: () => resolveDone(),
+            done: new Promise<void>((resolve) => {
+              resolveDone = resolve;
+            }),
+          };
+        },
+        listEvents: async () => ({ events: [] }),
+      } as Partial<KeetaSDK> as KeetaSDK,
+      pollTimeoutMs: 1,
+    });
+
+    const result = await agent.execute(createIntent({ mode: 'live' }));
+
+    expect(result.kind).toBe('pending');
+    if (result.kind === 'pending') {
+      expect(result.detail.reason).toMatch(/Timed out/);
+      expect(result.events).toEqual([]);
+    }
   });
 });

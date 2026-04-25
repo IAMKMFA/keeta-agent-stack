@@ -84,7 +84,15 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
     },
   });
 
-  await app.register(cors, { origin: true });
+  const corsOrigin =
+    env.API_CORS_ORIGINS.length > 0
+      ? env.API_CORS_ORIGINS
+      : env.NODE_ENV === 'production'
+        ? false
+        : true;
+  const swaggerTryItOutEnabled = env.API_SWAGGER_TRY_IT_OUT_ENABLED ?? env.NODE_ENV !== 'production';
+
+  await app.register(cors, { origin: corsOrigin });
   await app.register(rateLimit, {
     global: true,
     max: env.API_RATE_LIMIT_MAX,
@@ -182,7 +190,7 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
     uiConfig: {
       docExpansion: 'list',
       deepLinking: true,
-      tryItOutEnabled: true,
+      tryItOutEnabled: swaggerTryItOutEnabled,
     },
     staticCSP: true,
   });
@@ -194,7 +202,7 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
     await app.register(metricsRoutes);
   }
 
-  app.setErrorHandler((err, _req, reply) => {
+  app.setErrorHandler((err, req, reply) => {
     const statusCode = err && typeof err === 'object' && 'error' in err && err.error && typeof err.error === 'object'
       && 'code' in err.error && err.error.code === 'RATE_LIMITED'
         ? 429
@@ -206,6 +214,16 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
       app.log.error(err);
     } else {
       app.log.warn(err);
+    }
+
+    if (statusCode >= 500 && env.NODE_ENV === 'production') {
+      return reply.status(statusCode).send({
+        error: {
+          code: 'INTERNAL',
+          message: 'Internal server error',
+          requestId: req.id,
+        },
+      });
     }
 
     if (
@@ -220,7 +238,7 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
 
     const message = err instanceof Error ? err.message : String(err);
     return reply.status(statusCode).send({
-      error: { code: statusCode === 429 ? 'RATE_LIMITED' : 'INTERNAL', message },
+      error: { code: statusCode === 429 ? 'RATE_LIMITED' : 'INTERNAL', message, requestId: req.id },
     });
   });
 

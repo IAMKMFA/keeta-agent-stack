@@ -1,15 +1,17 @@
 # Keeta Starter Agent
 
-Standalone TypeScript template for building a Keeta agent with [`@keeta-agent-stack/agent-runtime`](https://www.npmjs.com/package/@keeta-agent-stack/agent-runtime). It is intentionally outside the monorepo workspace so you can copy this folder anywhere and `pnpm install` against published packages.
+Standalone TypeScript template for building a Keeta agent with [`@keeta-agent-stack/agent-runtime`](https://www.npmjs.com/package/@keeta-agent-stack/agent-runtime). It is intentionally outside the monorepo workspace so it can be copied anywhere once the `@keeta-agent-stack/*` packages are published.
+
+> Alpha note: the npm scope is not live yet. Inside this repo, use `pnpm smoke`; it builds local packages, packs them into tarballs, and installs the template against those tarballs.
 
 ## One-command setup
 
 ```bash
 cp .env.example .env
-pnpm install
-pnpm build
-pnpm start
+pnpm smoke
 ```
+
+After npm publish, the standalone path will be `pnpm install && pnpm build && pnpm start`.
 
 By default `pnpm start` dispatches a `payment` intent. Set `INTENT_KIND=rebalance` in `.env` to swap in the rebalance shape.
 

@@ -71,4 +71,61 @@ integration('api hardening', () => {
     expect(response.body).toContain('keeta_queue_depth');
     expect(response.body).toContain('keeta_policy_rejections_24h_total');
   });
+
+  it('honors the explicit CORS origin allowlist', async () => {
+    activeRuntime = await createIntegrationTestRuntime({
+      envOverrides: {
+        API_CORS_ORIGINS: 'https://dashboard.example',
+      },
+    });
+
+    const allowed = await activeRuntime.app.inject({
+      method: 'GET',
+      url: '/health',
+      headers: {
+        origin: 'https://dashboard.example',
+      },
+    });
+    const denied = await activeRuntime.app.inject({
+      method: 'GET',
+      url: '/health',
+      headers: {
+        origin: 'https://unknown.example',
+      },
+    });
+
+    expect(allowed.statusCode).toBe(200);
+    expect(allowed.headers['access-control-allow-origin']).toBe('https://dashboard.example');
+    expect(denied.statusCode).toBe(200);
+    expect(denied.headers['access-control-allow-origin']).toBeUndefined();
+  });
+
+  it('hides internal error messages in production responses', async () => {
+    activeRuntime = await createIntegrationTestRuntime({
+      envOverrides: {
+        NODE_ENV: 'production',
+      },
+    });
+    activeRuntime.app.get('/_test/internal-error', async () => {
+      throw new Error('database password leaked');
+    });
+
+    const response = await activeRuntime.app.inject({
+      method: 'GET',
+      url: '/_test/internal-error',
+      headers: {
+        'x-request-id': 'req-prod-error-test',
+      },
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect(JSON.parse(response.body)).toEqual({
+      error: {
+        code: 'INTERNAL',
+        message: 'Internal server error',
+        requestId: 'req-prod-error-test',
+      },
+    });
+    expect(response.body).not.toContain('database password leaked');
+  });
 });

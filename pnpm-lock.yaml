@@ -950,6 +950,34 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
+  templates/treasury-rebalancer:
+    dependencies:
+      '@keeta-agent-stack/agent-runtime':
+        specifier: workspace:*
+        version: link:../../packages/agent-runtime
+      '@keeta-agent-stack/policy':
+        specifier: workspace:*
+        version: link:../../packages/policy
+      '@keeta-agent-stack/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@keeta-agent-stack/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.19.39
+      tsx:
+        specifier: ^4.19.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
 packages:
 
   '@alloc/quick-lru@5.2.0':
@@ -2387,6 +2415,9 @@ packages:
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
+  '@types/node@20.19.39':
+    resolution: {integrity: sha512-orrrD74MBUyK8jOAD/r0+lfa1I2MO6I+vAkmAWzMYbCcgrN4lCrmK52gRFQq/JRxfYPfonkr4b0jcY7Olqdqbw==}
+
   '@types/node@22.19.15':
     resolution: {integrity: sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==}
 
@@ -3084,6 +3115,10 @@ packages:
   dot-prop@6.0.1:
     resolution: {integrity: sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==}
     engines: {node: '>=10'}
+
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+    engines: {node: '>=12'}
 
   drange@1.1.1:
     resolution: {integrity: sha512-pYxfDYpued//QpnLIm4Avk7rsNtAtQkUES2cwAYSvD/wd2pKD71gN2Ebj3e7klzXwjocvE8c5vx/1fxwpqmSxA==}
@@ -6607,6 +6642,10 @@ snapshots:
 
   '@types/node@12.20.55': {}
 
+  '@types/node@20.19.39':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/node@22.19.15':
     dependencies:
       undici-types: 6.21.0
@@ -7323,6 +7362,8 @@ snapshots:
     dependencies:
       is-obj: 2.0.0
     optional: true
+
+  dotenv@16.6.1: {}
 
   drange@1.1.1: {}
 

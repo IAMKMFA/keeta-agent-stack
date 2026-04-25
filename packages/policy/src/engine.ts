@@ -101,8 +101,8 @@ export class PolicyEngine {
     }
   }
 
-  private registerInternal(
-    definition: PolicyRuleDefinition<any> | PolicyRuleCompositionDefinition,
+  private registerInternal<TConfig>(
+    definition: PolicyRuleDefinition<TConfig> | PolicyRuleCompositionDefinition,
     source: PolicyRuleSource,
     kind: PolicyEntryKind
   ): this {
@@ -114,7 +114,7 @@ export class PolicyEngine {
       throw new Error('Policy composition "not" requires exactly one child rule');
     }
     this.rules.set(definition.ruleId, {
-      definition,
+      definition: definition as PolicyRuleDefinition | PolicyRuleCompositionDefinition,
       kind,
       order: this.orderCounter++,
       source,

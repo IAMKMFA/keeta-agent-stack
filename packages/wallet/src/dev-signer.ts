@@ -6,9 +6,8 @@ const log = pino({ name: 'dev-signer' });
 
 function assertDevSignerAllowed(): void {
   const prod = process.env.NODE_ENV === 'production';
-  const allow = process.env.ALLOW_DEV_SIGNER === 'true' || process.env.ALLOW_DEV_SIGNER === '1';
-  if (prod && !allow) {
-    throw new Error('DevSigner is disabled in production unless ALLOW_DEV_SIGNER=true');
+  if (prod) {
+    throw new Error('DevSigner is disabled in production');
   }
 }
 

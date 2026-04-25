@@ -15,19 +15,22 @@ concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     name: Build static docs + OpenAPI snapshot
     if: ${{ vars.ENABLE_GITHUB_PAGES == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: pnpm
@@ -36,7 +39,7 @@ jobs:
 
       - name: Build docs bundle
         env:
-          API_URL: https://sandbox.keeta-agent-stack.dev
+          API_URL: ${{ vars.PUBLIC_SANDBOX_URL || 'http://localhost:3001' }}
         run: pnpm --filter @keeta-agent-stack/docs build
 
       - uses: actions/upload-pages-artifact@v3
