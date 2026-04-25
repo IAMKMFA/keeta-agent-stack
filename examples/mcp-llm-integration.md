@@ -1,17 +1,16 @@
 # MCP + LLM integration
 
-The Keeta Agent Stack ships a stdio MCP server (`apps/mcp`) that exposes every
-control-plane action — wallet provisioning, intents, routing, policy, anchors,
-oracle pricing, and the new Oracle Payment Playbook — as typed MCP tools.
+The Keeta Agent Stack ships a stdio MCP server (`apps/mcp`) that exposes every control-plane action
+— wallet provisioning, intents, routing, policy, anchors, oracle pricing, and the new Oracle Payment
+Playbook — as typed MCP tools.
 
-This doc is the practical wiring guide for three of the most common LLM
-hosts: **Grok (OpenAI function calling)**, **Anthropic Claude**, and
-**LangGraph**. Every recipe targets the same set of tools so you can pick the
-runtime that fits your team without rewriting prompts.
+This doc is the practical wiring guide for three of the most common LLM hosts: **Grok (OpenAI
+function calling)**, **Anthropic Claude**, and **LangGraph**. Every recipe targets the same set of
+tools so you can pick the runtime that fits your team without rewriting prompts.
 
-> All tools return the standard envelope:
-> `{ ok: true, data: ... }` or `{ ok: false, error: { code, message, retryable, hint? } }`.
-> Build one response handler in your agent loop and reuse it everywhere.
+> All tools return the standard envelope: `{ ok: true, data: ... }` or
+> `{ ok: false, error: { code, message, retryable, hint? } }`. Build one response handler in your
+> agent loop and reuse it everywhere.
 
 ## Prerequisites
 
@@ -50,16 +49,16 @@ pnpm dev:mcp
 | `oracle.replay`                                                                                | Operator-only replay of a previous run (requires `OPS_API_KEY`).                |
 | `keeta_oracle_compare_rails`                                                                   | Compare Keeta vs SWIFT/bankwire/Stripe/Visa pricing.                            |
 
-Run `keeta_oracle_list_mirrored_tools` to enumerate every mirrored upstream
-Oracle tool the server is shipping at runtime.
+Run `keeta_oracle_list_mirrored_tools` to enumerate every mirrored upstream Oracle tool the server
+is shipping at runtime.
 
 ---
 
 ## 1. Grok (OpenAI function calling)
 
-Grok speaks the OpenAI Chat Completions / Tool-Use schema. The shape of every
-MCP tool is `{ name, description, inputSchema }` — convert each MCP tool into a
-function declaration and dispatch.
+Grok speaks the OpenAI Chat Completions / Tool-Use schema. The shape of every MCP tool is
+`{ name, description, inputSchema }` — convert each MCP tool into a function declaration and
+dispatch.
 
 ```ts
 import OpenAI from 'openai';
@@ -118,14 +117,13 @@ while (true) {
 }
 ```
 
-The MCP envelope (`{ ok, data | error }`) is opaque to Grok, but the model
-will read `error.code` / `error.hint` and self-correct. We rely on this in the
-Oracle Payment Playbook walkthrough below.
+The MCP envelope (`{ ok, data | error }`) is opaque to Grok, but the model will read `error.code` /
+`error.hint` and self-correct. We rely on this in the Oracle Payment Playbook walkthrough below.
 
 ## 2. Anthropic Claude
 
-Claude's native tool-use protocol is a near-perfect mirror of MCP, so you can
-forward MCP tool definitions almost verbatim.
+Claude's native tool-use protocol is a near-perfect mirror of MCP, so you can forward MCP tool
+definitions almost verbatim.
 
 ```ts
 import Anthropic from '@anthropic-ai/sdk';
@@ -155,16 +153,14 @@ const res = await claude.messages.create({
 // MCP client → push `tool_result` blocks back into the conversation.
 ```
 
-The `oracle.payment.execute` tool requires the literal string `"CONFIRM"` in
-the `confirmation` field. Claude reliably gates this on a follow-up user
-turn — the MCP server will return `INVALID_ARGUMENTS` otherwise, which Claude
-surfaces back to the user.
+The `oracle.payment.execute` tool requires the literal string `"CONFIRM"` in the `confirmation`
+field. Claude reliably gates this on a follow-up user turn — the MCP server will return
+`INVALID_ARGUMENTS` otherwise, which Claude surfaces back to the user.
 
 ## 3. LangGraph
 
-LangGraph treats MCP tools as ordinary `BaseTool` instances. Use the
-`langchain-mcp` adapter (or hand-roll one in ~20 lines) to bridge the stdio
-MCP server into a `ToolNode`.
+LangGraph treats MCP tools as ordinary `BaseTool` instances. Use the `langchain-mcp` adapter (or
+hand-roll one in ~20 lines) to bridge the stdio MCP server into a `ToolNode`.
 
 ```ts
 import { StateGraph, START, END } from '@langchain/langgraph';
@@ -197,17 +193,16 @@ const out = await graph.invoke({
 });
 ```
 
-LangGraph's checkpoint store + retry semantics pair nicely with the
-`oracle.payment.execute` idempotency model — same `correlationId` will return
-the cached envelope on retry, so the graph won't double-execute on a node
-failure.
+LangGraph's checkpoint store + retry semantics pair nicely with the `oracle.payment.execute`
+idempotency model — same `correlationId` will return the cached envelope on retry, so the graph
+won't double-execute on a node failure.
 
 ---
 
 ## Oracle Payment Playbook walkthrough (end-to-end)
 
-This is the canonical multi-turn flow the new tools were designed for.
-Use it as the system prompt for any of the three runtimes above.
+This is the canonical multi-turn flow the new tools were designed for. Use it as the system prompt
+for any of the three runtimes above.
 
 ```text
 You are a Keeta payment agent. ALWAYS:
@@ -259,12 +254,13 @@ LLM → User: "Backend execution endpoint isn't wired yet — guardrails
              keeta_execute_intent for the legacy path?"
 ```
 
-When the backend stub is replaced, the same agent prompt continues to work —
-the only change is that `oracle.payment.execute` returns
-`{ ok: true, data: { txId, status: 'submitted' } }`.
+When the backend stub is replaced, the same agent prompt continues to work — the only change is that
+`oracle.payment.execute` returns `{ ok: true, data: { txId, status: 'submitted' } }`.
 
 ## See also
 
 - [`apps/mcp/src/tools/`](../apps/mcp/src/tools) — every registered tool with full Zod schema.
-- [Root README → Common Agent Patterns](../README.md#common-agent-patterns--examples) for the linked example projects.
-- [`docs/dashboard-v2-contract.md`](../docs/dashboard-v2-contract.md) §A3 for the dashboard-side mutation guardrails this MCP integration mirrors.
+- [Root README → Common Agent Patterns](../README.md#common-agent-patterns--examples) for the linked
+  example projects.
+- [`docs/dashboard-v2-contract.md`](../docs/dashboard-v2-contract.md) §A3 for the dashboard-side
+  mutation guardrails this MCP integration mirrors.

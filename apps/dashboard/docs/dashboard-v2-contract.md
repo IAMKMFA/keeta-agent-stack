@@ -1,13 +1,12 @@
 # Dashboard V2/V3 — Contract and Security Audit
 
-Phase 0 deliverable from the "Professional Keeta-themed dashboard" plan.
-Locks down the role model, auth contract, env vars, and API/data surface **before**
-new UI work. This file started as the V2 contract and now also records the Epic
-V3 cockpit endpoints, routes, and rollout status.
+Phase 0 deliverable from the "Professional Keeta-themed dashboard" plan. Locks down the role model,
+auth contract, env vars, and API/data surface **before** new UI work. This file started as the V2
+contract and now also records the Epic V3 cockpit endpoints, routes, and rollout status.
 
-**Status keys**: `EXISTS` = already in codebase, `NEW` = must be added as backend work
-before the relevant dashboard phase can land, `EXTEND` = exists but needs additional
-shape/fields for dashboard-v2 use.
+**Status keys**: `EXISTS` = already in codebase, `NEW` = must be added as backend work before the
+relevant dashboard phase can land, `EXTEND` = exists but needs additional shape/fields for
+dashboard-v2 use.
 
 ---
 
@@ -93,9 +92,9 @@ Verified by grepping [apps/api/src/routes/](../../../api/src/routes).
 
 ### Kill switch
 
-**Does not exist today** under `/ops/kill-switch`. The worker respects
-`EXECUTION_KILL_SWITCH` as an env var (see [.env.example](../../../../.env.example))
-but there is no REST endpoint to toggle it at runtime. See §8 (Gaps).
+**Does not exist today** under `/ops/kill-switch`. The worker respects `EXECUTION_KILL_SWITCH` as an
+env var (see [.env.example](../../../../.env.example)) but there is no REST endpoint to toggle it at
+runtime. See §8 (Gaps).
 
 ---
 
@@ -118,35 +117,29 @@ export interface AuthPrincipal {
 
 ### Token sources (in precedence order)
 
-1. **JWT**: `Authorization: Bearer <token>`. Validated via `AUTH_JWT_SECRET`, or a
-   PEM public key (`AUTH_JWT_PUBLIC_KEY_PEM`), or `AUTH_JWT_JWKS_URL`, or
-   OIDC discovery (`AUTH_JWT_OIDC_DISCOVERY_URL` / `AUTH_JWT_OIDC_ISSUER`).
-   Roles extracted from `payload.roles[]`, `payload.role`, or space-separated
-   `payload.scope`.
-2. **Admin bypass token** (optional): `x-admin-token: <token>`, matches
-   `ADMIN_BYPASS_TOKEN`. Only honored when the route opts in with
-   `allowAdminBypassToken: true`. In production, additionally requires
-   `AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION=true`.
-3. **Legacy ops key** (service credential): `x-ops-key: <key>` matches
-   `OPS_API_KEY`. Grants the role configured by `AUTH_LEGACY_OPS_API_KEY_ROLE`
-   (default `operator`). In production, requires
+1. **JWT**: `Authorization: Bearer <token>`. Validated via `AUTH_JWT_SECRET`, or a PEM public key
+   (`AUTH_JWT_PUBLIC_KEY_PEM`), or `AUTH_JWT_JWKS_URL`, or OIDC discovery
+   (`AUTH_JWT_OIDC_DISCOVERY_URL` / `AUTH_JWT_OIDC_ISSUER`). Roles extracted from `payload.roles[]`,
+   `payload.role`, or space-separated `payload.scope`.
+2. **Admin bypass token** (optional): `x-admin-token: <token>`, matches `ADMIN_BYPASS_TOKEN`. Only
+   honored when the route opts in with `allowAdminBypassToken: true`. In production, additionally
+   requires `AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION=true`.
+3. **Legacy ops key** (service credential): `x-ops-key: <key>` matches `OPS_API_KEY`. Grants the
+   role configured by `AUTH_LEGACY_OPS_API_KEY_ROLE` (default `operator`). In production, requires
    `AUTH_ALLOW_LEGACY_OPS_API_KEY=true`.
 
 ### Critical rules (dashboard v2)
 
-- **`OPS_API_KEY` is a server-side service credential; it never represents a
-  human identity.** The dashboard may use `OPS_API_KEY` in server-only contexts
-  (route handlers, server components) to call backend ops endpoints **after**
-  verifying the viewer's JWT identity.
-- **No `NEXT_PUBLIC_OPS_API_KEY`.** Verified: zero occurrences in the repo
-  (Phase 3 removed it).
-- **No `NEXT_PUBLIC_*` secrets of any kind.** `NEXT_PUBLIC_API_URL` is the
-  only public var and is non-sensitive.
+- **`OPS_API_KEY` is a server-side service credential; it never represents a human identity.** The
+  dashboard may use `OPS_API_KEY` in server-only contexts (route handlers, server components) to
+  call backend ops endpoints **after** verifying the viewer's JWT identity.
+- **No `NEXT_PUBLIC_OPS_API_KEY`.** Verified: zero occurrences in the repo (Phase 3 removed it).
+- **No `NEXT_PUBLIC_*` secrets of any kind.** `NEXT_PUBLIC_API_URL` is the only public var and is
+  non-sensitive.
 
 ### Missing for v2: tenant + exec roles
 
-The existing `AuthRole` union (`viewer | operator | admin`) does not yet
-express:
+The existing `AuthRole` union (`viewer | operator | admin`) does not yet express:
 
 - **`tenant`** — a customer-scoped user whose view is filtered by `tenantId`.
 - **`exec`** — a read-only stakeholder who sees KPIs but no mutation surface.
@@ -200,10 +193,10 @@ export type Capability =
   | 'rails:read';
 ```
 
-The dashboard's `requireScope(cap)` helper checks `viewer.scopes`. **UI
-capability checks are cosmetic**; every privileged route on the API enforces
-the underlying `AuthRole` independently. V2 does not try to rewire every API
-route to capability-level auth — that's a separate backend migration.
+The dashboard's `requireScope(cap)` helper checks `viewer.scopes`. **UI capability checks are
+cosmetic**; every privileged route on the API enforces the underlying `AuthRole` independently. V2
+does not try to rewire every API route to capability-level auth — that's a separate backend
+migration.
 
 ---
 
@@ -229,12 +222,13 @@ Planned additions for v2:
 | `DASHBOARD_V2_ENABLED` | **Server-only** | Gate new v2 routes/nav. Client components receive a safe boolean only.      |
 | `AUTH_COOKIE_NAME`     | Server-only     | Name of the session cookie forwarded to `/me`. Defaults to `keeta_session`. |
 
-No `NEXT_PUBLIC_DASHBOARD_V2`. No `NEXT_PUBLIC_OPS_*`. No public flags that
-gate security-sensitive surfaces.
+No `NEXT_PUBLIC_DASHBOARD_V2`. No `NEXT_PUBLIC_OPS_*`. No public flags that gate security-sensitive
+surfaces.
 
 ### API (`apps/api`)
 
-All env vars are server-only. Full list in [packages/config/src/index.ts](../../../../packages/config/src/index.ts).
+All env vars are server-only. Full list in
+[packages/config/src/index.ts](../../../../packages/config/src/index.ts).
 
 ---
 
@@ -246,10 +240,9 @@ New route, added in Phase A as [apps/api/src/routes/me.ts](../../../api/src/rout
 GET /me
 ```
 
-**Authentication**: derived **only** from the incoming
-`Authorization: Bearer <jwt>` header (and/or cookie-relayed JWT if the
-deployment places JWTs in a cookie). `x-ops-key` and `x-admin-token` **must
-not** authenticate `/me` — they are service credentials, not identities.
+**Authentication**: derived **only** from the incoming `Authorization: Bearer <jwt>` header (and/or
+cookie-relayed JWT if the deployment places JWTs in a cookie). `x-ops-key` and `x-admin-token`
+**must not** authenticate `/me` — they are service credentials, not identities.
 
 **Responses**:
 
@@ -266,13 +259,12 @@ not** authenticate `/me` — they are service credentials, not identities.
   }
   ```
 
-**Caching**: `cache-control: no-store` on both the API and the dashboard
-server fetch. The dashboard's `getViewer()` memoizes with React's
-`cache()` so the same request doesn't hit `/me` twice, but **never** across
-requests.
+**Caching**: `cache-control: no-store` on both the API and the dashboard server fetch. The
+dashboard's `getViewer()` memoizes with React's `cache()` so the same request doesn't hit `/me`
+twice, but **never** across requests.
 
-**Cookie forwarding**: the dashboard route handler proxies `cookie` and
-`authorization` headers untouched to `/me`.
+**Cookie forwarding**: the dashboard route handler proxies `cookie` and `authorization` headers
+untouched to `/me`.
 
 ---
 
@@ -287,8 +279,8 @@ requests.
 | `GET /intents?tenantId=...` (with backend enforcement) | EXTEND       | Phase E (Tenant surfaces)      |
 | `GET /wallets?tenantId=...` (with backend enforcement) | EXTEND       | Phase E (Tenant surfaces)      |
 
-**Guard rule**: phases that depend on a `NEW` endpoint must not build UI
-until the endpoint lands. Phase D's Cost page in particular is blocked by §7.
+**Guard rule**: phases that depend on a `NEW` endpoint must not build UI until the endpoint lands.
+Phase D's Cost page in particular is blocked by §7.
 
 ---
 
@@ -296,9 +288,9 @@ until the endpoint lands. Phase D's Cost page in particular is blocked by §7.
 
 ### Where are fees stored today?
 
-Reviewed [packages/storage/src/schema](../../../../packages/storage/src/schema).
-There is **no dedicated fee column** on `executions` or a separate
-`execution_results` table. Fees today live inside:
+Reviewed [packages/storage/src/schema](../../../../packages/storage/src/schema). There is **no
+dedicated fee column** on `executions` or a separate `execution_results` table. Fees today live
+inside:
 
 - `executions.payload` (jsonb) — adapter-specific execution payload.
 - `executions.receipt` (jsonb) — normalized receipt after settlement.
@@ -308,34 +300,31 @@ There is **no dedicated fee column** on `executions` or a separate
 
 Aggregating fees server-side requires one of:
 
-1. **Extract fees to a generated column** — add `executions.fee_amount
-numeric` and `executions.fee_currency text` populated via a DB trigger or
-   worker write path, then index on `(created_at, adapter_id)`.
+1. **Extract fees to a generated column** — add `executions.fee_amount numeric` and
+   `executions.fee_currency text` populated via a DB trigger or worker write path, then index on
+   `(created_at, adapter_id)`.
 2. **Materialized view** — nightly refresh of
-   `execution_fee_aggregates_daily(bucket, adapter_id, rail, asset, count,
-total_fee, p50_fee, p95_fee)`, refreshed by a worker job.
-3. **On-the-fly json extraction** — scan `executions` with
-   `(receipt->'fee'->>'amount')::numeric` aggregates. **Only viable for
-   small windows** and requires a new index on `created_at`.
+   `execution_fee_aggregates_daily(bucket, adapter_id, rail, asset, count, total_fee, p50_fee, p95_fee)`,
+   refreshed by a worker job.
+3. **On-the-fly json extraction** — scan `executions` with `(receipt->'fee'->>'amount')::numeric`
+   aggregates. **Only viable for small windows** and requires a new index on `created_at`.
 
-**Decision required before Phase D**: pick one of the three. This document
-recommends option 1 (generated columns + index) as the smallest change that
-keeps the aggregate query fast indefinitely. If picked, the migration goes
-into `infrastructure/migrations/0011_execution_fee_columns.sql` and is
+**Decision required before Phase D**: pick one of the three. This document recommends option 1
+(generated columns + index) as the smallest change that keeps the aggregate query fast indefinitely.
+If picked, the migration goes into `infrastructure/migrations/0011_execution_fee_columns.sql` and is
 populated by the execute worker in [apps/worker/src/run.ts](../../../worker/src/run.ts).
 
 ### Index note
 
-`executions_intent_id_idx` (added in migration 0010) speeds up the
-intent→executions join but does **not** help time-bucketed fee aggregates.
-Phase D needs its own index; that's part of the decision above.
+`executions_intent_id_idx` (added in migration 0010) speeds up the intent→executions join but does
+**not** help time-bucketed fee aggregates. Phase D needs its own index; that's part of the decision
+above.
 
 ### Phase D acceptance gate
 
-Cost & Fees Analytics either runs against the chosen aggregate implementation
-with an index plan that is verified via `EXPLAIN`, or it ships behind a
-"preview" flag with a documented materialization follow-up. No dashboard code
-lands assuming a fee column that doesn't exist.
+Cost & Fees Analytics either runs against the chosen aggregate implementation with an index plan
+that is verified via `EXPLAIN`, or it ships behind a "preview" flag with a documented
+materialization follow-up. No dashboard code lands assuming a fee column that doesn't exist.
 
 ---
 
@@ -343,34 +332,29 @@ lands assuming a fee column that doesn't exist.
 
 ### Must-fix before a given phase
 
-- **Phase A**: `/me` does not exist; `DashboardRole` / `Capability` unions do
-  not exist; JWT claim convention for `dashboard_role` / `tenant_id` / `scopes`
-  is not documented. All three land in Phase A as part of the
-  [apps/api/src/routes/me.ts](../../../api/src/routes/me.ts) deliverable plus
+- **Phase A**: `/me` does not exist; `DashboardRole` / `Capability` unions do not exist; JWT claim
+  convention for `dashboard_role` / `tenant_id` / `scopes` is not documented. All three land in
+  Phase A as part of the [apps/api/src/routes/me.ts](../../../api/src/routes/me.ts) deliverable plus
   [apps/dashboard/lib/auth.ts](../../lib/auth.ts).
-- **Phase B**: kill-switch REST endpoint does not exist. Either add
-  `GET|POST /ops/kill-switch` (operator read, admin write with
-  `kill_switch:write` scope) or ship the Command Center's kill-switch panel
-  read-only in Phase B and wire mutation in a follow-up.
-- **Phase D**: anchor health aggregate endpoint does not exist; no
-  dashboard-safe shape for bond coverage / reconciliation age. Must land
-  before UI.
+- **Phase B**: kill-switch REST endpoint does not exist. Either add `GET|POST /ops/kill-switch`
+  (operator read, admin write with `kill_switch:write` scope) or ship the Command Center's
+  kill-switch panel read-only in Phase B and wire mutation in a follow-up.
+- **Phase D**: anchor health aggregate endpoint does not exist; no dashboard-safe shape for bond
+  coverage / reconciliation age. Must land before UI.
 - **Phase D**: fee storage model requires the decision in §7.
 
 ### MCP import prohibition
 
 The dashboard **must not** import `apps/mcp/src/tools/*` files (including
-[anchor-chaining.ts](../../../mcp/src/tools/anchor-chaining.ts)). Any shared
-anchor-chaining logic that the dashboard needs moves to `packages/keeta` or
-gets exposed via a stable `apps/api` endpoint. Phase A adds an ESLint rule
-(or similar) to enforce this.
+[anchor-chaining.ts](../../../mcp/src/tools/anchor-chaining.ts)). Any shared anchor-chaining logic
+that the dashboard needs moves to `packages/keeta` or gets exposed via a stable `apps/api` endpoint.
+Phase A adds an ESLint rule (or similar) to enforce this.
 
 ### SDK in browser prohibition
 
-`@keeta-agent-stack/sdk` assumes server-only use (it reads `OPS_API_KEY` /
-`API_URL` from env). The dashboard imports it only from server components
-and route handlers — never from `'use client'` modules. Phase A adds a lint
-rule to block SDK imports from client-boundary files.
+`@keeta-agent-stack/sdk` assumes server-only use (it reads `OPS_API_KEY` / `API_URL` from env). The
+dashboard imports it only from server components and route handlers — never from `'use client'`
+modules. Phase A adds a lint rule to block SDK imports from client-boundary files.
 
 ---
 
@@ -430,26 +414,25 @@ Phase A can begin.
 | `/forbidden`, `/login` | any                           | —               |
 
 All operator/admin/exec/tenant pages are wrapped in role-gated route groups
-(`apps/dashboard/app/(authenticated)/(operator|exec|tenant)/layout.tsx`).
-The SSE proxy at `app/api/events/stream/route.ts` enforces `requireRole(['admin','operator'])`.
+(`apps/dashboard/app/(authenticated)/(operator|exec|tenant)/layout.tsx`). The SSE proxy at
+`app/api/events/stream/route.ts` enforces `requireRole(['admin','operator'])`.
 
 ### Automated tests
 
-Unit tests run via `pnpm --filter @keeta-agent-stack/dashboard test`
-(`check:routes` plus Vitest in `apps/dashboard/tests/`):
+Unit tests run via `pnpm --filter @keeta-agent-stack/dashboard test` (`check:routes` plus Vitest in
+`apps/dashboard/tests/`):
 
 - `tests/permissions.test.ts` — `hasRole`, `hasScope`, `roleHome`.
 - `tests/nav.test.ts` — role-scoped nav filtering; negative cases for tenant/exec/anonymous;
   `NAV_ITEMS` integrity invariants; V2 off behavior.
-- `tests/flags.test.ts` — `DASHBOARD_V2_ENABLED` and `DASHBOARD_DEV_VIEWER_ROLE`
-  semantics (incl. prod-safety of dev viewer override).
+- `tests/flags.test.ts` — `DASHBOARD_V2_ENABLED` and `DASHBOARD_DEV_VIEWER_ROLE` semantics (incl.
+  prod-safety of dev viewer override).
 - `tests/csrf.test.ts` — CSRF helpers and mutation hardening.
 - `tests/auth-schema.test.ts` — `MeResponseSchema` / `parseMeResponse`.
 
-Playwright persona coverage (operator / tenant / exec / unauthorized) is
-scoped as a follow-up. The Vitest suite proves the pure role/scope gating
-logic; live route guards are exercised through server components that call
-`requireRole` / `requireScope` / `requireTenantAccess` in
+Playwright persona coverage (operator / tenant / exec / unauthorized) is scoped as a follow-up. The
+Vitest suite proves the pure role/scope gating logic; live route guards are exercised through server
+components that call `requireRole` / `requireScope` / `requireTenantAccess` in
 `apps/dashboard/lib/auth.ts`, which redirect to `/login` or `/forbidden`.
 
 ### Environment variable rollout
@@ -466,10 +449,9 @@ No `NEXT_PUBLIC_DASHBOARD_V2` is used. No new `NEXT_PUBLIC_*` secrets were intro
 
 ### Theme token migration
 
-`--keeta-*` tokens were introduced alongside `--hub-*` aliases. All refreshed
-pages now reference `--keeta-*` directly; legacy components retain `--hub-*`
-which continue to alias correctly. Any future drop of `--hub-*` is a single
-search-and-replace follow-up.
+`--keeta-*` tokens were introduced alongside `--hub-*` aliases. All refreshed pages now reference
+`--keeta-*` directly; legacy components retain `--hub-*` which continue to alias correctly. Any
+future drop of `--hub-*` is a single search-and-replace follow-up.
 
 ---
 
@@ -477,74 +459,64 @@ search-and-replace follow-up.
 
 ### Route-collision guard (A1)
 
-- Any two `page.tsx` / `route.ts` files under `apps/dashboard/app/` that resolve
-  to the same URL path (after stripping `(group)` and `_private` segments) are
-  a hard build break.
+- Any two `page.tsx` / `route.ts` files under `apps/dashboard/app/` that resolve to the same URL
+  path (after stripping `(group)` and `_private` segments) are a hard build break.
 - Enforced by `apps/dashboard/scripts/check-duplicate-routes.ts`, wired into
-  `pnpm --filter @keeta-agent-stack/dashboard test` via the `check:routes`
-  script. CI fails if two pages claim the same slug, e.g. `/rails` existing
-  at `(authenticated)/rails/page.tsx` and `(authenticated)/(operator)/rails/page.tsx`
-  simultaneously.
+  `pnpm --filter @keeta-agent-stack/dashboard test` via the `check:routes` script. CI fails if two
+  pages claim the same slug, e.g. `/rails` existing at `(authenticated)/rails/page.tsx` and
+  `(authenticated)/(operator)/rails/page.tsx` simultaneously.
 
 ### SSE proxy rule (A4)
 
-- The browser must **never** open an `EventSource` directly to the backend
-  Fastify `/events` surface. All SSE goes through the dashboard-owned proxy
-  route handler `apps/dashboard/app/api/events/stream/route.ts`, which
-  re-authorizes the viewer with `requireRole(['admin','operator'])` and
-  forwards the server-only `OPS_API_KEY` on to the API.
-- Clients (`'use client'` files) must call `new EventSource('/api/events/...')`
-  with a relative path. The duplicate-route script also scans for
-  `new EventSource(` calls in client components and fails the build if any
-  argument is not a relative `/api/...` string literal (e.g.
+- The browser must **never** open an `EventSource` directly to the backend Fastify `/events`
+  surface. All SSE goes through the dashboard-owned proxy route handler
+  `apps/dashboard/app/api/events/stream/route.ts`, which re-authorizes the viewer with
+  `requireRole(['admin','operator'])` and forwards the server-only `OPS_API_KEY` on to the API.
+- Clients (`'use client'` files) must call `new EventSource('/api/events/...')` with a relative
+  path. The duplicate-route script also scans for `new EventSource(` calls in client components and
+  fails the build if any argument is not a relative `/api/...` string literal (e.g.
   `process.env.NEXT_PUBLIC_API_URL + '/events/stream'` is rejected).
 
 ### CSRF / origin enforcement (A3)
 
 - All dashboard mutation route handlers (any `POST|PUT|PATCH|DELETE` under
   `apps/dashboard/app/api/**`) must:
-  1. Call `requireSameOriginMutation(req)` from `apps/dashboard/lib/csrf.ts`,
-     which checks the HTTP method, `Origin` (fallback `Referer`), and
-     `Sec-Fetch-Site`.
-  2. Call `await verifyCsrfToken(req)`, which performs a double-submit cookie
-     check against the `x-dashboard-csrf` header.
+  1. Call `requireSameOriginMutation(req)` from `apps/dashboard/lib/csrf.ts`, which checks the HTTP
+     method, `Origin` (fallback `Referer`), and `Sec-Fetch-Site`.
+  2. Call `await verifyCsrfToken(req)`, which performs a double-submit cookie check against the
+     `x-dashboard-csrf` header.
   3. Re-check viewer role + scope (`requireRole` / `requireScope`).
-  4. Require an explicit `confirm=<ACTION>` body token for destructive
-     actions.
-- The root layout emits a signed `__Host-dashboard_csrf` cookie plus a
-  non-httpOnly client-readable `dashboard_csrf_client` cookie on first render,
-  signed with the server-only `DASHBOARD_CSRF_SECRET`.
-- Today, only the kill-switch mutation routes exist; they return `501 Not
-Implemented` with `{ error: { code: 'kill_switch_backend_pending' } }`
-  until the backend endpoint lands (see §8).
+  4. Require an explicit `confirm=<ACTION>` body token for destructive actions.
+- The root layout emits a signed `__Host-dashboard_csrf` cookie plus a non-httpOnly client-readable
+  `dashboard_csrf_client` cookie on first render, signed with the server-only
+  `DASHBOARD_CSRF_SECRET`.
+- Today, only the kill-switch mutation routes exist; they return `501 Not Implemented` with
+  `{ error: { code: 'kill_switch_backend_pending' } }` until the backend endpoint lands (see §8).
 
 ### Feature-flag behavior (A5)
 
-- `DASHBOARD_V2_ENABLED=false` hides every V2-marked nav item and causes
-  V2-only routes (`/dashboard`, `/command-center`, `/live`, `/policy`,
-  `/policy/builder`, `/agents`, `/agents/[id]`, `/simulate`, `/backtest`,
-  `/anchors-health`, `/webhooks`, `/cost`, `/overview`, `/home`, `/rails`) to return `404` via
-  `requireV2Enabled()` in `apps/dashboard/lib/flags.ts`.
-- Legacy surfaces (`/legacy`, `/intents`, `/executions`, `/wallets`,
-  `/adapters`, `/simulations`, `/anchors`, `/templates`, `/ops`, `/routes`)
-  remain available regardless of the flag value so operators never lose
-  their fallback.
-- Backend guards are **not** gated by this flag. The flag is strictly a UI
-  rollout control and never a security boundary.
+- `DASHBOARD_V2_ENABLED=false` hides every V2-marked nav item and causes V2-only routes
+  (`/dashboard`, `/command-center`, `/live`, `/policy`, `/policy/builder`, `/agents`,
+  `/agents/[id]`, `/simulate`, `/backtest`, `/anchors-health`, `/webhooks`, `/cost`, `/overview`,
+  `/home`, `/rails`) to return `404` via `requireV2Enabled()` in `apps/dashboard/lib/flags.ts`.
+- Legacy surfaces (`/legacy`, `/intents`, `/executions`, `/wallets`, `/adapters`, `/simulations`,
+  `/anchors`, `/templates`, `/ops`, `/routes`) remain available regardless of the flag value so
+  operators never lose their fallback.
+- Backend guards are **not** gated by this flag. The flag is strictly a UI rollout control and never
+  a security boundary.
 
 ### /me runtime validation (A2)
 
-- `apps/dashboard/lib/auth.ts` runs a Zod schema on `/me` responses before
-  constructing a `Viewer`. Invalid role, missing `tenantId` on a tenant, or
-  invalid scopes → the viewer falls back to `ANONYMOUS_VIEWER` and the page
-  redirects to `/login`. Fail-closed behavior is covered by
+- `apps/dashboard/lib/auth.ts` runs a Zod schema on `/me` responses before constructing a `Viewer`.
+  Invalid role, missing `tenantId` on a tenant, or invalid scopes → the viewer falls back to
+  `ANONYMOUS_VIEWER` and the page redirects to `/login`. Fail-closed behavior is covered by
   `apps/dashboard/tests/auth-schema.test.ts`.
 
 ### Cache audit (A6)
 
-- Every dashboard-to-API read must be `cache: 'no-store'` unless the endpoint
-  is explicitly designed for long-lived caching (currently none are). The
-  following endpoints have been audited and are confirmed no-store:
+- Every dashboard-to-API read must be `cache: 'no-store'` unless the endpoint is explicitly designed
+  for long-lived caching (currently none are). The following endpoints have been audited and are
+  confirmed no-store:
 
   | Endpoint family                                                                                                                                                                                                             | Source                                          |
   | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
@@ -553,16 +525,17 @@ Implemented` with `{ error: { code: 'kill_switch_backend_pending' } }`
   | SSE `/api/events/stream`                                                                                                                                                                                                    | `apps/dashboard/app/api/events/stream/route.ts` |
   | CSRF-guarded mutations (`/api/ops/kill-switch/*`)                                                                                                                                                                           | Dashboard route handlers                        |
 
-- Enforced by an ESLint `no-restricted-syntax` rule that flags bare `fetch(`
-  calls outside `apps/dashboard/lib/api.ts`, `apps/dashboard/lib/auth.ts`, and
-  route-handler files under `apps/dashboard/app/api/**`.
+- Enforced by an ESLint `no-restricted-syntax` rule that flags bare `fetch(` calls outside
+  `apps/dashboard/lib/api.ts`, `apps/dashboard/lib/auth.ts`, and route-handler files under
+  `apps/dashboard/app/api/**`.
 
 ### CI lint (A8)
 
 - `pnpm --filter @keeta-agent-stack/dashboard lint:security` runs
   `apps/dashboard/scripts/lint-security.ts`, which checks:
   - No `OPS_API_KEY` usage inside `'use client'` files.
-  - No `NEXT_PUBLIC_*` env var whose name matches `KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL` in any `.env*` file.
+  - No `NEXT_PUBLIC_*` env var whose name matches `KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL` in any
+    `.env*` file.
   - No dashboard component prop is named `jwt`, `apiKey`, `authorization`, or `opsKey`.
   - Invokes `check-duplicate-routes.ts` for route + EventSource assertions.
 - Wired into the repo `turbo` lint task so CI blocks merges.
@@ -574,12 +547,16 @@ Implemented` with `{ error: { code: 'kill_switch_backend_pending' } }`
 Every dashboard→API endpoint covered by Dashboard V2. Columns:
 
 - **Method / Path** — HTTP verb and route on the upstream Fastify API (`apps/api`).
-- **Owner** — file that implements the upstream route (or the dashboard route handler when the path is a dashboard-owned proxy).
-- **Status** — `EXISTS` already in repo, `NEW` shipped in Phases A–D, `PROPOSED` designed but backend not yet implemented.
-- **Roles / Scopes** — who may call it; see §3 for the mapping from `AuthRole` to `DashboardRole` and the capability matrix in §3.
+- **Owner** — file that implements the upstream route (or the dashboard route handler when the path
+  is a dashboard-owned proxy).
+- **Status** — `EXISTS` already in repo, `NEW` shipped in Phases A–D, `PROPOSED` designed but
+  backend not yet implemented.
+- **Roles / Scopes** — who may call it; see §3 for the mapping from `AuthRole` to `DashboardRole`
+  and the capability matrix in §3.
 - **Tenant scoping** — how rows are filtered for tenant viewers.
 - **Pagination** — `cursor` / `limit` convention, if any.
-- **Cache** — dashboard-side read mode (`no-store` is the default; no endpoint is long-cached today).
+- **Cache** — dashboard-side read mode (`no-store` is the default; no endpoint is long-cached
+  today).
 - **PII** — whether the response may carry PII that the dashboard must redact before rendering.
 - **Audit** — whether the upstream writes an audit log entry.
 - **DB notes** — indexes / materialization that the endpoint depends on.
@@ -640,15 +617,11 @@ Every dashboard→API endpoint covered by Dashboard V2. Columns:
 
 ### 12.8 Tenant-scoped legacy surfaces
 
-For the existing `/intents`, `/executions`, `/wallets`, `/simulations`,
-`/adapters`, `/anchors`, `/templates`, `/routes`, `/oracle/*` routes:
+For the existing `/intents`, `/executions`, `/wallets`, `/simulations`, `/adapters`, `/anchors`,
+`/templates`, `/routes`, `/oracle/*` routes:
 
-- Tenant viewers may only see rows for their own `tenantId`. Backend
-  enforcement is still partial — see §8 follow-ups. The dashboard never
-  issues cross-tenant queries on behalf of a tenant viewer, and the
-  `/my-wallets`, `/my-intents`, `/my-webhooks` routes filter via
-  `requireTenantAccess()`.
-- All reads go through `fetchJson` in `apps/dashboard/lib/api.ts` and are
-  therefore `no-store`.
-- Audit logging remains the upstream API's responsibility (dashboard does
-  not re-audit reads).
+- Tenant viewers may only see rows for their own `tenantId`. Backend enforcement is still partial —
+  see §8 follow-ups. The dashboard never issues cross-tenant queries on behalf of a tenant viewer,
+  and the `/my-wallets`, `/my-intents`, `/my-webhooks` routes filter via `requireTenantAccess()`.
+- All reads go through `fetchJson` in `apps/dashboard/lib/api.ts` and are therefore `no-store`.
+- Audit logging remains the upstream API's responsibility (dashboard does not re-audit reads).

@@ -4,10 +4,9 @@
 
 Release track: `0.1.0-alpha.0` pre-publish alpha
 
-Current state: pushed to `main` as a working Keeta Agent Stack alpha. The
-publishable packages are versioned in the monorepo, but the
-`@keeta-agent-stack/*` scope is not yet live on npm; publication is gated on
-the final package-scope decision and release credentials.
+Current state: pushed to `main` as a working Keeta Agent Stack alpha. The publishable packages are
+versioned in the monorepo, but the `@keeta-agent-stack/*` scope is not yet live on npm; publication
+is gated on the final package-scope decision and release credentials.
 
 ## Positioning
 
@@ -19,7 +18,8 @@ The Keeta Agent Stack is now a full agent execution platform with five aligned l
 4. Control plane services for API and worker-driven durable execution
 5. Operator, observability, and developer experience surfaces
 
-This is no longer just an app with internal code reuse. It is a packaged system for building Keeta-native autonomous agents.
+This is no longer just an app with internal code reuse. It is a packaged system for building
+Keeta-native autonomous agents.
 
 ## Executive Summary
 
@@ -34,8 +34,8 @@ The strongest capabilities now in place are:
 - Integration-tested end-to-end execution harness
 - Tracing, request correlation, and API hardening foundations
 
-The frontier work is no longer architectural rescue. It is publication,
-custody clarity, public-facing polish, and deeper production integrations.
+The frontier work is no longer architectural rescue. It is publication, custody clarity,
+public-facing polish, and deeper production integrations.
 
 ## Capability Matrix
 
@@ -110,7 +110,8 @@ The system is built around Keeta concerns:
 - oracle-assisted flows
 - anchor bond lifecycle and verification seams
 
-That gives the SDK a focused identity instead of generic agent infrastructure with chain branding added later.
+That gives the SDK a focused identity instead of generic agent infrastructure with chain branding
+added later.
 
 ## Agent Builder Journey
 
@@ -168,25 +169,23 @@ This matters because real agents need a real operating surface, not just develop
 
 ### Adapter status (honest read)
 
-Routing topology, policy gating, and the durable pipeline are real and live.
-**Live venue liquidity** today comes from two adapters:
+Routing topology, policy gating, and the durable pipeline are real and live. **Live venue
+liquidity** today comes from two adapters:
 
-- `@keeta-agent-stack/adapter-keeta-transfer` — native KTA transfers via the
-  worker's signing path.
-- `@keeta-agent-stack/adapter-oracle-rail` — KTA Oracle for quotes plus a
-  configurable HTTP partner rail (CCTP-style) for execution.
+- `@keeta-agent-stack/adapter-keeta-transfer` — native KTA transfers via the worker's signing path.
+- `@keeta-agent-stack/adapter-oracle-rail` — KTA Oracle for quotes plus a configurable HTTP partner
+  rail (CCTP-style) for execution.
 
-Everything else under `packages/adapter-*` is a synthetic mock used in tests
-and demos (`mock-dex`, `mock-anchor`, `mock-cex`), a stub that quotes and
-simulates but cannot execute live (`solana-stub` — `execute` throws
-`SolanaNotImplementedError`), or a starting point for new venues
-(`adapter-template`). The
-[capability matrix](./capability-matrix.md#rails--adapters) has the
+Everything else under `packages/adapter-*` is a synthetic mock used in tests and demos (`mock-dex`,
+`mock-anchor`, `mock-cex`), a stub that quotes and simulates but cannot execute live (`solana-stub`
+— `execute` throws `SolanaNotImplementedError`), or a starting point for new venues
+(`adapter-template`). The [capability matrix](./capability-matrix.md#rails--adapters) has the
 per-adapter breakdown.
 
 ## What Would Make It Feel Groundbreaking
 
-The SDK is already serious. To make it feel unmistakably category-defining, the next steps should focus on visible leverage:
+The SDK is already serious. To make it feel unmistakably category-defining, the next steps should
+focus on visible leverage:
 
 ### Public Developer Experience
 
@@ -226,4 +225,5 @@ The repo now qualifies as a full agent SDK platform because it has:
 - real operational surfaces
 - system-level verification
 
-The remaining work is mostly about making the platform easier to adopt, easier to showcase, and harder to mistake for anything less than a category-level product.
+The remaining work is mostly about making the platform easier to adopt, easier to showcase, and
+harder to mistake for anything less than a category-level product.

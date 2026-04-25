@@ -1,19 +1,18 @@
 # Deployment Guide
 
-This guide walks operators from a local dev stack to a hardened production
-deployment of the Keeta Agent Stack. It covers topology, environment, scaling,
-security, observability, zero-downtime rollouts, and platform-specific
-recipes.
+This guide walks operators from a local dev stack to a hardened production deployment of the Keeta
+Agent Stack. It covers topology, environment, scaling, security, observability, zero-downtime
+rollouts, and platform-specific recipes.
 
 For local development see the root [README](../README.md) and
-[`docker-compose.yml`](../docker-compose.yml). For an adapter-only deployment
-view see [`docs/creating-new-adapter.md`](./creating-new-adapter.md). For the
-SDK + OpenAPI surface see [`docs/sdk-reference.md`](./sdk-reference.md).
+[`docker-compose.yml`](../docker-compose.yml). For an adapter-only deployment view see
+[`docs/creating-new-adapter.md`](./creating-new-adapter.md). For the SDK + OpenAPI surface see
+[`docs/sdk-reference.md`](./sdk-reference.md).
 
 ## Topology
 
-Production is five processes plus two stateful services. Everything else
-(MCP, dashboard, oracle relays) is optional and can be scaled independently.
+Production is five processes plus two stateful services. Everything else (MCP, dashboard, oracle
+relays) is optional and can be scaled independently.
 
 ```mermaid
 flowchart LR
@@ -58,8 +57,8 @@ Pick **Compose** for staging/POC, **Kubernetes** for any live-money deployment.
 
 ## Production-critical environment
 
-Mirror [`.env.example`](../.env.example) and override the values below.
-Highlighted variables are **required** in production:
+Mirror [`.env.example`](../.env.example) and override the values below. Highlighted variables are
+**required** in production:
 
 | Variable                                                                       | Why it matters                                                                                |
 | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
@@ -84,86 +83,76 @@ Highlighted variables are **required** in production:
 | `KEETA_POLICY_ENABLED=true` + `IDENTITY_POLICY_ENABLED=true` (when applicable) | Hardened policy preflight                                                                     |
 | `ANCHOR_BOND_STRICT=true`                                                      | Reject live anchor steps without bond proofs                                                  |
 
-Full env reference (including BullMQ timeouts, operator metrics knobs, and
-policy caps) lives in [`.env.example`](../.env.example).
+Full env reference (including BullMQ timeouts, operator metrics knobs, and policy caps) lives in
+[`.env.example`](../.env.example).
 
 ## BullMQ Scaling
 
 The worker reads jobs from Redis via BullMQ. Tune in three places:
 
-1. **Per-stage timeouts**: `JOB_TIMEOUT_MS_QUOTE`, `JOB_TIMEOUT_MS_ROUTE`,
-   `JOB_TIMEOUT_MS_POLICY`, `JOB_TIMEOUT_MS_EXECUTE`,
-   `JOB_TIMEOUT_MS_ANCHOR_BOND_RECONCILE`,
-   `JOB_TIMEOUT_MS_ANCHOR_ONBOARDING`. Defaults are conservative; raise only
-   if your venues legitimately need it.
-2. **Concurrency**: number of worker replicas + per-process concurrency. The
-   worker is stateless; horizontal scale is preferred.
-3. **Stuck-job sweep**: `STUCK_JOB_SWEEP_INTERVAL_MS` and
-   `STUCK_JOB_AGE_MS`. Combine with `WORKER_SHUTDOWN_TIMEOUT_MS` so SIGTERM
-   doesn't strand in-flight executes.
+1. **Per-stage timeouts**: `JOB_TIMEOUT_MS_QUOTE`, `JOB_TIMEOUT_MS_ROUTE`, `JOB_TIMEOUT_MS_POLICY`,
+   `JOB_TIMEOUT_MS_EXECUTE`, `JOB_TIMEOUT_MS_ANCHOR_BOND_RECONCILE`,
+   `JOB_TIMEOUT_MS_ANCHOR_ONBOARDING`. Defaults are conservative; raise only if your venues
+   legitimately need it.
+2. **Concurrency**: number of worker replicas + per-process concurrency. The worker is stateless;
+   horizontal scale is preferred.
+3. **Stuck-job sweep**: `STUCK_JOB_SWEEP_INTERVAL_MS` and `STUCK_JOB_AGE_MS`. Combine with
+   `WORKER_SHUTDOWN_TIMEOUT_MS` so SIGTERM doesn't strand in-flight executes.
 
-Operational tip: dedicate one Redis logical DB to BullMQ to keep queue
-metrics from drifting against unrelated caches.
+Operational tip: dedicate one Redis logical DB to BullMQ to keep queue metrics from drifting against
+unrelated caches.
 
 ## Postgres Tuning
 
-- Run migrations on every deploy: `pnpm --filter @keeta-agent-stack/api migrate`
-  (or your equivalent CI step). Migrations live in
-  [`infrastructure/migrations`](../infrastructure/migrations).
-- Pool: set `max_connections` ≥ `(api_replicas * api_pool) + (worker_replicas * worker_pool)`.
-  Start with API pool 10, worker pool 5.
-- Hot-path indexes are pre-shipped (`0010_hot_path_indexes.sql`); audit
-  query plans before hand-rolling new ones.
+- Run migrations on every deploy: `pnpm --filter @keeta-agent-stack/api migrate` (or your equivalent
+  CI step). Migrations live in [`infrastructure/migrations`](../infrastructure/migrations).
+- Pool: set `max_connections` ≥ `(api_replicas * api_pool) + (worker_replicas * worker_pool)`. Start
+  with API pool 10, worker pool 5.
+- Hot-path indexes are pre-shipped (`0010_hot_path_indexes.sql`); audit query plans before
+  hand-rolling new ones.
 - Take a logical backup before each migration that touches the
   `intents`/`executions`/`webhook_deliveries` tables.
-- For multi-AZ deploys, use a managed Postgres (RDS, Cloud SQL, Neon) with
-  automated PITR.
+- For multi-AZ deploys, use a managed Postgres (RDS, Cloud SQL, Neon) with automated PITR.
 
 ## Security Hardening
 
-- TLS terminates at the edge proxy. Inside the network always use
-  `OPS_API_KEY` + JWT bearer; never `x-ops-key` alone in production.
-- Rotate `OPS_API_KEY` and `KEETA_SIGNING_SEED` on a schedule via your secret
-  manager (Vault, AWS Secrets Manager, Doppler).
-- Webhooks use HMAC; validate the signature server-side and reject anything
-  older than a few minutes (replay protection).
-- The worker is the **only** process that touches `KEETA_SIGNING_SEED`.
-  Apply network policies/security groups to deny that env from leaking into
-  API or dashboard pods.
-- Dashboard uses the server-only `DASHBOARD_V2_ENABLED` flag — never expose
-  via `NEXT_PUBLIC_*`. See the dashboard security addendum in the dashboard
-  README.
-- Set `LOG_REDACT_EXTRA=token,authorization,cookie` (and any custom keys)
-  to extend the pino redact list.
+- TLS terminates at the edge proxy. Inside the network always use `OPS_API_KEY` + JWT bearer; never
+  `x-ops-key` alone in production.
+- Rotate `OPS_API_KEY` and `KEETA_SIGNING_SEED` on a schedule via your secret manager (Vault, AWS
+  Secrets Manager, Doppler).
+- Webhooks use HMAC; validate the signature server-side and reject anything older than a few minutes
+  (replay protection).
+- The worker is the **only** process that touches `KEETA_SIGNING_SEED`. Apply network
+  policies/security groups to deny that env from leaking into API or dashboard pods.
+- Dashboard uses the server-only `DASHBOARD_V2_ENABLED` flag — never expose via `NEXT_PUBLIC_*`. See
+  the dashboard security addendum in the dashboard README.
+- Set `LOG_REDACT_EXTRA=token,authorization,cookie` (and any custom keys) to extend the pino redact
+  list.
 
 ## Observability
 
-- **Metrics**: enable `METRICS_ENABLED=true` and scrape `/metrics`. Required
-  charts: queue depth per stage, p95 stage latency, intent terminal
-  outcomes, webhook delivery success rate, anchor bond reconcile lag.
-- **Tracing**: `OTEL_ENABLED=true` with an OTLP collector. The API and
-  worker propagate intent IDs through context.
-- **Logging**: pino JSON to stdout. Aggregate via your log platform; never
-  `console.log` secrets.
+- **Metrics**: enable `METRICS_ENABLED=true` and scrape `/metrics`. Required charts: queue depth per
+  stage, p95 stage latency, intent terminal outcomes, webhook delivery success rate, anchor bond
+  reconcile lag.
+- **Tracing**: `OTEL_ENABLED=true` with an OTLP collector. The API and worker propagate intent IDs
+  through context.
+- **Logging**: pino JSON to stdout. Aggregate via your log platform; never `console.log` secrets.
 - **Health checks**:
   - Liveness: `GET /healthz`
   - Readiness: `GET /readyz` (verifies Postgres + Redis)
-  - Worker readiness: BullMQ heartbeat in Redis (covered by the worker
-    metrics endpoint)
-- **Operator alerts** (suggested): `EXECUTION_KILL_SWITCH=true`, queue depth
-  growth > 5min, anchor bond reconcile failures, webhook delivery > 50%
-  failure over a window.
+  - Worker readiness: BullMQ heartbeat in Redis (covered by the worker metrics endpoint)
+- **Operator alerts** (suggested): `EXECUTION_KILL_SWITCH=true`, queue depth growth > 5min, anchor
+  bond reconcile failures, webhook delivery > 50% failure over a window.
 
 ## Zero-downtime Rollouts
 
 1. Migrate Postgres first; migrations are additive.
-2. Roll API replicas with a 30s drain (`SIGTERM` → finish in-flight requests
-   → exit before `WORKER_SHUTDOWN_TIMEOUT_MS`).
-3. Roll worker replicas one at a time; BullMQ leases will failover to
-   healthy peers.
+2. Roll API replicas with a 30s drain (`SIGTERM` → finish in-flight requests → exit before
+   `WORKER_SHUTDOWN_TIMEOUT_MS`).
+3. Roll worker replicas one at a time; BullMQ leases will failover to healthy peers.
 4. Roll dashboard last so users always see a backend-compatible UI.
-5. Use a feature flag (e.g. `LIVE_MODE_ENABLED`) for risky changes — flip
-   in config rather than redeploying.
+5. Use a feature flag (e.g. `LIVE_MODE_ENABLED`) for risky changes — flip in config rather than
+   redeploying.
 
 ## Platform Recipes
 
@@ -171,50 +160,47 @@ metrics from drifting against unrelated caches.
 
 - One service per process (`api`, `worker`, optional `dashboard`, optional `mcp`).
 - Add a managed Postgres + managed Redis from the same provider.
-- Set the env vars from the table above. Add health checks for `/healthz`
-  on the API service.
+- Set the env vars from the table above. Add health checks for `/healthz` on the API service.
 
 ### Fly.io
 
-- `fly.toml` per app: separate `api` and `worker` apps so you can scale
-  them independently. Use Fly Postgres + Upstash Redis (or Fly's managed
-  Redis) for proximity.
+- `fly.toml` per app: separate `api` and `worker` apps so you can scale them independently. Use Fly
+  Postgres + Upstash Redis (or Fly's managed Redis) for proximity.
 - Set `auto_stop_machines = false` for the worker.
 
 ### AWS ECS (Fargate)
 
-- One task definition per process. Use ECS Service Connect to give the API
-  a stable hostname for the worker's internal callbacks.
-- Use Aurora Postgres + ElastiCache Redis. Store secrets in AWS Secrets
-  Manager and inject via task IAM.
-- Front the API with ALB; set health check path `/healthz`. Run worker as
-  a separate service with a desired count of N.
+- One task definition per process. Use ECS Service Connect to give the API a stable hostname for the
+  worker's internal callbacks.
+- Use Aurora Postgres + ElastiCache Redis. Store secrets in AWS Secrets Manager and inject via task
+  IAM.
+- Front the API with ALB; set health check path `/healthz`. Run worker as a separate service with a
+  desired count of N.
 
 ### Kubernetes (Helm skeleton below)
 
 - Use a Helm chart per process; share a values file for the env block.
-- HPA on the API on CPU/RPS; HPA on the worker on BullMQ queue depth via
-  KEDA (`bullmq-scaler`).
+- HPA on the API on CPU/RPS; HPA on the worker on BullMQ queue depth via KEDA (`bullmq-scaler`).
 - Use a `PodDisruptionBudget` (`minAvailable: 1`) for both API and worker.
 
 ## Self-hosted sandbox (Fly.io)
 
-The repo ships ready-to-use Fly configs for deploying your own API, worker,
-and MCP sandbox against Keeta testnet:
+The repo ships ready-to-use Fly configs for deploying your own API, worker, and MCP sandbox against
+Keeta testnet:
 
 - [`apps/api/fly.toml`](../apps/api/fly.toml) — public HTTPS, healthchecked.
-- [`apps/worker/fly.toml`](../apps/worker/fly.toml) — internal-only, holds
-  `KEETA_SIGNING_SEED` (no other process should).
-- [`apps/mcp/fly.toml`](../apps/mcp/fly.toml) — stdio MCP, runnable behind
-  an HTTP/SSE bridge if you need to expose it remotely.
+- [`apps/worker/fly.toml`](../apps/worker/fly.toml) — internal-only, holds `KEETA_SIGNING_SEED` (no
+  other process should).
+- [`apps/mcp/fly.toml`](../apps/mcp/fly.toml) — stdio MCP, runnable behind an HTTP/SSE bridge if you
+  need to expose it remotely.
 
 Sandbox defaults are intentionally conservative:
 
 - `KEETA_NETWORK=test` — pinned to Keeta testnet, never mainnet.
-- `MCP_ALLOW_INLINE_SEEDS=false` — agents cannot pass raw seeds; signing
-  has to go through the worker via `OPS_API_KEY`-gated control-plane tools.
-- API stays effectively read-only for unauthenticated callers; mutating
-  endpoints require `OPS_API_KEY` (or `ADMIN_BYPASS_TOKEN` for dev).
+- `MCP_ALLOW_INLINE_SEEDS=false` — agents cannot pass raw seeds; signing has to go through the
+  worker via `OPS_API_KEY`-gated control-plane tools.
+- API stays effectively read-only for unauthenticated callers; mutating endpoints require
+  `OPS_API_KEY` (or `ADMIN_BYPASS_TOKEN` for dev).
 
 First-time bootstrap:
 
@@ -237,17 +223,15 @@ fly deploy --config apps/worker/fly.toml
 fly deploy --config apps/mcp/fly.toml
 ```
 
-Suggested public URL: `sandbox.keeta-agent-stack.dev` (CNAME to the API
-Fly app). Document the URL in the root `README.md` only once it is live and
-healthchecked.
+Suggested public URL: `sandbox.keeta-agent-stack.dev` (CNAME to the API Fly app). Document the URL
+in the root `README.md` only once it is live and healthchecked.
 
 ## Starter `docker-compose.prod.yml`
 
-A working version lives at the repo root as
-[`docker-compose.prod.yml`](../docker-compose.prod.yml) — populate
-`.env.production`, then run
-`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`.
-The snippet below is kept for reference / Helm comparison.
+A working version lives at the repo root as [`docker-compose.prod.yml`](../docker-compose.prod.yml)
+— populate `.env.production`, then run
+`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`. The snippet below
+is kept for reference / Helm comparison.
 
 ```yaml
 services:
@@ -407,9 +391,9 @@ podDisruptionBudget:
     minAvailable: 1
 ```
 
-Use this as the starting point for a real chart under `charts/keeta-agent`;
-flesh out the `Deployment`, `Service`, and `HorizontalPodAutoscaler` (or
-KEDA `ScaledObject`) templates from this values shape.
+Use this as the starting point for a real chart under `charts/keeta-agent`; flesh out the
+`Deployment`, `Service`, and `HorizontalPodAutoscaler` (or KEDA `ScaledObject`) templates from this
+values shape.
 
 ## Where to next
 

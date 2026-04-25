@@ -1,7 +1,7 @@
 # Documentation Index
 
-This folder holds the long-form reference material for the Keeta Agent Stack.
-Use this page as the fastest route to the right guide.
+This folder holds the long-form reference material for the Keeta Agent Stack. Use this page as the
+fastest route to the right guide.
 
 ## Start Here
 
@@ -19,8 +19,7 @@ Use this page as the fastest route to the right guide.
 ## Generated References
 
 - `pnpm docs:generate` builds Typedoc HTML into `docs/typedoc/`.
-- `pnpm --filter @keeta-agent-stack/docs build` builds the static docs site in
-  `apps/docs/dist`.
+- `pnpm --filter @keeta-agent-stack/docs build` builds the static docs site in `apps/docs/dist`.
 - `pnpm dev:all` serves Swagger UI at `http://localhost:3001/docs`.
 
 ## GitHub-Friendly Reading Order

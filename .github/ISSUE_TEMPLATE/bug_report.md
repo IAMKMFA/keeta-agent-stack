@@ -54,5 +54,5 @@ Paste anything that would help us diagnose the issue.
 
 ## Security note
 
-If this could expose signing keys, bypass policy, leak data, or affect live
-payments, stop here and report it privately via [SECURITY.md](../../SECURITY.md).
+If this could expose signing keys, bypass policy, leak data, or affect live payments, stop here and
+report it privately via [SECURITY.md](../../SECURITY.md).

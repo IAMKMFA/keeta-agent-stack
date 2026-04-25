@@ -1,7 +1,7 @@
 # route-inspector example
 
-Builds the routing engine on top of the default dev adapter set and prints the
-best route plus the count of alternates for one canonical intent.
+Builds the routing engine on top of the default dev adapter set and prints the best route plus the
+count of alternates for one canonical intent.
 
 ## Prerequisites
 
@@ -25,5 +25,6 @@ The exact alternates count depends on which dev adapters are registered.
 
 ## See also
 
-- Root README: [Common Agent Patterns → Route inspector](../../README.md#common-agent-patterns--examples)
+- Root README:
+  [Common Agent Patterns → Route inspector](../../README.md#common-agent-patterns--examples)
 - `packages/routing` for the scoring internals.

@@ -1,14 +1,13 @@
 # mock-live-run example
 
-End-to-end smoke harness. Builds the default dev adapter set, picks a rail
-(KTA-native or Oracle-planned CCTP), and runs route → simulate (or live).
-Useful as a one-shot promotion gate before deploying.
+End-to-end smoke harness. Builds the default dev adapter set, picks a rail (KTA-native or
+Oracle-planned CCTP), and runs route → simulate (or live). Useful as a one-shot promotion gate
+before deploying.
 
 ## Prerequisites
 
 - For `--live`, the worker must be running with a configured signing seed
-  (`docker compose up -d && pnpm dev:all`). Otherwise no external services are
-  required.
+  (`docker compose up -d && pnpm dev:all`). Otherwise no external services are required.
 
 ## Run it
 
@@ -35,5 +34,6 @@ rail kta route <route-id> simulation { id: '...', success: true, ... }
 
 ## See also
 
-- Root README: [Common Agent Patterns → mock-live-run](../../README.md#common-agent-patterns--examples)
+- Root README:
+  [Common Agent Patterns → mock-live-run](../../README.md#common-agent-patterns--examples)
 - [`docs/deployment.md`](../../docs/deployment.md) for the production topology this script smokes.

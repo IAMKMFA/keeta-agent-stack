@@ -1,12 +1,15 @@
 # Project Review & Scoring Template
 
-> Drop this prompt into any codebase conversation to get a structured, repeatable review with grading, gap analysis, and prioritized upgrade recommendations. Works with any language, framework, or architecture.
+> Drop this prompt into any codebase conversation to get a structured, repeatable review with
+> grading, gap analysis, and prioritized upgrade recommendations. Works with any language,
+> framework, or architecture.
 
 ---
 
 ## THE PROMPT
 
-Copy everything below the line into your conversation with the AI assistant after it has access to your codebase.
+Copy everything below the line into your conversation with the AI assistant after it has access to
+your codebase.
 
 ---
 
@@ -149,8 +152,8 @@ When I come back after making changes and ask you to rescore:
 
 ### After Making Changes
 
-1. In the same conversation (or a new one with codebase access), say:
-   "Please rescore after the latest updates. Here's what changed: [brief summary]"
+1. In the same conversation (or a new one with codebase access), say: "Please rescore after the
+   latest updates. Here's what changed: [brief summary]"
 2. The rescore protocol (Phase 5) kicks in automatically
 3. You get a delta comparison, not a full re-review
 
@@ -162,13 +165,19 @@ When I come back after making changes and ask you to rescore:
 
 ### Customizing for Your Domain
 
-- Rename "Domain Integration" to match your platform (e.g., "Stripe Integration", "AWS Native", "Keeta Chain Depth")
+- Rename "Domain Integration" to match your platform (e.g., "Stripe Integration", "AWS Native",
+  "Keeta Chain Depth")
 - Add domain-specific sub-criteria under any dimension
 - Keep all 12 dimensions — removing one creates blind spots
 
 ### Tips for Best Results
 
-- **Give context first**: Before pasting the prompt, tell the assistant what the project IS and what it's SUPPOSED to do. "This is an agent SDK for the Keeta network" gives better results than just the prompt alone.
-- **Share your intent**: "I want this to be production-ready for external developers" vs "This is an internal tool" changes what matters.
-- **Be honest about stubs**: If you know something is placeholder, say so. It saves exploration time and gets you better recommendations.
-- **Rescore often**: The trajectory table is the most valuable output over time. It shows velocity and direction.
+- **Give context first**: Before pasting the prompt, tell the assistant what the project IS and what
+  it's SUPPOSED to do. "This is an agent SDK for the Keeta network" gives better results than just
+  the prompt alone.
+- **Share your intent**: "I want this to be production-ready for external developers" vs "This is an
+  internal tool" changes what matters.
+- **Be honest about stubs**: If you know something is placeholder, say so. It saves exploration time
+  and gets you better recommendations.
+- **Rescore often**: The trajectory table is the most valuable output over time. It shows velocity
+  and direction.

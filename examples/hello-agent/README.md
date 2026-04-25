@@ -7,7 +7,9 @@ The 60-second hello agent. One file, top-to-bottom, that:
 3. Creates a `USDC -> KTA` buy intent in `simulate` mode.
 4. Queues a quote.
 
-If this works, the SDK is wired correctly and you can move on to routing, policy evaluation, and execution by chaining `client.routeIntent(...)`, `client.policyIntent(...)`, and `client.executeIntent(...)`.
+If this works, the SDK is wired correctly and you can move on to routing, policy evaluation, and
+execution by chaining `client.routeIntent(...)`, `client.policyIntent(...)`, and
+`client.executeIntent(...)`.
 
 ## Prereqs
 
@@ -28,7 +30,8 @@ pnpm dev:all
 pnpm --filter @keeta-agent-stack/example-hello-agent start
 ```
 
-Or, if you've installed the published packages from npm in your own project, copy [`src/index.ts`](./src/index.ts) verbatim — it depends only on `@keeta-agent-stack/sdk`.
+Or, if you've installed the published packages from npm in your own project, copy
+[`src/index.ts`](./src/index.ts) verbatim — it depends only on `@keeta-agent-stack/sdk`.
 
 ## Expected output
 

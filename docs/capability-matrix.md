@@ -2,9 +2,11 @@
 
 This document answers a practical question:
 
-How much of the current Keeta Agent product surface is covered across the backend/API, the TypeScript SDK, and the MCP server?
+How much of the current Keeta Agent product surface is covered across the backend/API, the
+TypeScript SDK, and the MCP server?
 
-It is intentionally precise. It describes what is first-class today, what is partially surfaced, and what still depends on lower-level or internal paths.
+It is intentionally precise. It describes what is first-class today, what is partially surfaced, and
+what still depends on lower-level or internal paths.
 
 ## Coverage Tiers
 
@@ -91,10 +93,9 @@ It is intentionally precise. It describes what is first-class today, what is par
 
 ## Rails / Adapters
 
-> **Adapter honesty caveat**: routing topology is live, but venue liquidity
-> today comes from **two integration adapters** (`keeta-transfer`, native;
-> `oracle-rail`, HTTP partner). Everything else is either a synthetic mock
-> useful for development, a stub that quotes and simulates but cannot
+> **Adapter honesty caveat**: routing topology is live, but venue liquidity today comes from **two
+> integration adapters** (`keeta-transfer`, native; `oracle-rail`, HTTP partner). Everything else is
+> either a synthetic mock useful for development, a stub that quotes and simulates but cannot
 > execute live, or a template you copy and fill in. See the per-adapter rows.
 
 | Adapter / Capability                                                    | Status                   | Notes                                                                                                                                                          |
@@ -139,17 +140,22 @@ The platform is strongest in these areas:
 - richer operator controls around global default policy-pack management can still improve usability
 - richer adapter metadata should eventually come from the backend, not only SDK-local mapping
 - more Keeta-native primitives should graduate from dynamic MCP execution into typed SDK methods
-- worker-scoped signing needs a clearer long-term custody story if the platform expands beyond the current model
+- worker-scoped signing needs a clearer long-term custody story if the platform expands beyond the
+  current model
 
 ## Recommended Summary For External Use
 
 Use this wording when describing the platform publicly:
 
-> Keeta Agent Stack now covers the full control-plane workflow across API, TypeScript SDK, and MCP, including intents, routing, runtime-active policy packs, wallets, events, webhooks, anchors, oracle flows, and explicit production-vs-mock rail labeling.
+> Keeta Agent Stack now covers the full control-plane workflow across API, TypeScript SDK, and MCP,
+> including intents, routing, runtime-active policy packs, wallets, events, webhooks, anchors,
+> oracle flows, and explicit production-vs-mock rail labeling.
 
 Use this wording internally when discussing the frontier:
 
-> The current platform is feature-complete for the main control-plane product surface, while deeper first-class coverage of lower-level Keeta network primitives and expanded operator controls remain the next major upgrades.
+> The current platform is feature-complete for the main control-plane product surface, while deeper
+> first-class coverage of lower-level Keeta network primitives and expanded operator controls remain
+> the next major upgrades.
 
 ## Dashboard Operator Surface (V2 foundation + Epic V3 cockpit)
 
@@ -174,15 +180,14 @@ Use this wording internally when discussing the frontier:
 
 ### Security guarantees
 
-- `OPS_API_KEY` never appears in the browser bundle, client props, logs, or
-  browser requests. It is strictly a server-only service credential.
-- No `NEXT_PUBLIC_DASHBOARD_V2`; rollout uses the server-only
-  `DASHBOARD_V2_ENABLED` flag.
-- All privileged dashboard routes are guarded at three layers: navigation
-  (`lib/nav.ts`), Next layout groups (`requireRole` / `requireScope` /
-  `requireTenantAccess`), and Fastify route handlers (explicit role checks).
-- Tenant data is scoped on the backend; tenant viewers cannot reach
-  operator/exec/global ops surfaces by URL or direct API call.
-- Exec role has read-only access — no mutation controls rendered and no
-  privileged capabilities granted.
+- `OPS_API_KEY` never appears in the browser bundle, client props, logs, or browser requests. It is
+  strictly a server-only service credential.
+- No `NEXT_PUBLIC_DASHBOARD_V2`; rollout uses the server-only `DASHBOARD_V2_ENABLED` flag.
+- All privileged dashboard routes are guarded at three layers: navigation (`lib/nav.ts`), Next
+  layout groups (`requireRole` / `requireScope` / `requireTenantAccess`), and Fastify route handlers
+  (explicit role checks).
+- Tenant data is scoped on the backend; tenant viewers cannot reach operator/exec/global ops
+  surfaces by URL or direct API call.
+- Exec role has read-only access — no mutation controls rendered and no privileged capabilities
+  granted.
 - All fee aggregations redact wallet/customer identifiers at display.

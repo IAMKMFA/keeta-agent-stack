@@ -1,13 +1,12 @@
 # @keeta-agent-stack/adapter-solana-stub
 
-Documented stub for a future Solana DEX integration. The `quote` and
-`simulate` paths return realistic data so routing demos and policy rules can
-include a Solana hop, but the **`execute(mode='live')` path throws
-`SolanaNotImplementedError`** until the real on-chain logic lands.
+Documented stub for a future Solana DEX integration. The `quote` and `simulate` paths return
+realistic data so routing demos and policy rules can include a Solana hop, but the
+**`execute(mode='live')` path throws `SolanaNotImplementedError`** until the real on-chain logic
+lands.
 
-> Disabled by default. Enable in long-lived workers/registries with
-> `KEETA_ENABLE_SOLANA_STUB=true`. See
-> [`docs/creating-new-adapter.md`](../../docs/creating-new-adapter.md).
+> Disabled by default. Enable in long-lived workers/registries with `KEETA_ENABLE_SOLANA_STUB=true`.
+> See [`docs/creating-new-adapter.md`](../../docs/creating-new-adapter.md).
 
 ## What ships today
 
@@ -31,8 +30,7 @@ include a Solana hop, but the **`execute(mode='live')` path throws
 
 ## Why ship a stub?
 
-Documented stubs let policy authors and route designers experiment with
-multi-venue strategies before any real money moves. The `KEETA_ENABLE_*` flag
-keeps the stub out of production registries, and the live-mode throw means an
-operator can never accidentally route a settlement through an unfinished
-adapter.
+Documented stubs let policy authors and route designers experiment with multi-venue strategies
+before any real money moves. The `KEETA_ENABLE_*` flag keeps the stub out of production registries,
+and the live-mode throw means an operator can never accidentally route a settlement through an
+unfinished adapter.

@@ -4,29 +4,48 @@
 [![Template smoke](https://github.com/IAMKMFA/keeta-agent-stack/actions/workflows/template-smoke.yml/badge.svg?branch=main)](https://github.com/IAMKMFA/keeta-agent-stack/actions/workflows/template-smoke.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 
-Build Keeta-native agents that can take an intent, find the best route, enforce policy, simulate risk, execute safely, and keep users and operators informed in real time.
+Build Keeta-native agents that can take an intent, find the best route, enforce policy, simulate
+risk, execute safely, and keep users and operators informed in real time.
 
-|                           |                                                                                                                                                                |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Install path today**    | **Clone the monorepo** — use workspace packages via `pnpm` (see [Get started in 30 seconds](#get-started-in-30-seconds)).                                      |
-| **NPM packages**          | **`@keeta-agent-stack/*` is not on npm yet** (deliberate; first publish is gated on the scope decision).                                                       |
-| **Hosted API / Typedoc**  | **Build locally** — `pnpm --filter @keeta-agent-stack/docs build` → `apps/docs/dist` + `openapi.json`. GitHub Pages is gated; no public doc URL until enabled. |
-| **Fastest “see it work”** | [Quick Start](#quick-start) (`docker compose` → `db:migrate` → `pnpm dev:all` → `pnpm demo`) or run [`examples/hello-agent`](./examples/hello-agent).          |
+| Item                      | Current state                                                                                                                                                                                                                                                                     |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Install path today**    | Clone the monorepo and use workspace packages with `pnpm` (see [Get started in 30 seconds](#get-started-in-30-seconds)).                                                                                                                                                          |
+| **NPM packages**          | `@keeta-agent-stack/*` is not on npm yet (first publish is gated on the scope decision).                                                                                                                                                                                          |
+| **Hosted API / Typedoc**  | Build locally — `pnpm --filter @keeta-agent-stack/docs build` → `apps/docs/dist` + `openapi.json`. To publish the same bundle on GitHub Pages, set the repository Actions variable `ENABLE_GITHUB_PAGES=true` (see [`.github/workflows/pages.yml`](.github/workflows/pages.yml)). |
+| **Fastest “see it work”** | [Quick Start](#quick-start) (`docker compose` → `db:migrate` → `pnpm dev:all` → `pnpm demo`) or [`examples/hello-agent`](./examples/hello-agent).                                                                                                                                 |
+
+### Architecture at a glance
+
+```mermaid
+flowchart TB
+  subgraph appSurfaces["App surfaces"]
+    agentApp[Agent or app]
+    mcpNode[MCP]
+  end
+  controlPlane[SDK and API]
+  pipeline["Intent, quote, route, policy, simulate, execute"]
+  worker[Worker signing]
+  chain[Keeta and rail adapters]
+  agentApp --> controlPlane
+  mcpNode --> controlPlane
+  controlPlane --> pipeline
+  pipeline --> worker
+  worker --> chain
+```
 
 ## Status
 
-**Pre-publish alpha (`0.1.0-alpha.0`).** The SDK family
-(`@keeta-agent-stack/sdk`, `@keeta-agent-stack/agent-runtime`,
-`@keeta-agent-stack/types`, `@keeta-agent-stack/policy`, plus 15 supporting
-packages — see [CHANGELOG](./CHANGELOG.md)) is publish-ready and consumable
-from this monorepo today via `pnpm` workspace links or by cloning. The
-`@keeta-agent-stack/*` scope is **not yet live on npm** — we are deliberately
-not squatting on a name the Keeta team may want to ship under. The first npm
-publish is gated on that decision; until then, use the monorepo directly
-(see [`docs/sdk-reference.md`](./docs/sdk-reference.md) and
+**Pre-publish alpha (`0.1.0-alpha.0`).** The SDK family (`@keeta-agent-stack/sdk`,
+`@keeta-agent-stack/agent-runtime`, `@keeta-agent-stack/types`, `@keeta-agent-stack/policy`, plus 15
+supporting packages — see [CHANGELOG](./CHANGELOG.md)) is publish-ready and consumable from this
+monorepo today via `pnpm` workspace links or by cloning. The `@keeta-agent-stack/*` scope is **not
+yet live on npm** — we are deliberately not squatting on a name the Keeta team may want to ship
+under. The first npm publish is gated on that decision; until then, use the monorepo directly (see
+[`docs/sdk-reference.md`](./docs/sdk-reference.md) and
 [`docs/deployment.md`](./docs/deployment.md)).
 
-Quick links: [Docs index](./docs/README.md) | [Contributing](./CONTRIBUTING.md) | [Code of Conduct](./CODE_OF_CONDUCT.md) | [Security](./SECURITY.md) | [Changelog](./CHANGELOG.md)
+Quick links: [Docs index](./docs/README.md) | [Contributing](./CONTRIBUTING.md) |
+[Code of Conduct](./CODE_OF_CONDUCT.md) | [Security](./SECURITY.md) | [Changelog](./CHANGELOG.md)
 
 ## Get started in 30 seconds
 
@@ -47,15 +66,29 @@ pnpm add @keeta-agent-stack/sdk @keeta-agent-stack/agent-runtime @keeta-agent-st
 
 Three files to read first, in order:
 
-1. **[`examples/hello-agent`](./examples/hello-agent)** — minimal `createClient` -> wallet -> intent -> quote in <30 lines. Run it against your local dev stack or your own API.
-2. **[`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md)** — every one of the 81 MCP tools, grouped by module, with input schemas and read/write/signing classification. Auto-generated from the live Zod schemas, verified in CI.
-3. **[`templates/treasury-rebalancer`](./templates/treasury-rebalancer)** — the flagship template: a real drift-driven rebalance loop with a working policy pack (caps, slippage, venue + asset allowlists, daily-trade and unsettled gates), pinned to every emitted intent.
+1. **[`examples/hello-agent`](./examples/hello-agent)** — minimal `createClient` -> wallet -> intent
+   -> quote in <30 lines. Run it against your local dev stack or your own API.
+2. **[`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md)** — every one of the 81 MCP tools, grouped by
+   module, with input schemas and read/write/signing classification. Auto-generated from the live
+   Zod schemas, verified in CI.
+3. **[`templates/treasury-rebalancer`](./templates/treasury-rebalancer)** — the flagship template: a
+   real drift-driven rebalance loop with a working policy pack (caps, slippage, venue + asset
+   allowlists, daily-trade and unsettled gates), pinned to every emitted intent.
 
 Three more things you probably want next:
 
-- **Generated docs + OpenAPI** — build locally with `pnpm --filter @keeta-agent-stack/docs build`; the static bundle lands in `apps/docs/dist` with `openapi.json`. GitHub Pages publication is gated on `ENABLE_GITHUB_PAGES=true`, so hosted links are coming soon.
-- **Deploy your own sandbox** — multi-stage [`Dockerfile`](./Dockerfile), [`docker-compose.prod.yml`](./docker-compose.prod.yml), and Fly configs at [`apps/api/fly.toml`](./apps/api/fly.toml) / [`apps/worker/fly.toml`](./apps/worker/fly.toml) / [`apps/mcp/fly.toml`](./apps/mcp/fly.toml). Bootstrap commands in [`docs/deployment.md`](./docs/deployment.md#self-hosted-sandbox-flyio). Sandbox defaults: Keeta testnet, read-only, `MCP_ALLOW_INLINE_SEEDS=false`.
-- **Security model in one page** — [`SECURITY.md`](./SECURITY.md) covers `KEETA_SIGNING_SEED` handling (worker-only), `MCP_ALLOW_INLINE_SEEDS` rationale, seed rotation, and the `OPS_API_KEY` / `ADMIN_BYPASS_TOKEN` authorization surfaces.
+- **Generated docs + OpenAPI** — build locally with `pnpm --filter @keeta-agent-stack/docs build`;
+  the static bundle lands in `apps/docs/dist` with `openapi.json`. GitHub Pages publication is gated
+  on `ENABLE_GITHUB_PAGES=true`, so hosted links are coming soon.
+- **Deploy your own sandbox** — multi-stage [`Dockerfile`](./Dockerfile),
+  [`docker-compose.prod.yml`](./docker-compose.prod.yml), and Fly configs at
+  [`apps/api/fly.toml`](./apps/api/fly.toml) / [`apps/worker/fly.toml`](./apps/worker/fly.toml) /
+  [`apps/mcp/fly.toml`](./apps/mcp/fly.toml). Bootstrap commands in
+  [`docs/deployment.md`](./docs/deployment.md#self-hosted-sandbox-flyio). Sandbox defaults: Keeta
+  testnet, read-only, `MCP_ALLOW_INLINE_SEEDS=false`.
+- **Security model in one page** — [`SECURITY.md`](./SECURITY.md) covers `KEETA_SIGNING_SEED`
+  handling (worker-only), `MCP_ALLOW_INLINE_SEEDS` rationale, seed rotation, and the `OPS_API_KEY` /
+  `ADMIN_BYPASS_TOKEN` authorization surfaces.
 
 ## In One Minute
 
@@ -83,7 +116,10 @@ This is not a prompt wrapper. It is an execution platform.
 ## What The Agent Gets
 
 - A durable `intent -> quote -> route -> policy -> execute` pipeline
-- Adapter-driven venue access through a shared contract and registry — routing topology is live; venue liquidity today is **two integration adapters** (`keeta-transfer` native, `oracle-rail` HTTP partner) plus mocks for `dex`/`anchor`/`cex` and a `solana` stub. See the [capability matrix](./docs/capability-matrix.md#rails--adapters).
+- Adapter-driven venue access through a shared contract and registry — routing topology is live;
+  venue liquidity today is **two integration adapters** (`keeta-transfer` native, `oracle-rail` HTTP
+  partner) plus mocks for `dex`/`anchor`/`cex` and a `solana` stub. See the
+  [capability matrix](./docs/capability-matrix.md#rails--adapters).
 - Multi-hop routing with explainable scoring and route adjustments
 - A policy engine with custom rules, toggles, metadata, and composition
 - Simulation modes for safer decision-making before live execution
@@ -179,7 +215,9 @@ pnpm demo
 
 ## Build Your First Trading Agent in 10 Minutes
 
-This walkthrough takes you from a fresh clone to a running agent that prices a swap, runs it through policy, simulates the result, and is ready to flip to live execution. Everything below uses the `createKeetaAgent` factory in `@keeta-agent-stack/agent-runtime`.
+This walkthrough takes you from a fresh clone to a running agent that prices a swap, runs it through
+policy, simulates the result, and is ready to flip to live execution. Everything below uses the
+`createKeetaAgent` factory in `@keeta-agent-stack/agent-runtime`.
 
 ### 1. Install and start the dev stack
 
@@ -191,7 +229,8 @@ pnpm db:migrate
 pnpm dev:all
 ```
 
-`pnpm dev:all` boots the API (`:3001`), worker, dashboard (`:3000`), and MCP server. Leave it running.
+`pnpm dev:all` boots the API (`:3001`), worker, dashboard (`:3000`), and MCP server. Leave it
+running.
 
 ### 2. Wire up an offline agent (no signing required)
 
@@ -247,11 +286,15 @@ const result = await agent.execute(intent);
 console.log(result.kind, result);
 ```
 
-`result.kind` is one of `'denied' | 'simulated' | 'executed' | 'pending' | 'failed'`. With the inputs above you should see `simulated`.
+`result.kind` is one of `'denied' | 'simulated' | 'executed' | 'pending' | 'failed'`. With the
+inputs above you should see `simulated`.
 
 ### 3. Flip to live execution
 
-Drop the `registry` + `policy` and pass an SDK client instead. The factory will create the intent, walk it through the API pipeline, and return `executed` or `failed` once a terminal event arrives. If the worker has not emitted a terminal event before the polling timeout, the result is `pending` with the events observed so far.
+Drop the `registry` + `policy` and pass an SDK client instead. The factory will create the intent,
+walk it through the API pipeline, and return `executed` or `failed` once a terminal event arrives.
+If the worker has not emitted a terminal event before the polling timeout, the result is `pending`
+with the events observed so far.
 
 ```ts
 import { createClient } from '@keeta-agent-stack/sdk';
@@ -265,17 +308,20 @@ const liveAgent = createKeetaAgent({ name: 'tutorial-live', sdk });
 const liveResult = await liveAgent.execute({ ...intent, mode: 'live' });
 ```
 
-The worker (not the agent process) holds the Keeta signing key, so this code path stays safe to run in user-facing agents.
+The worker (not the agent process) holds the Keeta signing key, so this code path stays safe to run
+in user-facing agents.
 
 ### 4. Productionise
 
-- Drop your runtime config into a `starter-agent-template/` clone (next section) for a standalone deploy unit.
+- Drop your runtime config into a `starter-agent-template/` clone (next section) for a standalone
+  deploy unit.
 - Hook `onError` in production to forward failures to your observability stack.
 - Pre-warm policy packs by calling `sdk.evaluatePolicy(...)` from a CI smoke test before deploying.
 
 ## Common Agent Patterns & Examples
 
-Five turn-key reference agents live under [`examples/`](./examples). Each folder has its own README explaining the scenario, prerequisites, and run command.
+Five turn-key reference agents live under [`examples/`](./examples). Each folder has its own README
+explaining the scenario, prerequisites, and run command.
 
 | Pattern                       | Folder                                                                   | What it shows                                                                 |
 | ----------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
@@ -286,20 +332,32 @@ Five turn-key reference agents live under [`examples/`](./examples). Each folder
 | Route inspector               | [`examples/route-inspector`](./examples/route-inspector)                 | Pull alternates and explainable scoring out of the routing engine.            |
 | Simulation fidelity           | [`examples/simulation-fidelity`](./examples/simulation-fidelity)         | Compare standard / shadow / replay simulation modes against live chain reads. |
 
-For an end-to-end smoke harness that exercises the API + worker together, see [`examples/mock-live-run`](./examples/mock-live-run).
+For an end-to-end smoke harness that exercises the API + worker together, see
+[`examples/mock-live-run`](./examples/mock-live-run).
 
-For a fully-formed flagship agent that points at your local API out of the box, see [`templates/treasury-rebalancer`](./templates/treasury-rebalancer) — a real rebalance loop with a working policy pack, drift math, and structured-event logs.
+For a fully-formed flagship agent that points at your local API out of the box, see
+[`templates/treasury-rebalancer`](./templates/treasury-rebalancer) — a real rebalance loop with a
+working policy pack, drift math, and structured-event logs.
 
-LLM integration recipes (Grok, Claude, LangGraph) are documented in [`examples/mcp-llm-integration.md`](./examples/mcp-llm-integration.md).
+LLM integration recipes (Grok, Claude, LangGraph) are documented in
+[`examples/mcp-llm-integration.md`](./examples/mcp-llm-integration.md).
 
-The full MCP tool inventory (81 tools, with input schemas and read/write/signing classification) lives in [`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md). It is auto-generated from the Zod schemas in `apps/mcp/src/tools/*` and verified in CI.
+The full MCP tool inventory (81 tools, with input schemas and read/write/signing classification)
+lives in [`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md). It is auto-generated from the Zod schemas in
+`apps/mcp/src/tools/*` and verified in CI.
 
 ## SDK Reference & OpenAPI
 
-- **Static OpenAPI snapshot** — generated by `pnpm --filter @keeta-agent-stack/docs build` into `apps/docs/dist/openapi.json`. [`.github/workflows/pages.yml`](./.github/workflows/pages.yml) publishes the same bundle only when `ENABLE_GITHUB_PAGES=true`.
-- **Local Swagger UI** — `pnpm dev:all` (or `pnpm --filter @keeta-agent-stack/api dev`) serves the live API. Browse [`http://localhost:3001/docs`](http://localhost:3001/docs) for the Try-It-Out UI; production disables Try-It-Out unless `API_SWAGGER_TRY_IT_OUT_ENABLED=true`.
-- **Typedoc** — `pnpm docs:generate` builds API docs for `@keeta-agent-stack/sdk`, `@keeta-agent-stack/agent-runtime`, and `@keeta-agent-stack/types` into `docs/typedoc/`.
-- A higher-level guided tour of both surfaces lives in [`docs/sdk-reference.md`](./docs/sdk-reference.md).
+- **Static OpenAPI snapshot** — generated by `pnpm --filter @keeta-agent-stack/docs build` into
+  `apps/docs/dist/openapi.json`. [`.github/workflows/pages.yml`](./.github/workflows/pages.yml)
+  publishes the same bundle only when `ENABLE_GITHUB_PAGES=true`.
+- **Local Swagger UI** — `pnpm dev:all` (or `pnpm --filter @keeta-agent-stack/api dev`) serves the
+  live API. Browse [`http://localhost:3001/docs`](http://localhost:3001/docs) for the Try-It-Out UI;
+  production disables Try-It-Out unless `API_SWAGGER_TRY_IT_OUT_ENABLED=true`.
+- **Typedoc** — `pnpm docs:generate` builds API docs for `@keeta-agent-stack/sdk`,
+  `@keeta-agent-stack/agent-runtime`, and `@keeta-agent-stack/types` into `docs/typedoc/`.
+- A higher-level guided tour of both surfaces lives in
+  [`docs/sdk-reference.md`](./docs/sdk-reference.md).
 
 ## Live Keeta Mode
 
@@ -340,9 +398,12 @@ The integration suite runs the real API and worker against Postgres and Redis.
 
 ## Planning Docs
 
-- [Capability Matrix](./docs/capability-matrix.md) — current product-surface coverage across API, SDK, and MCP
-- [Next Steps Roadmap](./docs/next-steps-roadmap.md) — recommended engineering sequence for the next platform phase
-- [Platform Overview](./docs/keeta-agent-stack.md) — higher-level positioning and architecture summary
+- [Capability Matrix](./docs/capability-matrix.md) — current product-surface coverage across API,
+  SDK, and MCP
+- [Next Steps Roadmap](./docs/next-steps-roadmap.md) — recommended engineering sequence for the next
+  platform phase
+- [Platform Overview](./docs/keeta-agent-stack.md) — higher-level positioning and architecture
+  summary
 
 ## Repository Map
 
@@ -365,25 +426,36 @@ The integration suite runs the real API and worker against Postgres and Redis.
 ## What A Smart Reader Should Know
 
 - This repo is strongest at execution infrastructure, not marketing polish.
-- The architecture is already shaped like a serious SDK platform: shared contracts, durable pipeline, adapter model, policy engine, control plane, and operator surfaces.
-- The main frontier work is packaging and deeper production maturity, not rebuilding the core design.
-- Development on `main` is meant to be understandable, extensible, and operationally credible before a stable release is declared.
+- The architecture is already shaped like a serious SDK platform: shared contracts, durable
+  pipeline, adapter model, policy engine, control plane, and operator surfaces.
+- The main frontier work is packaging and deeper production maturity, not rebuilding the core
+  design.
+- Development on `main` is meant to be understandable, extensible, and operationally credible before
+  a stable release is declared.
 
 ## Where to next
 
-- [Documentation index](./docs/README.md) - guided map across the long-form docs, generated references, and live API docs.
-- [Deployment guide](./docs/deployment.md) — topology, env, scaling, observability, the self-hosted sandbox Fly recipe, and a reference `docker-compose.prod.yml` + Helm chart skeleton.
-- [Creating a new adapter](./docs/creating-new-adapter.md) — step-by-step from `packages/adapter-template/` through routing weights and tests.
-- [MCP + LLM integration](./examples/mcp-llm-integration.md) — Grok, Claude, and LangGraph wiring with the Oracle Payment Playbook walkthrough.
+- [Documentation index](./docs/README.md) - guided map across the long-form docs, generated
+  references, and live API docs.
+- [Deployment guide](./docs/deployment.md) — topology, env, scaling, observability, the self-hosted
+  sandbox Fly recipe, and a reference `docker-compose.prod.yml` + Helm chart skeleton.
+- [Creating a new adapter](./docs/creating-new-adapter.md) — step-by-step from
+  `packages/adapter-template/` through routing weights and tests.
+- [MCP + LLM integration](./examples/mcp-llm-integration.md) — Grok, Claude, and LangGraph wiring
+  with the Oracle Payment Playbook walkthrough.
 - [Capability matrix](./docs/capability-matrix.md) — adapter coverage and parity tracking.
-- [Treasury rebalancer template](./templates/treasury-rebalancer) — flagship agent: drift math, working policy pack, local API ready.
-- [Starter agent template](./starter-agent-template) — minimal standalone project; until npm publish, use its smoke script to install local tarballs from this monorepo.
+- [Treasury rebalancer template](./templates/treasury-rebalancer) — flagship agent: drift math,
+  working policy pack, local API ready.
+- [Starter agent template](./starter-agent-template) — minimal standalone project; until npm
+  publish, use its smoke script to install local tarballs from this monorepo.
 
 ## Community & Governance
 
-- [Contributing guide](./CONTRIBUTING.md) — local setup, checks, branch conventions, and release hygiene.
+- [Contributing guide](./CONTRIBUTING.md) — local setup, checks, branch conventions, and release
+  hygiene.
 - [Code of Conduct](./CODE_OF_CONDUCT.md) — expected behaviour for contributors and maintainers.
-- [Security policy](./SECURITY.md) — private disclosure process for signing, auth, payment, and operator issues.
+- [Security policy](./SECURITY.md) — private disclosure process for signing, auth, payment, and
+  operator issues.
 - [Changelog](./CHANGELOG.md) — user-facing changes queued for the next release.
 - [License](./LICENSE) — Apache-2.0.
 

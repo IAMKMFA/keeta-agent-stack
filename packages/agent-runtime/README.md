@@ -1,12 +1,14 @@
 # `@keeta-agent-stack/agent-runtime`
 
-Higher-level orchestration on top of `@keeta-agent-stack/sdk`. Wraps the intent pipeline behind a single `agent.execute(intent)` call with hooks for routing, policy, simulation, execution, and errors.
+Higher-level orchestration on top of `@keeta-agent-stack/sdk`. Wraps the intent pipeline behind a
+single `agent.execute(intent)` call with hooks for routing, policy, simulation, execution, and
+errors.
 
 ## Install
 
-> Not yet published to npm. The `@keeta-agent-stack/*` scope is reserved
-> intent but not claimed; see the root README's Status section. Until publish,
-> consume this package via the monorepo workspace (clone + `pnpm install`).
+> Not yet published to npm. The `@keeta-agent-stack/*` scope is reserved intent but not claimed; see
+> the root README's Status section. Until publish, consume this package via the monorepo workspace
+> (clone + `pnpm install`).
 
 ```bash
 # once published:
@@ -62,7 +64,10 @@ const agent = createKeetaAgent({ name: 'live-agent', sdk });
 const result = await agent.execute({ ...intent, mode: 'live' });
 ```
 
-The signing key never leaves the worker process. Your agent process is safe to host externally. A live result is `kind: "executed"` only after the runtime observes a terminal execution event; if no terminal event arrives before the timeout, the result is `kind: "pending"` with the observed events attached.
+The signing key never leaves the worker process. Your agent process is safe to host externally. A
+live result is `kind: "executed"` only after the runtime observes a terminal execution event; if no
+terminal event arrives before the timeout, the result is `kind: "pending"` with the observed events
+attached.
 
 ## Status
 
