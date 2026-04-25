@@ -47,9 +47,9 @@ describe('permissions.hasScope', () => {
 });
 
 describe('permissions.roleHome', () => {
-  it('routes operators to command center', () => {
-    expect(roleHome('admin')).toBe('/command-center');
-    expect(roleHome('operator')).toBe('/command-center');
+  it('routes operators to the cockpit dashboard', () => {
+    expect(roleHome('admin')).toBe('/dashboard');
+    expect(roleHome('operator')).toBe('/dashboard');
   });
 
   it('routes exec to overview', () => {

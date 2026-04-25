@@ -10,6 +10,7 @@ Use this page as the fastest route to the right guide.
 | Understand the product surface quickly | [../README.md](../README.md) |
 | See API docs and generated SDK reference entrypoints | [sdk-reference.md](./sdk-reference.md) |
 | Plan a production deployment | [deployment.md](./deployment.md) |
+| Dashboard operator contract (roles, API map, V3 routes) | [../apps/dashboard/docs/dashboard-v2-contract.md](../apps/dashboard/docs/dashboard-v2-contract.md) |
 | Build a new venue integration | [creating-new-adapter.md](./creating-new-adapter.md) |
 | Check API / SDK / MCP parity | [capability-matrix.md](./capability-matrix.md) |
 | Review near-term platform direction | [next-steps-roadmap.md](./next-steps-roadmap.md) |

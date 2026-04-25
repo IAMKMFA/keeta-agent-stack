@@ -1,9 +1,13 @@
 import type { Database } from '../db';
 import { strategies } from '../schema/strategies';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 
 export async function listTemplates(db: Database) {
   return db.select().from(strategies).where(eq(strategies.isTemplate, true));
+}
+
+export async function listStrategies(db: Database, limit = 200) {
+  return db.select().from(strategies).orderBy(desc(strategies.createdAt)).limit(limit);
 }
 
 export async function createStrategy(

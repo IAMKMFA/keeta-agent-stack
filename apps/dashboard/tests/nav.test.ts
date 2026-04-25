@@ -36,20 +36,28 @@ const exec: Viewer = {
 describe('navForViewer: admin/operator', () => {
   it('admin sees the Command Center link', () => {
     const nav = navForViewer(admin);
+    expect(nav.some((item) => item.href === '/dashboard')).toBe(true);
     expect(nav.some((item) => item.href === '/command-center')).toBe(true);
+    expect(nav.some((item) => item.href === '/agents')).toBe(true);
     expect(nav.some((item) => item.href === '/policy')).toBe(true);
+    expect(nav.some((item) => item.href === '/simulate')).toBe(true);
+    expect(nav.some((item) => item.href === '/backtest')).toBe(true);
     expect(nav.some((item) => item.href === '/cost')).toBe(true);
   });
 
-  it('operator sees Command Center and live feed', () => {
+  it('operator sees cockpit surfaces and live feed', () => {
     const nav = navForViewer(operator);
+    expect(nav.some((item) => item.href === '/dashboard')).toBe(true);
     expect(nav.some((item) => item.href === '/command-center')).toBe(true);
+    expect(nav.some((item) => item.href === '/agents')).toBe(true);
     expect(nav.some((item) => item.href === '/live')).toBe(true);
+    expect(nav.some((item) => item.href === '/simulate')).toBe(true);
   });
 
   it('operator without scopes loses links gated by capability', () => {
     const noScope: Viewer = { role: 'operator', scopes: [] };
     const nav = navForViewer(noScope);
+    expect(nav.some((item) => item.href === '/dashboard')).toBe(false);
     expect(nav.some((item) => item.href === '/command-center')).toBe(false);
     expect(nav.some((item) => item.href === '/policy')).toBe(false);
   });
@@ -59,9 +67,13 @@ describe('navForViewer: tenant', () => {
   it('tenant does not see operator ops surfaces', () => {
     const nav = navForViewer(tenant);
     const hrefs = nav.map((item) => item.href);
+    expect(hrefs).not.toContain('/dashboard');
+    expect(hrefs).not.toContain('/agents');
     expect(hrefs).not.toContain('/command-center');
     expect(hrefs).not.toContain('/live');
     expect(hrefs).not.toContain('/policy');
+    expect(hrefs).not.toContain('/simulate');
+    expect(hrefs).not.toContain('/backtest');
     expect(hrefs).not.toContain('/cost');
     expect(hrefs).not.toContain('/anchors-health');
     expect(hrefs).not.toContain('/webhooks');
@@ -86,9 +98,13 @@ describe('navForViewer: exec', () => {
   it('exec does not see mutation surfaces', () => {
     const nav = navForViewer(exec);
     const hrefs = nav.map((item) => item.href);
+    expect(hrefs).not.toContain('/dashboard');
+    expect(hrefs).not.toContain('/agents');
     expect(hrefs).not.toContain('/command-center');
     expect(hrefs).not.toContain('/live');
     expect(hrefs).not.toContain('/policy');
+    expect(hrefs).not.toContain('/simulate');
+    expect(hrefs).not.toContain('/backtest');
     expect(hrefs).not.toContain('/webhooks');
     expect(hrefs).not.toContain('/cost');
   });
@@ -120,9 +136,13 @@ describe('navForViewer: DASHBOARD_V2_ENABLED=false', () => {
     const nav = navForViewer(admin, { v2Enabled: false });
     const hrefs = nav.map((item) => item.href);
     for (const v2Path of [
+      '/dashboard',
       '/command-center',
       '/live',
+      '/agents',
       '/policy',
+      '/simulate',
+      '/backtest',
       '/anchors-health',
       '/webhooks',
       '/cost',

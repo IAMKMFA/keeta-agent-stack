@@ -397,15 +397,24 @@ Phase A can begin.
 | `GET /rails/catalog`        | `apps/api/src/routes/rails.ts`             | D     |
 | `GET /anchors/health`       | `apps/api/src/routes/anchors.ts`           | D     |
 | `GET /ops/fees/aggregate`   | `apps/api/src/routes/fees.ts`              | D     |
+| `GET /ops/dashboard-summary` | `apps/api/src/routes/ops.ts`              | V3    |
+| `GET /ops/agents`            | `apps/api/src/routes/ops.ts`              | V3    |
+| `GET /ops/agents/:id`        | `apps/api/src/routes/ops.ts`              | V3    |
 
 ### New dashboard routes shipped
 
 | Route                         | Role gate                      | Capability gate |
 |-------------------------------|--------------------------------|-----------------|
 | `/` (redirect)                | any authenticated              | — (role-based)  |
+| `/dashboard`                  | admin, operator                | `ops:read`      |
 | `/command-center`             | admin, operator                | `ops:read`      |
 | `/live`                       | admin, operator                | `ops:read`      |
 | `/policy`                     | admin, operator                | `policy:read`   |
+| `/policy/builder`             | admin, operator                | `policy:read`   |
+| `/agents`                     | admin, operator                | `ops:read`      |
+| `/agents/[id]`                 | admin, operator                | `ops:read`      |
+| `/simulate`                    | admin, operator                | `ops:read`      |
+| `/backtest`                    | admin, operator                | `ops:read`      |
 | `/anchors-health`             | admin, operator                | `ops:read`      |
 | `/webhooks`                   | admin, operator                | `webhooks:read` |
 | `/cost`                       | admin, operator                | `ops:read`      |
@@ -421,13 +430,15 @@ The SSE proxy at `app/api/events/stream/route.ts` enforces `requireRole(['admin'
 ### Automated tests
 
 Unit tests run via `pnpm --filter @keeta-agent-stack/dashboard test`
-(Vitest, 24 cases across 3 files):
+(`check:routes` plus Vitest in `apps/dashboard/tests/`):
 
 - `tests/permissions.test.ts` — `hasRole`, `hasScope`, `roleHome`.
 - `tests/nav.test.ts` — role-scoped nav filtering; negative cases for tenant/exec/anonymous;
-  `NAV_ITEMS` integrity invariants.
+  `NAV_ITEMS` integrity invariants; V2 off behavior.
 - `tests/flags.test.ts` — `DASHBOARD_V2_ENABLED` and `DASHBOARD_DEV_VIEWER_ROLE`
   semantics (incl. prod-safety of dev viewer override).
+- `tests/csrf.test.ts` — CSRF helpers and mutation hardening.
+- `tests/auth-schema.test.ts` — `MeResponseSchema` / `parseMeResponse`.
 
 Playwright persona coverage (operator / tenant / exec / unauthorized) is
 scoped as a follow-up. The Vitest suite proves the pure role/scope gating
@@ -504,8 +515,9 @@ search-and-replace follow-up.
 ### Feature-flag behavior (A5)
 
 - `DASHBOARD_V2_ENABLED=false` hides every V2-marked nav item and causes
-  V2-only routes (`/command-center`, `/live`, `/policy`, `/anchors-health`,
-  `/webhooks`, `/cost`, `/overview`, `/home`, `/rails`) to return `404` via
+  V2-only routes (`/dashboard`, `/command-center`, `/live`, `/policy`,
+  `/policy/builder`, `/agents`, `/agents/[id]`, `/simulate`, `/backtest`,
+  `/anchors-health`, `/webhooks`, `/cost`, `/overview`, `/home`, `/rails`) to return `404` via
   `requireV2Enabled()` in `apps/dashboard/lib/flags.ts`.
 - Legacy surfaces (`/legacy`, `/intents`, `/executions`, `/wallets`,
   `/adapters`, `/simulations`, `/anchors`, `/templates`, `/ops`, `/routes`)
@@ -583,7 +595,10 @@ Every dashboard→API endpoint covered by Dashboard V2. Columns:
 
 | Method / Path | Owner | Status | Roles | Scopes | Tenant scoping | Request | Response | Pagination | Cache | PII | Audit | DB notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `GET /ops/metrics` | `apps/api/src/routes/ops-metrics.ts` (legacy `ops.ts`) | EXISTS | operator+ | `ops:read` | — | `?range=1h|24h|7d` | `{ samples: MetricSample[] }` capped at 500 rows | row-cap; no cursor | `no-store` | no | no | indexed on `(metric_key, captured_at desc)` |
+| `GET /ops/metrics` | `apps/api/src/routes/ops.ts` | EXISTS | operator+ | `ops:read` | — | — | `{ samples: MetricSample[] }` capped at 500 rows | row-cap; no cursor | `no-store` | no | no | reads `metric_samples` |
+| `GET /ops/dashboard-summary` | `apps/api/src/routes/ops.ts` | EXISTS (V3) | operator+ | `ops:read` (dashboard uses `fetchJson` after viewer auth) | — | — | Single JSON payload: agents, intents, executions, policy, adapters, simulations, events, metrics aggregate | — | `no-store` | may include intent/audit refs | no | strategies, intents, executions, policy decisions, sim runs, audit, adapter registry health |
+| `GET /ops/agents` | `apps/api/src/routes/ops.ts` | EXISTS (V3) | operator+ | same | — | — | `{ agents, templates }` (strategy rows) | — | `no-store` | no | no | `strategies` table |
+| `GET /ops/agents/:id` | `apps/api/src/routes/ops.ts` | EXISTS (V3) | operator+ | same | — | — | Agent detail + recent intent/execution status breakdown | — | `no-store` | no | no | `strategies`, `execution_intents`, `executions` |
 | `GET /config/modes` | `apps/api/src/routes/config-modes.ts` | EXISTS | viewer+ | `ops:read` for dashboard use | — | — | `{ liveMode, keetaNetwork, mockAdapters, executionKillSwitch }` | — | `no-store` | no | no | reads `app_modes` table |
 | `GET /ops/kill-switch` | — | PROPOSED | operator+ | `kill_switch:read` | — | — | `{ engaged: boolean, actor?, updatedAt? }` | — | `no-store` | no | no | requires dedicated table or config mutation path |
 | `POST /api/ops/kill-switch/engage` (dashboard proxy) | `apps/dashboard/app/api/ops/kill-switch/engage/route.ts` | EXISTS (501) | admin, operator | `kill_switch:write` | — | JSON `{ confirm: "ENGAGE" }` + `x-dashboard-csrf` header | `501` `{ error: { code: 'kill_switch_backend_pending' } }` until backend lands | — | `no-store` | no | dashboard-level audit via `lib/audit.ts` | — |

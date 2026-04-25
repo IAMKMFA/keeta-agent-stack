@@ -7,6 +7,20 @@ entries are managed by [Changesets](https://github.com/changesets/changesets):
 
 ## Unreleased
 
+### Dashboard (Epic V3 — cockpit foundation)
+
+- Operator/admin home is `/dashboard` (`roleHome` for admin/operator); aggregates
+  use `GET /ops/dashboard-summary` (operator API auth).
+- Added read-only agent surfaces: `/agents`, `/agents/[id]` backed by
+  `GET /ops/agents` and `GET /ops/agents/:id`; Policy Builder shell at
+  `/policy/builder`; Simulation Lab at `/simulate`; backtest foundation at
+  `/backtest`.
+- Shell: collapsible sidebar and nav search; `ActivityFeed` for compact home
+  activity. See `apps/dashboard/README.md` and
+  `apps/dashboard/docs/dashboard-v2-contract.md` for the updated route and API
+  map.
+- Storage: `strategyRepo.listStrategies` for repository consumers.
+
 ### Hosted sandbox & flagship template
 
 - Added a multi-stage [`Dockerfile`](./Dockerfile) that builds slim images for

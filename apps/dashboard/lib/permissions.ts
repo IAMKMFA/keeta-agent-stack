@@ -38,7 +38,7 @@ export function roleHome(role: Role): string {
   switch (role) {
     case 'admin':
     case 'operator':
-      return '/command-center';
+      return '/dashboard';
     case 'exec':
       return '/overview';
     case 'tenant':

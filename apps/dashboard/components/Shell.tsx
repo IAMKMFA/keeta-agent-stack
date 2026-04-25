@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { LiveOpsRail } from './LiveOpsRail';
 import type { NavItem } from '../lib/nav';
@@ -67,41 +68,92 @@ function groupNav(nav: readonly NavItem[]): Array<[string, NavItem[]]> {
 
 export function Shell({ viewer, nav, children }: ShellProps) {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
+  const [query, setQuery] = useState('');
   const grouped = groupNav(nav);
+  const searchResults = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return nav
+      .filter((item) => `${item.label} ${item.href} ${item.group ?? ''}`.toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [nav, query]);
 
   return (
     <div className="min-h-screen pb-8 pt-4 sm:pt-6">
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
         <div className="hub-panel overflow-hidden">
-          <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
-            <aside className="hidden border-r border-[var(--keeta-line)] bg-[linear-gradient(180deg,#ffffff,rgba(250,250,250,0.9))] p-6 lg:flex lg:flex-col">
-              <div className="space-y-2">
+          <div className={clsx('lg:grid', collapsed ? 'lg:grid-cols-[92px_minmax(0,1fr)]' : 'lg:grid-cols-[280px_minmax(0,1fr)]')}>
+            <aside className="hidden border-r border-[var(--keeta-line)] bg-[linear-gradient(180deg,#ffffff,rgba(250,250,250,0.9))] p-5 lg:flex lg:flex-col">
+              <div className={clsx('space-y-2', collapsed && 'text-center')}>
                 <div className="hub-kicker">Keeta</div>
-                <div className="hub-heading text-2xl font-semibold tracking-tight">Agent Hub</div>
-                <p className="text-sm text-[var(--keeta-muted)]">
-                  Institutional control plane for agent-orchestrated settlement.
-                </p>
+                <div className="hub-heading text-2xl font-semibold tracking-tight">
+                  {collapsed ? 'Hub' : 'Agent Hub'}
+                </div>
+                {!collapsed ? (
+                  <p className="text-sm text-[var(--keeta-muted)]">
+                    Institutional control plane for agent-orchestrated settlement.
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => setCollapsed((value) => !value)}
+                  className="mt-2 rounded-xl border border-[var(--keeta-line)] bg-white px-3 py-1.5 text-xs text-[var(--keeta-ink-subtle)] transition hover:bg-[rgba(50,149,144,0.06)]"
+                >
+                  {collapsed ? 'Expand' : 'Collapse'}
+                </button>
               </div>
+              {!collapsed ? (
+                <div className="relative mt-5">
+                  <input
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Search cockpit…"
+                    className="w-full rounded-xl border border-[var(--keeta-line)] bg-white px-3 py-2 text-sm outline-none transition focus:border-[var(--keeta-accent)]"
+                  />
+                  {searchResults.length > 0 ? (
+                    <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-[var(--keeta-line)] bg-white shadow-lg">
+                      {searchResults.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setQuery('')}
+                          className="block px-3 py-2 text-sm text-[var(--keeta-ink)] hover:bg-[rgba(50,149,144,0.08)]"
+                        >
+                          <span className="font-medium">{item.label}</span>
+                          <span className="ml-2 font-mono text-[10px] text-[var(--keeta-muted)]">
+                            {item.href}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
               <nav className="mt-7 space-y-5">
                 {grouped.map(([group, items]) => (
                   <div key={group} className="space-y-1.5">
-                    <div className="hub-kicker px-1 text-[10px]">
-                      {GROUP_LABELS[group as NonNullable<NavItem['group']>] ?? 'More'}
-                    </div>
+                    {!collapsed ? (
+                      <div className="hub-kicker px-1 text-[10px]">
+                        {GROUP_LABELS[group as NonNullable<NavItem['group']>] ?? 'More'}
+                      </div>
+                    ) : null}
                     {items.map((item) => {
                       const active = isActive(pathname, item.href);
                       return (
                         <Link
                           key={item.href}
                           href={item.href}
+                          title={collapsed ? item.label : undefined}
                           className={clsx(
                             'group flex items-center justify-between rounded-xl px-3 py-2 text-sm transition',
+                            collapsed && 'justify-center px-2',
                             active
                               ? 'bg-[var(--keeta-accent-soft)] text-[var(--keeta-ink)]'
                               : 'text-[#595757] hover:bg-[#f1f2f2]'
                           )}
                         >
-                          <span>{item.label}</span>
+                          {!collapsed ? <span>{item.label}</span> : null}
                           <span
                             className={clsx(
                               'h-1.5 w-1.5 rounded-full transition',
@@ -116,8 +168,8 @@ export function Shell({ viewer, nav, children }: ShellProps) {
                   </div>
                 ))}
               </nav>
-              <div className="mt-auto space-y-2">
-                <div className="flex items-center gap-2">
+              <div className={clsx('mt-auto space-y-2', collapsed && 'text-center')}>
+                <div className={clsx('flex items-center gap-2', collapsed && 'justify-center')}>
                   <span
                     className={clsx(
                       'inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider',
@@ -126,20 +178,22 @@ export function Shell({ viewer, nav, children }: ShellProps) {
                   >
                     {ROLE_LABEL[viewer.role]}
                   </span>
-                  {viewer.tenantId ? (
+                  {!collapsed && viewer.tenantId ? (
                     <span className="font-mono text-[10px] text-[var(--keeta-muted)]">
                       {viewer.tenantId}
                     </span>
                   ) : null}
                 </div>
-                {viewer.displayName ? (
+                {!collapsed && viewer.displayName ? (
                   <div className="text-sm font-medium text-[var(--keeta-ink)]">
                     {viewer.displayName}
                   </div>
                 ) : null}
-                <div className="rounded-xl border border-[var(--keeta-line)] bg-[#fafafa] px-3 py-2 text-[11px] text-[var(--keeta-muted)]">
+                {!collapsed ? (
+                  <div className="rounded-xl border border-[var(--keeta-line)] bg-[#fafafa] px-3 py-2 text-[11px] text-[var(--keeta-muted)]">
                   <div className="font-mono">Keeta network</div>
-                </div>
+                  </div>
+                ) : null}
               </div>
             </aside>
 
@@ -150,6 +204,14 @@ export function Shell({ viewer, nav, children }: ShellProps) {
                     <div className="hub-kicker">Execution Fabric</div>
                     <div className="hub-heading text-xl font-semibold lg:hidden">Keeta Agent Hub</div>
                   </div>
+                  <div className="hidden min-w-[240px] max-w-sm flex-1 sm:block">
+                    <input
+                      value={query}
+                      onChange={(event) => setQuery(event.target.value)}
+                      placeholder="Search dashboard surfaces…"
+                      className="w-full rounded-full border border-[var(--keeta-line)] bg-white px-4 py-2 text-sm outline-none transition focus:border-[var(--keeta-accent)]"
+                    />
+                  </div>
                   <div className="flex items-center gap-3">
                     <LiveOpsRail />
                     <div className="hub-pill px-3 py-1.5">
@@ -157,6 +219,20 @@ export function Shell({ viewer, nav, children }: ShellProps) {
                     </div>
                   </div>
                 </div>
+                {searchResults.length > 0 ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {searchResults.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setQuery('')}
+                        className="rounded-full border border-[var(--keeta-line)] bg-white px-3 py-1.5 text-xs text-[var(--keeta-ink-subtle)] transition hover:bg-[rgba(50,149,144,0.06)]"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
                 <nav className="mt-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
                   {nav.map((item) => {
                     const active = isActive(pathname, item.href);

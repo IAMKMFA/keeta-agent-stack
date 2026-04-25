@@ -5,8 +5,8 @@ navigation and three distinct personas in a single app:
 
 | Persona        | Home                 | Purpose                                                         |
 |----------------|----------------------|-----------------------------------------------------------------|
-| `admin`        | `/command-center`    | Full operator surface with privileged controls (kill switch).   |
-| `operator`     | `/command-center`    | Ops pipeline, policy, rails, anchors, webhooks, cost analytics. |
+| `admin`        | `/dashboard`         | Operator cockpit (KPIs, activity, links); `/command-center` remains for the deep-dive command center. |
+| `operator`     | `/dashboard`         | Same as admin for navigation home; use Command Center, Live, Policy, etc. from the shell. |
 | `exec`         | `/overview`          | Read-only executive KPIs and trends.                            |
 | `tenant`       | `/home`              | Scoped wallets, intents, webhooks, read-only rail catalog.      |
 | `anonymous`    | `/login`             | Login gate — all privileged surfaces redirect here.             |
@@ -77,8 +77,8 @@ stub a local viewer without standing up a JWT.
 
 ## Test coverage
 
-`pnpm --filter @keeta-agent-stack/dashboard test` runs 24 unit tests in
-`tests/`:
+`pnpm --filter @keeta-agent-stack/dashboard test` runs route checks plus
+Vitest unit tests in `tests/` (permissions, nav, flags, CSRF, auth schema):
 
 - `permissions.test.ts` — `hasRole`, `hasScope`, `roleHome`.
 - `nav.test.ts` — role-scoped nav filtering plus negative cases (tenant
@@ -100,9 +100,15 @@ app/
     layout.tsx                      # requireViewer()
     (operator)/                     # requires admin|operator
       layout.tsx
+      dashboard/page.tsx            # V3 cockpit home (KPIs + /ops/dashboard-summary)
       command-center/page.tsx
       live/page.tsx
       policy/page.tsx
+      policy/builder/page.tsx      # policy pack / rule foundation (read-mostly)
+      agents/page.tsx
+      agents/[id]/page.tsx
+      simulate/page.tsx
+      backtest/page.tsx
       anchors-health/page.tsx
       webhooks/page.tsx
       cost/page.tsx
@@ -125,6 +131,7 @@ components/
   command-center/                   # Command Center widgets
   charts/VolumeTrend.tsx            # pure-SVG sparkline
   LiveExecutionStream.tsx           # client SSE consumer
+  ActivityFeed.tsx                 # compact audit list for dashboard home
 
 lib/
   auth.ts                           # getViewer, requireRole, requireScope
@@ -132,6 +139,7 @@ lib/
   flags.ts                          # server-side feature flags
   nav.ts                            # role-gated nav registry
   api.ts                            # fetchJson/postJson helpers
+  dashboard-summary.ts              # types for GET /ops/dashboard-summary payload
   format.ts                         # formatDateTime/Number/shortId
 
 docs/

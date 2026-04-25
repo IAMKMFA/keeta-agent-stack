@@ -23,9 +23,14 @@ export interface NavItem {
  * across nav (hidden) and page-level guards (404).
  */
 export const V2_ROUTE_PATHS: readonly string[] = [
+  '/dashboard',
   '/command-center',
   '/live',
+  '/agents',
   '/policy',
+  '/policy/builder',
+  '/simulate',
+  '/backtest',
   '/anchors-health',
   '/webhooks',
   '/cost',
@@ -36,6 +41,14 @@ export const V2_ROUTE_PATHS: readonly string[] = [
 
 export const NAV_ITEMS: readonly NavItem[] = [
   // Operator / admin — Ops
+  {
+    href: '/dashboard',
+    label: 'Dashboard',
+    roles: ['admin', 'operator'],
+    capability: 'ops:read',
+    group: 'ops',
+    v2: true,
+  },
   {
     href: '/command-center',
     label: 'Command Center',
@@ -57,6 +70,30 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Policy Insights',
     roles: ['admin', 'operator'],
     capability: 'policy:read',
+    group: 'ops',
+    v2: true,
+  },
+  {
+    href: '/agents',
+    label: 'Agent Studio',
+    roles: ['admin', 'operator'],
+    capability: 'ops:read',
+    group: 'ops',
+    v2: true,
+  },
+  {
+    href: '/simulate',
+    label: 'Simulation Lab',
+    roles: ['admin', 'operator'],
+    capability: 'ops:read',
+    group: 'ops',
+    v2: true,
+  },
+  {
+    href: '/backtest',
+    label: 'Backtesting',
+    roles: ['admin', 'operator'],
+    capability: 'ops:read',
     group: 'ops',
     v2: true,
   },
