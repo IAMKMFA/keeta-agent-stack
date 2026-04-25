@@ -1,8 +1,9 @@
-# Dashboard V2 — Contract and Security Audit
+# Dashboard V2/V3 — Contract and Security Audit
 
 Phase 0 deliverable from the "Professional Keeta-themed dashboard" plan.
 Locks down the role model, auth contract, env vars, and API/data surface **before**
-any new UI work.
+new UI work. This file started as the V2 contract and now also records the Epic
+V3 cockpit endpoints, routes, and rollout status.
 
 **Status keys**: `EXISTS` = already in codebase, `NEW` = must be added as backend work
 before the relevant dashboard phase can land, `EXTEND` = exists but needs additional
@@ -646,4 +647,3 @@ For the existing `/intents`, `/executions`, `/wallets`, `/simulations`,
   therefore `no-store`.
 - Audit logging remains the upstream API's responsibility (dashboard does
   not re-audit reads).
-

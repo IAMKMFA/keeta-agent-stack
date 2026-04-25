@@ -2,9 +2,12 @@
 
 ## Status
 
-Release track: `v2`
+Release track: `0.1.0-alpha.0` pre-publish alpha
 
-Current state: in progress. This is a working build and not the final release version.
+Current state: pushed to `main` as a working Keeta Agent Stack alpha. The
+publishable packages are versioned in the monorepo, but the
+`@keeta-agent-stack/*` scope is not yet live on npm; publication is gated on
+the final package-scope decision and release credentials.
 
 ## Positioning
 
@@ -31,7 +34,8 @@ The strongest capabilities now in place are:
 - Integration-tested end-to-end execution harness
 - Tracing, request correlation, and API hardening foundations
 
-The frontier work is no longer architectural rescue. It is packaging, public-facing polish, and deeper production integrations.
+The frontier work is no longer architectural rescue. It is publication,
+custody clarity, public-facing polish, and deeper production integrations.
 
 ## Capability Matrix
 
@@ -52,7 +56,7 @@ The frontier work is no longer architectural rescue. It is packaging, public-fac
 | Telemetry Layer | `packages/telemetry` | Pino logger, buffered telemetry emitter, async log context, tracing helpers, trace/log correlation | Makes it possible to debug agent execution across API and worker boundaries | Full collector/export pipeline and broader runtime instrumentation |
 | API Control Plane | `apps/api` | Fastify API with typed routes, async queue enqueue, request IDs, rate limiting, OpenAPI, webhook/admin surfaces | Gives agents and operators a clear remote control surface | Versioned API strategy, RBAC, deeper pagination/filtering |
 | Worker Control Plane | `apps/worker` | BullMQ processors for quote, route, policy, execute, simulation, reconciliation, metrics, webhook delivery, anchor workflows | Delivers durable and replayable execution instead of fragile synchronous flow | Worker modularization and more isolated processors |
-| Dashboard | `apps/dashboard` | Next.js control panel with live ops rail and operational views | Gives operators visibility into executions, routes, wallets, anchors, and platform state | Richer detail pages, trace links, operational drill-downs |
+| Dashboard | `apps/dashboard` | Next.js V3 operator cockpit with role-aware shell, command center, agent/policy/simulation/backtest foundations, and tenant/exec surfaces | Gives operators visibility into executions, routes, wallets, anchors, policy packs, agents, and platform state | Mutation UX, trace links, durable backtests, and deeper operational drill-downs |
 | Docs Bundle | `apps/docs` | Static multi-page docs bundle with getting started, architecture, adapter, policy, and operations guides | Makes external adoption possible without hand-held onboarding | Hosted docs site, search, API reference synchronization |
 | MCP Surface | `apps/mcp` | Model Context Protocol server for oracle and agent tooling workflows | Opens a path for LLM-driven operator and agent workflows | Broader tool coverage and stronger operational playbooks |
 | Examples | `examples/*` | Runnable examples for route inspection, simulation, paper trading, rebalancing, oracle flows, and mock live runs | Shows developers how to build real agents on top of the stack | More opinionated flagship agents and corridor-specific templates |
@@ -132,7 +136,8 @@ Operators can now:
 3. Inspect route and execution outcomes
 4. Monitor queue-driven system behavior
 5. Subscribe external systems through signed webhooks
-6. Use the dashboard and event streams to monitor activity
+6. Use the `/dashboard` cockpit, command center, and live event stream to monitor activity
+7. Review policy-pack coverage, agent assignments, simulation setup, and backtest foundations
 
 This matters because real agents need a real operating surface, not just developer APIs.
 

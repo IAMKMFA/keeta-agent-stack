@@ -39,13 +39,16 @@ entries are managed by [Changesets](https://github.com/changesets/changesets):
   pack (caps, slippage, venue + asset allowlists, daily-trade and
   unsettled-execution gates), pinned to every emitted intent.
 
-## 0.1.0-alpha.0
+## 0.1.0-alpha.0 — pre-publish baseline
 
-First public alpha release of the `@keeta-agent-stack/*` family on npm.
+Publishable alpha baseline for the `@keeta-agent-stack/*` package family. The
+packages are versioned at `0.1.0-alpha.0`, but the scope is not yet live on npm;
+the first external publish is gated on the final package-scope decision and a
+credentialed release run.
 
 ### Distribution
 
-- Published the SDK family to npm under `@keeta-agent-stack/*`: `sdk`, `agent-runtime`,
+- Prepared the SDK family for npm under `@keeta-agent-stack/*`: `sdk`, `agent-runtime`,
   `types`, `policy`, `keeta`, `routing`, `simulator`, `wallet`, `utils`, `config`,
   `adapter-base` (+ `/contract` and `/conformance` subpaths), `adapter-registry`,
   `adapter-keeta-transfer`, `adapter-oracle-rail`, `adapter-template`,
@@ -66,8 +69,9 @@ First public alpha release of the `@keeta-agent-stack/*` family on npm.
   fails if it's stale.
 - Hosted [OpenAPI spec](./apps/docs/scripts/snapshot-openapi.ts) snapshot:
   `apps/docs` now ships the canonical 3.1 document from the API
-  (45 paths, ~58 KB) instead of an abbreviated stub. Deployed to GitHub Pages
-  via [`.github/workflows/pages.yml`](./.github/workflows/pages.yml).
+  (45 paths, ~58 KB) instead of an abbreviated stub. GitHub Pages publication
+  is wired through [`.github/workflows/pages.yml`](./.github/workflows/pages.yml)
+  and gated by `ENABLE_GITHUB_PAGES=true`.
 
 ## 0.0.1 — pre-release scaffolding
 

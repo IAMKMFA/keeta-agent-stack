@@ -4,7 +4,8 @@ The Keeta Agent Stack exposes two complementary reference surfaces. This page is
 
 ## OpenAPI (live API control plane)
 
-The Fastify API in [`apps/api`](../apps/api) emits a fully-typed OpenAPI 3.1 document on every boot. Two endpoints are wired into every environment:
+The Fastify API under `apps/api` emits a fully-typed OpenAPI 3.1 document on
+every boot. Two endpoints are wired into every environment:
 
 | Endpoint | Purpose |
 |---|---|
@@ -44,9 +45,9 @@ Drop the resulting file into your public docs site or hand it to a downstream co
 
 Typedoc renders the public TypeScript surface of the publishable packages:
 
-- [`@keeta-agent-stack/sdk`](../packages/sdk) — typed HTTP client (`createClient`, request/response types).
-- [`@keeta-agent-stack/agent-runtime`](../packages/agent-runtime) — `createKeetaAgent`, `AgentRuntime`, hook types.
-- [`@keeta-agent-stack/types`](../packages/types) — shared Zod schemas (intent, route plan, simulation, policy, events).
+- [`@keeta-agent-stack/sdk`](../packages/sdk/README.md) — typed HTTP client (`createClient`, request/response types).
+- [`@keeta-agent-stack/agent-runtime`](../packages/agent-runtime/README.md) — `createKeetaAgent`, `AgentRuntime`, hook types.
+- [`@keeta-agent-stack/types`](../packages/types/README.md) — shared Zod schemas (intent, route plan, simulation, policy, events).
 
 ### Generate
 
@@ -54,7 +55,9 @@ Typedoc renders the public TypeScript surface of the publishable packages:
 pnpm docs:generate
 ```
 
-Output is written to [`docs/typedoc/`](./typedoc) (gitignored). Open `docs/typedoc/index.html` in your browser, or serve it with any static file server.
+Output is written to `docs/typedoc/` (gitignored). Open
+`docs/typedoc/index.html` in your browser, or serve it with any static file
+server.
 
 ### Agent runtime live results
 

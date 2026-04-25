@@ -27,7 +27,7 @@ It is intentionally precise. It describes what is first-class today, what is par
 | Hold intent | Yes | Yes | Yes | Strong | Operational intervention supported |
 | Release intent | Yes | Yes | Yes | Strong | Resumes pipeline from current durable state |
 | Approve intent | Yes | Yes | Yes | Strong | Admin approval path supported |
-| Register route override | Yes | Yes | No dedicated tool | Good | API and SDK parity present |
+| Register route override | Yes | Yes | Yes | Strong | API, SDK, and MCP parity present |
 | List route plans | Yes | Partial | No | Partial | Backend exists; not a dedicated primary SDK surface in this pass |
 | List executions | Yes | Partial | No | Partial | Backend exists; SDK can still expand here |
 | Run simulation | Yes | Yes | No dedicated tool | Good | SDK parity present |
@@ -42,18 +42,19 @@ It is intentionally precise. It describes what is first-class today, what is par
 | Create wallet server-side | Yes | Yes | Indirect | Good | Seed return is explicit and one-time |
 | Import wallet address | Yes | Yes | Yes | Strong | Registers address metadata only |
 | Unified create/import flow | Yes | Yes | Yes | Strong | Now consistent across REST/SDK/MCP |
-| Get wallet balances | Yes | Yes | No dedicated tool | Good | SDK parity present |
+| Get wallet balances | Yes | Yes | Yes | Strong | API, SDK, and MCP parity present |
 | Multi-wallet managed signing | No | No | No | Not Yet Surfaced | Current signing remains worker-scoped |
 
 ## Policy Coverage
 
 | Capability | Backend/API | TypeScript SDK | MCP | Status | Notes |
 |---|---|---|---|---|---|
-| List policy rules | Yes | Yes | No dedicated tool | Good | Admin preview surface exists |
-| Evaluate policy preview | Yes | Yes | No dedicated preview tool | Good | Separate from pipeline policy-stage enqueue |
-| Persist policy packs | Yes | Yes | No | Good | CRUD now exists |
-| `allOf` / `anyOf` / `not` composition | Yes | Yes | No | Strong | Reuses engine semantics |
-| Load persisted packs into runtime enforcement | Yes | Yes | Indirect | Strong | Worker now resolves intent, wallet, strategy-compat, and global defaults before policy evaluation |
+| List policy rules | Yes | Yes | Yes | Strong | API, SDK, and MCP parity present |
+| Evaluate policy preview | Yes | Yes | Yes | Strong | Separate from pipeline policy-stage enqueue |
+| Persist policy packs | Yes | Yes | Yes | Strong | CRUD exists across API, SDK, and MCP |
+| Assign strategy policy packs | Yes | Yes | Yes | Strong | Strategy-level selection is supported across API, SDK, and MCP |
+| `allOf` / `anyOf` / `not` composition | Yes | Yes | Yes | Strong | Reuses engine semantics through persisted packs |
+| Load persisted packs into runtime enforcement | Yes | Yes | Yes | Strong | Worker resolves explicit intent, intent metadata, wallet default, strategy assignment, then global default before policy evaluation |
 
 ## Events and Webhooks Coverage
 
@@ -71,10 +72,10 @@ It is intentionally precise. It describes what is first-class today, what is par
 | Capability | Backend/API | TypeScript SDK | MCP | Status | Notes |
 |---|---|---|---|---|---|
 | Health | Yes | Yes | Indirect | Good | |
-| Chain health | Yes | Yes | No dedicated tool | Good | |
-| Config modes | Yes | Yes | No dedicated tool | Good | |
-| Strategy templates | Yes | Yes | No dedicated tool | Good | |
-| Ops metrics | Yes | Yes | No dedicated tool | Good | |
+| Chain health | Yes | Yes | Yes | Strong | |
+| Config modes | Yes | Yes | Yes | Strong | |
+| Strategy templates | Yes | Yes | Yes | Strong | |
+| Ops metrics | Yes | Yes | Yes | Strong | |
 
 ## Anchors and Oracle
 
@@ -107,7 +108,7 @@ It is intentionally precise. It describes what is first-class today, what is par
 | `@keeta-agent-stack/adapter-template` | **Boilerplate** | `execute` throws `NotImplementedError`. Copy this when integrating a real venue. See [`docs/creating-new-adapter.md`](./creating-new-adapter.md). |
 | List adapters | Strong | `GET /adapters`; SDK `listAdapters()` |
 | Adapter health | Good | Backend route exists; SDK has `partial` exposure |
-| Shared built-in rail metadata | Good | Local registry metadata source; SDK `listRailCatalog()` / `filterRailCatalog()` |
+| Shared built-in rail metadata | Strong | Backend `/rails/catalog`, SDK `listRailCatalog()` / `filterRailCatalog()`, and MCP `keeta_list_available_rails` expose production vs mock labeling |
 | Enumerated fiat-push / fiat-pull / crypto rails (UAE, CAD, Plaid, PULL) | Good | Backed by `@keetanetwork/anchor` 0.0.58 enum surface |
 | Anchor chaining (resolveAssets / pathOwner / distance) | Good | MCP tools `keeta_anchor_chaining_*`. Require server-held seed unless `MCP_ALLOW_INLINE_SEEDS=true`. |
 
@@ -127,6 +128,7 @@ The platform is strongest in these areas:
 - durable intent orchestration
 - wallet registration flows
 - core operator lifecycle controls
+- runtime-active policy packs with explicit effective-pack attribution
 - eventing and webhook infrastructure
 - anchor management
 - oracle-assisted flows
@@ -143,21 +145,26 @@ The platform is strongest in these areas:
 
 Use this wording when describing the platform publicly:
 
-> Keeta Agent Stack now covers the full control-plane workflow across API, TypeScript SDK, and MCP, including intents, routing, policy preview and persistence, wallets, events, webhooks, anchors, oracle flows, and explicit production-vs-mock rail labeling.
+> Keeta Agent Stack now covers the full control-plane workflow across API, TypeScript SDK, and MCP, including intents, routing, runtime-active policy packs, wallets, events, webhooks, anchors, oracle flows, and explicit production-vs-mock rail labeling.
 
 Use this wording internally when discussing the frontier:
 
 > The current platform is feature-complete for the main control-plane product surface, while deeper first-class coverage of lower-level Keeta network primitives and expanded operator controls remain the next major upgrades.
 
-## Dashboard V2 Surface (2026 refresh)
+## Dashboard Operator Surface (V2 foundation + Epic V3 cockpit)
 
 | Surface | Backend API | Dashboard Route | Role Gate | Capability Gate | Status |
 |---|---|---|---|---|---|
 | Viewer identity | `GET /me` | n/a | any authenticated | — | Strong |
 | Role-based home redirect | — | `/` | any authenticated | — | Strong |
-| Operator Command Center | existing ops APIs + `/ops/kill-switch` | `/command-center` | admin, operator | `ops:read` (+ `kill_switch:write` to mutate) | Strong |
+| Operator cockpit | `GET /ops/dashboard-summary` | `/dashboard` | admin, operator | `ops:read` | Strong |
+| Operator Command Center | existing ops APIs + dashboard kill-switch proxy | `/command-center` | admin, operator | `ops:read` (+ `kill_switch:write` to mutate) | Good; backend kill-switch mutation remains proposed |
 | Live Execution Stream | `/events/stream` via hardened proxy | `/live` | admin, operator | `ops:read` | Strong |
 | Policy Insights | `GET /policy/decisions` | `/policy` | admin, operator | `policy:read` | Strong |
+| Policy Builder foundation | `GET /policy/rules`, `GET /policy/packs` | `/policy/builder` | admin, operator | `policy:read` | Good; graph editing remains future UI work |
+| Agent list and detail | `GET /ops/agents`, `GET /ops/agents/:id` | `/agents`, `/agents/[id]` | admin, operator | `ops:read` | Strong |
+| Simulation Lab | simulation and intent APIs | `/simulate` | admin, operator | `ops:read` | Good; richer scenario persistence remains future work |
+| Backtest foundation | policy, simulation, and historical intent reads | `/backtest` | admin, operator | `ops:read` | Good; durable backtest jobs remain future work |
 | Anchor & Bond Health | `GET /anchors/health` | `/anchors-health` | admin, operator | `ops:read` | Strong |
 | Webhook Deliveries | `GET /ops/webhooks`, `/ops/webhook-deliveries` | `/webhooks` | admin, operator | `webhooks:read` | Strong |
 | Cost & Fees Analytics | `GET /ops/fees/aggregate` | `/cost` | admin, operator | `ops:read` | Good (in-memory agg; materialization planned) |
@@ -179,4 +186,3 @@ Use this wording internally when discussing the frontier:
 - Exec role has read-only access — no mutation controls rendered and no
   privileged capabilities granted.
 - All fee aggregations redact wallet/customer identifiers at display.
-

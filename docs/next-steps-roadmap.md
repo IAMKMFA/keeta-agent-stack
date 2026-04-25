@@ -1,143 +1,117 @@
 # Next Steps Roadmap
 
-This roadmap turns the remaining platform gaps into a concrete engineering sequence.
-
-The order matters. The goal is to deepen real platform leverage, not just add more wrappers.
+This roadmap turns the remaining platform gaps into a concrete engineering
+sequence. It reflects the current `main` branch: policy packs are runtime-active,
+MCP control-plane parity is broad, and the V3 dashboard cockpit foundation has
+landed.
 
 ## Current State
 
-The Keeta Agent Stack is now strong across the core control-plane product surface:
+The Keeta Agent Stack is strong across the core control-plane product surface:
 
-- API capabilities are broadly represented in the TypeScript SDK
-- the MCP layer now covers the main operator workflow
-- wallet create/import flows are unified
-- policy packs can be persisted
-- rails/adapters are labeled with explicit production vs mock metadata
+- API capabilities are broadly represented in the TypeScript SDK.
+- MCP now covers the main operator workflow, including policy packs, wallets,
+  chain/config reads, ops metrics, rails, events, and webhooks.
+- Policy packs can be created, selected, assigned to strategies, inherited from
+  wallet/global defaults, and applied during worker policy evaluation.
+- Effective policy-pack identity is carried through intents, decisions, events,
+  and execution results.
+- Rails and adapters are labeled with explicit production vs mock metadata.
+- The dashboard has a role-aware V3 cockpit, command center, agent surfaces,
+  policy builder foundation, simulation lab, and backtest foundation.
 
-That means the next work should focus less on parity and more on platform maturity and differentiated power.
+That means the next work should focus less on parity and more on production
+trust, publication, and differentiated Keeta-native depth.
 
-## Phase 1: Make Policy Packs Live
+## Phase 1: Lock The Signing And Custody Model
 
 ### Goal
 
-Close the gap between persisted policy configuration and actual runtime enforcement.
+Make the platform's wallet and execution story explicit for long-term production
+usage.
 
 ### Why This Comes First
 
-Right now policy packs can be created, updated, listed, and deleted, but they are not automatically loaded into the runtime policy decision path. That means the platform can manage policy packs, but not yet execute from them as a live source of truth.
-
-### Deliverables
-
-- define how a policy pack becomes active
-- decide scope: global, per-strategy, per-wallet, or per-intent selection
-- load selected pack rules and compositions into the policy engine before evaluation
-- preserve current evaluation behavior when no pack is selected
-- expose the effective pack identity in audit/events/policy results
-
-### Definition of Done
-
-- persisted packs can be selected and applied in live and simulated evaluation paths
-- operators can tell which pack was used for a decision
-- no breaking change to existing evaluation semantics
-
-## Phase 2: Decide The Signing And Custody Model
-
-### Goal
-
-Make the platform’s wallet and execution story explicit for long-term production usage.
-
-### Why This Is Critical
-
-The current model is strong and safe for the existing product surface:
+The current model is coherent and safer than browser- or agent-held signing:
 
 - imported wallets are metadata
 - live signing is worker-scoped
+- `KEETA_SIGNING_SEED` belongs only in the worker environment
+- agents, SDK clients, dashboards, and MCP tools call the control plane rather
+  than handling settlement secrets
 
-That is a coherent model, but only if the product deliberately stays there. If the platform wants to support multiple managed signers or per-wallet execution identities, that is a larger custody system, not a small helper change.
+This needs to be stated as a product decision before expanding into managed
+multi-wallet signing.
 
-### Decision Paths
+### Deliverables
 
-#### Option A: Stay Metadata-First / Worker-Signed
+- document worker-scoped signing as the supported production model
+- define when a wallet row is metadata versus an execution signer
+- publish seed rotation and incident-response guidance
+- add tests or startup assertions that prevent signing material from reaching
+  API, dashboard, or MCP processes
+- create a separate design proposal if managed multi-wallet signing becomes a
+  product requirement
 
-- keep imported wallets as references
-- keep execution signing worker-scoped
-- document this clearly as the supported production model
-
-#### Option B: Add Managed Multi-Wallet Signing
-
-- define signer storage and encryption model
-- map imported/generated wallets to execution signers
-- add signer selection semantics to execution paths
-- design audit, rotation, and secret-handling rules
-
-### Recommendation
-
-Start by explicitly documenting Option A as the supported model, then expand only if product requirements truly demand Option B.
-
-## Phase 3: Promote Keeta-Native Primitives Into Typed Surfaces
+## Phase 2: Promote Keeta-Native Primitives Into Typed Surfaces
 
 ### Goal
 
-Graduate the highest-value lower-level Keeta capabilities from dynamic execution paths into clear public SDK methods.
-
-### Why This Matters
-
-Today, some deeper Keeta access is available through MCP dynamic execution tools. That is useful, but it is not the same as a polished, supported public interface.
+Graduate the highest-value lower-level Keeta capabilities from dynamic MCP paths
+into clear public SDK/API methods.
 
 ### High-Value Candidates
 
 - account inspection helpers
 - asset inspection helpers
-- transfer helpers
+- transfer status and receipt helpers
 - safer builder/block publishing workflows
-- Keeta-native receipt and account state queries
+- Keeta-native receipt and account-state queries
 
 ### Recommendation
 
-Do not attempt full SDK mirroring of the entire upstream Keeta SDK in one pass. Start with the 20 percent of primitives that unlock 80 percent of real agent-builder workflows.
+Do not mirror the entire upstream Keeta SDK in one pass. Start with the small
+set of primitives that unlock the most common agent-builder workflows, then
+document what remains intentionally lower-level.
 
-## Phase 4: Move Rail Metadata From Local SDK Knowledge To Backend Truth
+## Phase 3: Make Rail Metadata Backend-Authoritative
 
 ### Goal
 
-Make production/mock rail metadata uniformly available across backend, SDK, dashboard, and external clients.
-
-### Why This Matters
-
-The SDK now knows which built-in rails are production or non-production. That is a strong improvement, but the backend `/adapters` route still exposes only `id` and `kind`.
+Make production/mock rail metadata uniformly available across backend, SDK,
+dashboard, MCP, and external clients from one source of truth.
 
 ### Deliverables
 
-- enrich backend adapter metadata response
-- preserve backward compatibility for current clients
-- use a shared metadata source where possible
-- surface production readiness clearly in dashboard and docs
+- keep `/rails/catalog` as the canonical public response
+- enrich `/adapters` without breaking existing clients
+- move any remaining SDK-local rail interpretation into shared metadata
+- surface production readiness clearly in the dashboard and docs
+- add regression tests that catch mismatched rail labels across API, SDK, and
+  MCP
 
-### Result
-
-One source of truth for rail metadata instead of SDK-local interpretation.
-
-## Phase 5: Finish The Remaining Operator-Facing MCP Surface
+## Phase 4: Finish The V3 Operator Workflow
 
 ### Goal
 
-Round out the MCP server so agents and operators can use the control plane with less surface-hopping.
+Turn the cockpit foundation into a complete day-two operations surface.
 
-### Good Candidates
+### Deliverables
 
-- route override tool
-- wallet balance tool
-- chain health tool
-- config modes tool
-- ops metrics tool
-- webhook deliveries tool
-- policy pack management tools
+- implement the backend kill-switch mutation endpoint behind the existing
+  dashboard CSRF/role guards
+- add deeper agent detail drill-downs for recent intents, executions, policy
+  pack assignment, and health
+- turn the policy builder foundation into a mutation-capable editor for
+  persisted packs
+- define durable simulation/backtest job records instead of read-only setup
+  shells
+- add trace links from dashboard rows into logs/spans once the deployment has a
+  collector target
+- add Playwright persona tests for admin/operator/exec/tenant/unauthorized
+  flows
 
-### Principle
-
-Prefer thin MCP wrappers over the typed SDK rather than direct HTTP calls.
-
-## Phase 6: Productize The Public Developer Experience
+## Phase 5: Productize The Public Developer Experience
 
 ### Goal
 
@@ -145,19 +119,16 @@ Make adoption feel deliberate, not just possible.
 
 ### Deliverables
 
-- publish and version the SDK cleanly
-- add hosted docs or a stronger docs bundle
-- add copy-paste examples for flagship use cases
-- make production vs mock capabilities unmistakable in docs
+- make the package-scope decision for `@keeta-agent-stack/*`
+- run the first credentialed npm publish from the Changesets workflow
+- enable or intentionally defer GitHub Pages with `ENABLE_GITHUB_PAGES=true`
+- publish copy-paste examples for the flagship treasury rebalancer and common
+  payment corridors
+- add package provenance, release notes, and rollback guidance
+- keep generated TypeDoc and OpenAPI snapshots reproducible from documented
+  commands
 
-### Flagship Example Targets
-
-- cross-corridor payment agent
-- treasury rebalance agent
-- compliance-aware quote-and-execute agent
-- anchor routing optimizer
-
-## Phase 7: Production Maturity Pass
+## Phase 6: Production Maturity Pass
 
 ### Goal
 
@@ -165,28 +136,30 @@ Make the system easier to trust in serious environments.
 
 ### Areas
 
-- CI integration gating for full integration tests
-- deployment references and environment profiles
-- clearer operational runbooks
+- CI gating for the full integration suite
+- deployment profiles for local, sandbox, and production
+- operational runbooks for queues, webhooks, anchors, and policy packs
 - stronger telemetry/export examples
 - failure-mode and chaos coverage
+- backup, restore, and migration rollback procedures
 
 ## Recommended Priority Order
 
-1. Runtime policy-pack enforcement
-2. Explicit signing/custody decision
-3. Typed Keeta-native primitive promotion
-4. Backend rail metadata parity
-5. Remaining MCP operator tools
-6. Public docs/examples/package polish
-7. Production maturity and runbook depth
+1. Signing and custody model
+2. Typed Keeta-native primitive promotion
+3. Backend-authoritative rail metadata
+4. V3 operator workflow completion
+5. Public docs, package publish, and release operations
+6. Production maturity and runbook depth
 
 ## Short Version For Planning Meetings
 
-If a team asks “what should we do next,” the answer should be:
+If a team asks "what should we do next," the answer should be:
 
-1. make persisted policy packs actually govern runtime behavior
-2. decide whether the platform stays worker-signed or becomes a managed signer platform
-3. promote the most important Keeta-native primitives into typed public SDK methods
+1. decide and document the signing/custody model
+2. promote the most useful Keeta-native primitives into typed public surfaces
+3. finish the operator workflows that turn the V3 cockpit from visibility into
+   action
 
-Those three steps will do more to define the next generation of the platform than any amount of shallow surface expansion.
+Those steps will define the next generation of the platform more than another
+round of shallow surface expansion.
