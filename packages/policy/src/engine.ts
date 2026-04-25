@@ -1,5 +1,6 @@
 import type { PolicyDecision, PolicyRuleContribution } from '@keeta-agent-stack/types';
 import type {
+  PolicyConfig,
   PolicyEngineOptions,
   PolicyEntryKind,
   PolicyRuleCompositionDefinition,
@@ -36,34 +37,58 @@ type RegisteredPolicyEntry = {
 
 function wrapRule(
   ruleId: string,
+  configKey: string,
   description: string,
   evaluate: (ctx: PolicyContext) => PolicyRuleContribution
 ): PolicyRuleDefinition {
   return {
     ruleId,
+    configKey,
     description,
     evaluate: (ctx) => evaluate(ctx),
   };
 }
 
+const policyConfigKeys = new Set<string>([
+  'maxOrderSize',
+  'maxSlippageBps',
+  'venueAllowlist',
+  'assetAllowlist',
+  'liveModeEnabled',
+  'keetaPolicyEnabled',
+  'identityPolicyEnabled',
+  'anchorBondVerificationRequired',
+  'maxExposurePerAsset',
+  'maxExposurePerWallet',
+  'maxExposurePerVenue',
+  'maxNotionalPerStrategy',
+  'maxDailyTrades',
+  'maxUnsettledExecutions',
+  'maxDrawdownBps',
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 const defaultPolicyRules: PolicyRuleDefinition[] = [
-  wrapRule('max_order_size', 'Reject intents that exceed the configured maximum order size.', ruleMaxOrderSize),
-  wrapRule('max_slippage', 'Reject intents whose slippage budget exceeds the configured maximum.', ruleMaxSlippage),
-  wrapRule('venue_allowlist', 'Restrict route steps to approved venue adapter ids when configured.', ruleVenueAllowlist),
-  wrapRule('asset_allowlist', 'Restrict intents to approved base and quote assets when configured.', ruleAssetAllowlist),
-  wrapRule('live_mode_enabled', 'Prevent live execution when the environment disables live mode.', ruleLiveMode),
-  wrapRule('identity_attestation', 'Require identity hints for live-adjacent flows when enabled.', ruleIdentityAttestation),
-  wrapRule('keeta_extension', 'Require Keeta network preflight hints when Keeta-aware policy is enabled.', ruleKeetaExtension),
-  wrapRule('anchor_bond_active', 'Require live payment-anchor routes to have an active verified bond.', ruleAnchorBondActive),
-  wrapRule('unsupported_route', 'Reject route plans that contain unsupported or missing execution steps.', ruleUnsupportedRoute),
-  wrapRule('cooldown', 'Placeholder cooldown rule for future trade pacing controls.', ruleCooldownPlaceholder),
-  wrapRule('daily_trades', 'Cap daily execution count using worker-supplied portfolio statistics.', ruleDailyTrades),
-  wrapRule('unsettled_cap', 'Cap unsettled executions using worker-supplied portfolio statistics.', ruleUnsettledCap),
-  wrapRule('notional_per_strategy', 'Cap notional exposure per strategy using worker-supplied identity hints.', ruleNotionalPerStrategy),
-  wrapRule('exposure_per_asset', 'Cap open exposure by asset using worker-supplied portfolio statistics.', ruleExposurePerAsset),
-  wrapRule('exposure_per_venue', 'Cap open exposure by venue using worker-supplied portfolio statistics.', ruleExposurePerVenue),
-  wrapRule('exposure_per_wallet', 'Cap wallet exposure using worker-supplied portfolio statistics.', ruleExposurePerWallet),
-  wrapRule('drawdown', 'Reserved drawdown guardrail awaiting equity-history integration.', ruleDrawdown),
+  wrapRule('max_order_size', 'maxOrderSize', 'Reject intents that exceed the configured maximum order size.', ruleMaxOrderSize),
+  wrapRule('max_slippage', 'maxSlippageBps', 'Reject intents whose slippage budget exceeds the configured maximum.', ruleMaxSlippage),
+  wrapRule('venue_allowlist', 'venueAllowlist', 'Restrict route steps to approved venue adapter ids when configured.', ruleVenueAllowlist),
+  wrapRule('asset_allowlist', 'assetAllowlist', 'Restrict intents to approved base and quote assets when configured.', ruleAssetAllowlist),
+  wrapRule('live_mode_enabled', 'liveModeEnabled', 'Prevent live execution when the environment disables live mode.', ruleLiveMode),
+  wrapRule('identity_attestation', 'identityPolicyEnabled', 'Require identity hints for live-adjacent flows when enabled.', ruleIdentityAttestation),
+  wrapRule('keeta_extension', 'keetaPolicyEnabled', 'Require Keeta network preflight hints when Keeta-aware policy is enabled.', ruleKeetaExtension),
+  wrapRule('anchor_bond_active', 'anchorBondVerificationRequired', 'Require live payment-anchor routes to have an active verified bond.', ruleAnchorBondActive),
+  wrapRule('unsupported_route', 'unsupported_route', 'Reject route plans that contain unsupported or missing execution steps.', ruleUnsupportedRoute),
+  wrapRule('cooldown', 'cooldown', 'Placeholder cooldown rule for future trade pacing controls.', ruleCooldownPlaceholder),
+  wrapRule('daily_trades', 'maxDailyTrades', 'Cap daily execution count using worker-supplied portfolio statistics.', ruleDailyTrades),
+  wrapRule('unsettled_cap', 'maxUnsettledExecutions', 'Cap unsettled executions using worker-supplied portfolio statistics.', ruleUnsettledCap),
+  wrapRule('notional_per_strategy', 'maxNotionalPerStrategy', 'Cap notional exposure per strategy using worker-supplied identity hints.', ruleNotionalPerStrategy),
+  wrapRule('exposure_per_asset', 'maxExposurePerAsset', 'Cap open exposure by asset using worker-supplied portfolio statistics.', ruleExposurePerAsset),
+  wrapRule('exposure_per_venue', 'maxExposurePerVenue', 'Cap open exposure by venue using worker-supplied portfolio statistics.', ruleExposurePerVenue),
+  wrapRule('exposure_per_wallet', 'maxExposurePerWallet', 'Cap wallet exposure using worker-supplied portfolio statistics.', ruleExposurePerWallet),
+  wrapRule('drawdown', 'maxDrawdownBps', 'Reserved drawdown guardrail awaiting equity-history integration.', ruleDrawdown),
 ];
 
 export function createDefaultPolicyRules(): PolicyRuleDefinition[] {
@@ -189,6 +214,36 @@ export class PolicyEngine {
     });
   }
 
+  private effectiveContextWithBuiltInConfig(
+    ctx: PolicyContext,
+    entries: RegisteredPolicyEntry[]
+  ): PolicyContext {
+    let config: PolicyConfig | undefined;
+
+    for (const entry of entries) {
+      if (entry.source !== 'default' || entry.kind !== 'rule') continue;
+      const rule = entry.definition as PolicyRuleDefinition<unknown>;
+      const configKey = rule.configKey;
+      if (!configKey || !policyConfigKeys.has(configKey)) continue;
+
+      const rawConfig = ctx.customRuleConfig?.[configKey] ?? ctx.customRuleConfig?.[rule.ruleId];
+      if (rawConfig === undefined) continue;
+
+      const value =
+        isRecord(rawConfig) && Object.prototype.hasOwnProperty.call(rawConfig, configKey)
+          ? rawConfig[configKey]
+          : rawConfig;
+      if (value === undefined) continue;
+
+      config = {
+        ...(config ?? ctx.config),
+        [configKey]: value,
+      };
+    }
+
+    return config ? { ...ctx, config } : ctx;
+  }
+
   private evaluateRule(
     rule: PolicyRuleDefinition<unknown>,
     ctx: PolicyContext
@@ -276,9 +331,10 @@ export class PolicyEngine {
   }
 
   evaluate(ctx: PolicyContext): PolicyDecision {
-    const contributions = this.sortedEntries()
-      .filter((entry) => entry.enabled)
-      .map((entry) => this.evaluateEntry(entry, ctx));
+    const sortedEntries = this.sortedEntries();
+    const enabledEntries = sortedEntries.filter((entry) => entry.enabled);
+    const effectiveCtx = this.effectiveContextWithBuiltInConfig(ctx, sortedEntries);
+    const contributions = enabledEntries.map((entry) => this.evaluateEntry(entry, effectiveCtx));
 
     const allowed = contributions.every((c) => c.passed);
     const summary = allowed

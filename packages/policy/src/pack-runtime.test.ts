@@ -61,4 +61,26 @@ describe('applyPolicyPack', () => {
     });
     expect(result.warnings.some((warning) => warning.includes('unknown rule'))).toBe(true);
   });
+
+  it('stores built-in rule config under the canonical config key', () => {
+    const engine = new PolicyEngine();
+    const result = applyPolicyPack(engine, {
+      id: '550e8400-e29b-41d4-a716-446655440303',
+      name: 'slippage-pack',
+      rules: [
+        {
+          ruleId: 'max_slippage',
+          config: { maxSlippageBps: 25 },
+        },
+      ],
+      compositions: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    expect(result.customRuleConfig).toEqual({
+      maxSlippageBps: { maxSlippageBps: 25 },
+    });
+    expect(result.warnings).toEqual([]);
+  });
 });

@@ -1,7 +1,14 @@
 import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
 import type { PolicyConfig, PolicyRuleDefinition } from '@keeta-agent-stack/policy';
 import { createClient, type CreateIntentRequest, type EventSubscription } from '@keeta-agent-stack/sdk';
-import type { EventStreamEvent, ExecutionIntent, PolicyDecision, RoutePlan, SimulationResult } from '@keeta-agent-stack/types';
+import type {
+  EventStreamEvent,
+  ExecutionIntent,
+  PolicyDecision,
+  RoutePlan,
+  SimulationResult,
+  SimulationScenario,
+} from '@keeta-agent-stack/types';
 import {
   AgentRuntime,
   type AgentRuntimeHook,
@@ -51,6 +58,7 @@ export interface CreateKeetaAgentOptions {
   policy?: PolicyConfig;
   policyRules?: PolicyRuleDefinition[];
   hooks?: KeetaAgentHooks;
+  simulationScenario?: SimulationScenario;
   /** Optional override for terminal-state polling timeout (default: 60_000 ms). */
   pollTimeoutMs?: number;
 }
@@ -188,7 +196,7 @@ async function pollForTerminalEvents(
 }
 
 export function createKeetaAgent(opts: CreateKeetaAgentOptions): KeetaAgent {
-  const { name, sdk, registry, policy, policyRules, hooks, pollTimeoutMs } = opts;
+  const { name, sdk, registry, policy, policyRules, hooks, simulationScenario, pollTimeoutMs } = opts;
   const runtimeHooks = buildRuntimeHooks(hooks);
   const runtime =
     registry && policy
@@ -197,6 +205,7 @@ export function createKeetaAgent(opts: CreateKeetaAgentOptions): KeetaAgent {
           policy,
           policyRules,
           hooks: runtimeHooks,
+          simulationScenario,
         })
       : undefined;
 

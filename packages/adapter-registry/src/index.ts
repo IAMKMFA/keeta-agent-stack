@@ -1,4 +1,10 @@
-export { AdapterRegistry } from './registry.js';
+export {
+  AdapterRegistry,
+  type AdapterDiscoveryFilter,
+  type AdapterPairFilter,
+  type CapabilityPair,
+  type DiscoveredAdapter,
+} from './registry.js';
 export { createDefaultDevAdapters, createDefaultDevRegistry } from './factory.js';
 export {
   getBuiltinRailMetadata,

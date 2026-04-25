@@ -28,6 +28,7 @@ function compositionDefinition(composition: PolicyComposition) {
 export function applyPolicyPack(engine: PolicyEngine, pack: PolicyPack): ApplyPolicyPackResult {
   const customRuleConfig: Record<string, unknown> = {};
   const warnings: string[] = [];
+  const ruleMetadata = new Map(engine.listRuleMetadata().map((rule) => [rule.ruleId, rule]));
 
   for (const rule of pack.rules) {
     if (!engine.has(rule.ruleId)) {
@@ -42,7 +43,7 @@ export function applyPolicyPack(engine: PolicyEngine, pack: PolicyPack): ApplyPo
     }
 
     if (rule.config !== undefined) {
-      customRuleConfig[rule.configKey ?? rule.ruleId] = rule.config;
+      customRuleConfig[rule.configKey ?? ruleMetadata.get(rule.ruleId)?.configKey ?? rule.ruleId] = rule.config;
     }
   }
 

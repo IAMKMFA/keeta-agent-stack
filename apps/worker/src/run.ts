@@ -1176,8 +1176,9 @@ async function withDatabaseTransaction<T>(
         adapterId: string;
         payload: Record<string, unknown>;
       }> = [];
-      for (const adapter of registry.list()) {
-        if (!adapter.supportsPair(intent.baseAsset, intent.quoteAsset)) continue;
+      for (const adapter of await registry.findAdapters({
+        pair: { base: intent.baseAsset, quote: intent.quoteAsset },
+      })) {
         const q = await withSpan(
           'worker.quote.adapter.get',
           {

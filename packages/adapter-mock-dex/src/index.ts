@@ -1,1 +1,6 @@
-export { MockDexAdapter, type MockDexConfig } from './mock-dex.js';
+export {
+  MockDexAdapter,
+  type MockDexConfig,
+  type MockDexPriceFeed,
+  type MockDexPriceFeedInput,
+} from './mock-dex.js';

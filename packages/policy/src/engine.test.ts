@@ -97,6 +97,30 @@ describe('PolicyEngine', () => {
     ]);
   });
 
+  it('describes built-in rules with canonical config keys', () => {
+    const engine = new PolicyEngine();
+
+    expect(engine.listRuleMetadata()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ruleId: 'max_order_size',
+          configKey: 'maxOrderSize',
+          source: 'default',
+        }),
+        expect.objectContaining({
+          ruleId: 'max_slippage',
+          configKey: 'maxSlippageBps',
+          source: 'default',
+        }),
+        expect.objectContaining({
+          ruleId: 'venue_allowlist',
+          configKey: 'venueAllowlist',
+          source: 'default',
+        }),
+      ])
+    );
+  });
+
   it('validates custom rule config with a schema', () => {
     const engine = new PolicyEngine({ includeDefaultRules: false });
     engine.register(
@@ -138,6 +162,24 @@ describe('PolicyEngine', () => {
     });
     expect(valid.allowed).toBe(true);
     expect(valid.contributions[0]?.reason).toBe('Min size satisfied');
+  });
+
+  it('applies built-in rule config from customRuleConfig using canonical config keys', () => {
+    const engine = new PolicyEngine();
+    const decision = engine.evaluate({
+      ...createContext(),
+      customRuleConfig: {
+        maxSlippageBps: {
+          maxSlippageBps: 25,
+        },
+      },
+    });
+
+    expect(decision.allowed).toBe(false);
+    expect(decision.contributions.find((c) => c.ruleId === 'max_slippage')).toMatchObject({
+      passed: false,
+      limits: { maxSlippageBps: 25 },
+    });
   });
 
   it('supports enable and disable toggles', () => {

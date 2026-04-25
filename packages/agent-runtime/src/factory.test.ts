@@ -48,6 +48,14 @@ describe('createKeetaAgent (offline mode)', () => {
         assetAllowlist: [],
         liveModeEnabled: true,
       },
+      simulationScenario: {
+        label: 'factory-strategy',
+        fidelityMode: 'standard',
+        volatility: 0,
+        latencyMs: 0,
+        failureProbability: 0,
+        slippageMultiplier: 3,
+      },
       hooks: {
         onIntent: (ctx) => {
           seen.push(`intent:${ctx.intent.id}`);
@@ -79,6 +87,10 @@ describe('createKeetaAgent (offline mode)', () => {
     if (result.kind === 'simulated') {
       expect(result.route.steps.length).toBeGreaterThan(0);
       expect(result.detail.success).toBeDefined();
+      expect(result.detail.scenario).toMatchObject({
+        label: 'factory-strategy',
+        slippageMultiplier: 3,
+      });
     }
     expect(seen[0]).toBe(`intent:${createIntent().id}`);
     expect(seen).toContain('beforeRoute');

@@ -67,11 +67,9 @@ export class Router {
     intent: ExecutionIntent,
     buildOpts: RouteBuildOptions = {}
   ): Promise<{ best: RoutePlan; alternates: RoutePlan[] }> {
-    const adapters = this.registry.list().slice(0, this.opts.maxQuotes);
     const eligibleAdapters: Array<{ adapter: VenueAdapter; capabilities: CapabilityMap }> = [];
-    for (const adapter of adapters) {
+    for (const { adapter, capabilities } of await this.registry.discoverAdapters({ limit: this.opts.maxQuotes })) {
       if (buildOpts.canUseAdapter && !(await buildOpts.canUseAdapter(adapter))) continue;
-      const capabilities = await adapter.getCapabilities();
       if (!capabilities.pairs.some((pair) => adapter.supportsPair(pair.base, pair.quote))) continue;
       eligibleAdapters.push({ adapter, capabilities });
     }

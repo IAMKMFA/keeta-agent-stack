@@ -9,6 +9,13 @@ import type {
 } from '@keeta-agent-stack/types';
 import { randomUUID } from 'node:crypto';
 
+export interface MockDexPriceFeedInput {
+  baseAsset: string;
+  quoteAsset: string;
+}
+
+export type MockDexPriceFeed = (input: MockDexPriceFeedInput) => number | string | Promise<number | string>;
+
 export interface MockDexConfig {
   id?: string;
   spreadBps: number;
@@ -18,6 +25,8 @@ export interface MockDexConfig {
   seed?: string;
   /** Defaults to KTA/USDC */
   supportedPairs?: Array<{ base: string; quote: string }>;
+  /** Optional deterministic mid-price feed. Defaults every pair to 1. */
+  priceFeed?: MockDexPriceFeed;
 }
 
 function createRng(seed?: string): () => number {
@@ -48,6 +57,7 @@ export class MockDexAdapter implements DexVenueAdapter {
   private readonly failureRate: number;
   private readonly rng: () => number;
   private readonly pairs: Set<string>;
+  private readonly priceFeed?: MockDexPriceFeed;
 
   constructor(cfg: MockDexConfig) {
     this.id = cfg.id ?? 'mock-dex';
@@ -56,6 +66,7 @@ export class MockDexAdapter implements DexVenueAdapter {
     this.maxSlippageBps = cfg.maxSlippageBps;
     this.failureRate = cfg.failureRate;
     this.rng = createRng(cfg.seed);
+    this.priceFeed = cfg.priceFeed;
     this.pairs = new Set(
       (cfg.supportedPairs ?? [{ base: 'KTA', quote: 'USDC' }]).map((p) => keyPair(p.base, p.quote))
     );
@@ -86,6 +97,19 @@ export class MockDexAdapter implements DexVenueAdapter {
     return this.pairs.has(keyPair(baseAsset, quoteAsset));
   }
 
+  private async getMidPrice(request: QuoteRequest): Promise<number> {
+    const rawMid =
+      (await this.priceFeed?.({
+        baseAsset: request.baseAsset,
+        quoteAsset: request.quoteAsset,
+      })) ?? 1;
+    const mid = Number(rawMid);
+    if (!Number.isFinite(mid) || mid <= 0) {
+      throw new Error(`Invalid mock DEX mid price for ${request.baseAsset}/${request.quoteAsset}: ${rawMid}`);
+    }
+    return mid;
+  }
+
   async getQuote(request: QuoteRequest) {
     if (!this.supportsPair(request.baseAsset, request.quoteAsset)) {
       return err('UNSUPPORTED_PAIR', 'Pair not listed on mock DEX');
@@ -95,7 +119,12 @@ export class MockDexAdapter implements DexVenueAdapter {
     }
 
     const slip = Math.min(this.maxSlippageBps, 1 + Math.floor(this.rng() * this.maxSlippageBps));
-    const mid = 1;
+    let mid: number;
+    try {
+      mid = await this.getMidPrice(request);
+    } catch (error) {
+      return err('INVALID_PRICE_FEED', error instanceof Error ? error.message : 'Invalid mock DEX price feed');
+    }
     const spreadAdj = (this.spreadBps / 10_000) * mid;
     const price =
       request.side === 'buy' ? String(mid + spreadAdj) : String(Math.max(0.0001, mid - spreadAdj));
@@ -119,7 +148,7 @@ export class MockDexAdapter implements DexVenueAdapter {
       feeBps: this.feeBps,
       expectedSlippageBps: slip,
       validUntil: new Date(Date.now() + 60_000).toISOString(),
-      raw: { mock: true },
+      raw: { mock: true, midPrice: String(mid) },
     };
     return ok(q);
   }

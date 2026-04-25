@@ -8,7 +8,14 @@ import {
 } from '@keeta-agent-stack/policy';
 import { Router } from '@keeta-agent-stack/routing';
 import { simulate } from '@keeta-agent-stack/simulator';
-import type { ExecutionIntent, PolicyDecision, RoutePlan, SimulationResult } from '@keeta-agent-stack/types';
+import {
+  SimulationScenarioSchema,
+  type ExecutionIntent,
+  type PolicyDecision,
+  type RoutePlan,
+  type SimulationResult,
+  type SimulationScenario,
+} from '@keeta-agent-stack/types';
 import type { Signer } from '@keeta-agent-stack/wallet';
 
 export interface AgentRuntimeHookContext {
@@ -41,9 +48,18 @@ export interface AgentRuntimeOptions {
   policy: PolicyConfig;
   policyRules?: PolicyRuleDefinition[];
   hooks?: AgentRuntimeHooks;
+  simulationScenario?: SimulationScenario;
 }
 
 export type AgentRuntimePolicyEvaluationOptions = PolicyEvaluationOverrides;
+
+const DEFAULT_RUNTIME_SIMULATION_SCENARIO = SimulationScenarioSchema.parse({
+  fidelityMode: 'standard',
+  volatility: 0.05,
+  latencyMs: 20,
+  failureProbability: 0,
+  slippageMultiplier: 1,
+});
 
 /**
  * Agent orchestration — never imports concrete signers.
@@ -53,11 +69,15 @@ export class AgentRuntime {
   private readonly router: Router;
   private readonly policyEngine: PolicyEngine;
   private readonly hooks: AgentRuntimeHooks;
+  private readonly simulationScenario: SimulationScenario;
 
   constructor(private readonly opts: AgentRuntimeOptions) {
     this.router = new Router(opts.registry);
     this.policyEngine = new PolicyEngine({ rules: opts.policyRules });
     this.hooks = opts.hooks ?? {};
+    this.simulationScenario = SimulationScenarioSchema.parse(
+      opts.simulationScenario ?? DEFAULT_RUNTIME_SIMULATION_SCENARIO
+    );
   }
 
   private async runHook(hook: AgentRuntimeHook | undefined, ctx: AgentRuntimeHookContext): Promise<void> {
@@ -132,13 +152,7 @@ export class AgentRuntime {
     const ctx = this.createHookContext(intent);
     ctx.route = route;
     await this.runHook(this.hooks.beforeSimulation, ctx);
-    const result = await simulate(intent, ctx.route, {
-      fidelityMode: 'standard',
-      volatility: 0.05,
-      latencyMs: 20,
-      failureProbability: 0,
-      slippageMultiplier: 1,
-    });
+    const result = await simulate(intent, ctx.route, this.simulationScenario);
     ctx.simulationResult = result;
     await this.runHook(this.hooks.afterSimulation, ctx);
     return result;

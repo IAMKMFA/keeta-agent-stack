@@ -82,6 +82,48 @@ describe('AgentRuntime hooks', () => {
     expect(built.best.id).toBeTypeOf('string');
   });
 
+  it('uses the constructor simulation scenario', async () => {
+    const registry = new AdapterRegistry();
+    registry.register(
+      new MockDexAdapter({
+        id: 'mock-dex',
+        spreadBps: 10,
+        feeBps: 5,
+        maxSlippageBps: 4,
+        failureRate: 0,
+        seed: 'agent-runtime-scenario',
+      })
+    );
+    const runtime = new AgentRuntime({
+      registry,
+      policy: {
+        maxOrderSize: 1_000_000,
+        maxSlippageBps: 500,
+        venueAllowlist: [],
+        assetAllowlist: [],
+        liveModeEnabled: true,
+      },
+      simulationScenario: {
+        label: 'strict-strategy',
+        fidelityMode: 'standard',
+        volatility: 0,
+        latencyMs: 0,
+        failureProbability: 1,
+        slippageMultiplier: 2,
+      },
+    });
+
+    const { best } = await runtime.quoteAndRoute(createIntent());
+    const result = await runtime.runSimulation(createIntent(), best);
+
+    expect(result.success).toBe(false);
+    expect(result.scenario).toMatchObject({
+      label: 'strict-strategy',
+      failureProbability: 1,
+      slippageMultiplier: 2,
+    });
+  });
+
   it('surfaces policy decisions through synchronous hooks', () => {
     const seen: string[] = [];
     const runtime = new AgentRuntime({
