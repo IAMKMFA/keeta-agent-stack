@@ -13,7 +13,10 @@ export const metadata = { title: 'Backtesting — Keeta Agent Hub' };
 export default async function BacktestPage() {
   requireV2Enabled();
   await requireScope('ops:read');
-  const summary = await fetchJson<DashboardSummary>('/ops/dashboard-summary', emptyDashboardSummary);
+  const summary = await fetchJson<DashboardSummary>(
+    '/ops/dashboard-summary',
+    emptyDashboardSummary
+  );
 
   return (
     <div className="space-y-8">

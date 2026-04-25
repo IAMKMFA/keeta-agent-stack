@@ -16,7 +16,10 @@ function toDay(iso: string): string | null {
   return d.toISOString().slice(0, 10);
 }
 
-function bucket(values: ExecutionRow[], days: number): Array<{ day: string; count: number; success: number }> {
+function bucket(
+  values: ExecutionRow[],
+  days: number
+): Array<{ day: string; count: number; success: number }> {
   const bounds = Date.now() - days * 86_400_000;
   const map = new Map<string, { day: string; count: number; success: number }>();
   for (let i = days - 1; i >= 0; i--) {
@@ -66,8 +69,7 @@ export default async function ExecOverviewPage() {
     if (typeof b === 'string') return Number.parseFloat(b) > 0;
     return typeof b === 'number' && b > 0;
   }).length;
-  const bondCoverage =
-    anchors.length > 0 ? Math.round((bondedCount / anchors.length) * 100) : 0;
+  const bondCoverage = anchors.length > 0 ? Math.round((bondedCount / anchors.length) * 100) : 0;
 
   return (
     <div className="space-y-8">
@@ -133,10 +135,7 @@ export default async function ExecOverviewPage() {
             .sort((a, b) => b.bond - a.bond)
             .slice(0, 6)
             .map((a) => (
-              <li
-                key={a.id}
-                className="flex items-center justify-between py-3 text-sm first:pt-0"
-              >
+              <li key={a.id} className="flex items-center justify-between py-3 text-sm first:pt-0">
                 <span className="font-medium text-[var(--keeta-ink)]">{a.name}</span>
                 <span className="font-mono text-xs text-[var(--keeta-muted)]">
                   {a.bond > 0 ? a.bond.toLocaleString() : '—'}

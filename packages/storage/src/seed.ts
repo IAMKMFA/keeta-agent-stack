@@ -101,7 +101,11 @@ async function main() {
     }
   }
 
-  const existingAnchor = await db.select().from(paymentAnchors).where(eq(paymentAnchors.adapterId, 'mock-anchor')).limit(1);
+  const existingAnchor = await db
+    .select()
+    .from(paymentAnchors)
+    .where(eq(paymentAnchors.adapterId, 'mock-anchor'))
+    .limit(1);
   let anchor = existingAnchor[0];
   if (!anchor) {
     const [row] = await db

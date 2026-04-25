@@ -14,7 +14,10 @@ import {
 const DEFAULT_API_URL = 'http://localhost:3001';
 
 function getApiUrl(): string {
-  return (process.env.API_URL ?? process.env.KEETA_AGENT_API_URL ?? DEFAULT_API_URL).replace(/\/$/, '');
+  return (process.env.API_URL ?? process.env.KEETA_AGENT_API_URL ?? DEFAULT_API_URL).replace(
+    /\/$/,
+    ''
+  );
 }
 
 function canRegisterWalletsWithApi(): boolean {
@@ -111,7 +114,12 @@ export function registerBootstrapTools(server: McpServer): void {
 
         if (!response.ok) {
           return {
-            content: [{ type: 'text', text: JSON.stringify({ error: `Faucet returned ${response.status}`, address }) }],
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({ error: `Faucet returned ${response.status}`, address }),
+              },
+            ],
           };
         }
 
@@ -120,7 +128,10 @@ export function registerBootstrapTools(server: McpServer): void {
         const client = createUserClient(validateNetwork('test'), null);
         try {
           const userClientTools = getUserClientTools(client);
-          const balance = await userClientTools.client.getBalance(address, userClientTools.baseToken);
+          const balance = await userClientTools.client.getBalance(
+            address,
+            userClientTools.baseToken
+          );
           return {
             content: [
               {
@@ -202,9 +213,18 @@ Seeds are never persisted by the API in this flow.`,
       label: z.string().optional().describe('Required for register=true or import mode'),
       address: z.string().optional().describe('Required for import mode'),
       index: z.number().int().min(0).default(0).describe('Derivation index for create mode'),
-      algorithm: z.enum(['SECP256K1', 'SECP256R1', 'ED25519']).optional().describe('Key algorithm for create mode'),
-      register: z.boolean().default(true).describe('Whether to register address in API wallets table'),
-      include_seed: z.boolean().default(true).describe('Include the generated seed in create-mode output'),
+      algorithm: z
+        .enum(['SECP256K1', 'SECP256R1', 'ED25519'])
+        .optional()
+        .describe('Key algorithm for create mode'),
+      register: z
+        .boolean()
+        .default(true)
+        .describe('Whether to register address in API wallets table'),
+      include_seed: z
+        .boolean()
+        .default(true)
+        .describe('Include the generated seed in create-mode output'),
     },
     async ({ mode, label, address, index, algorithm, register, include_seed }) => {
       try {
@@ -214,14 +234,18 @@ Seeds are never persisted by the API in this flow.`,
             throw new Error('Both "label" and "address" are required for import mode.');
           }
           if (!apiConfigured) {
-            throw new Error('Import requires OPS_API_KEY plus API_URL (or KEETA_AGENT_API_URL) to call /wallets/import.');
+            throw new Error(
+              'Import requires OPS_API_KEY plus API_URL (or KEETA_AGENT_API_URL) to call /wallets/import.'
+            );
           }
           const wallet = await requestApiJson('/wallets/import', {
             method: 'POST',
             body: JSON.stringify({ label, address }),
           });
           return {
-            content: [{ type: 'text', text: JSON.stringify({ mode, registered: true, wallet }, null, 2) }],
+            content: [
+              { type: 'text', text: JSON.stringify({ mode, registered: true, wallet }, null, 2) },
+            ],
           };
         }
 
@@ -257,7 +281,12 @@ Seeds are never persisted by the API in this flow.`,
                   algorithm: algorithm ?? 'SECP256K1',
                   ...(include_seed ? { seed } : {}),
                   ...(wallet ? { wallet } : {}),
-                  ...(!registered && register ? { warning: 'Wallet generated but not registered: API credentials are missing.' } : {}),
+                  ...(!registered && register
+                    ? {
+                        warning:
+                          'Wallet generated but not registered: API credentials are missing.',
+                      }
+                    : {}),
                 },
                 null,
                 2
@@ -270,7 +299,11 @@ Seeds are never persisted by the API in this flow.`,
           content: [
             {
               type: 'text',
-              text: JSON.stringify({ error: error instanceof Error ? error.message : String(error) }, null, 2),
+              text: JSON.stringify(
+                { error: error instanceof Error ? error.message : String(error) },
+                null,
+                2
+              ),
             },
           ],
         };

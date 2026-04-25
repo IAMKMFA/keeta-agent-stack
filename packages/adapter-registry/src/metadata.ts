@@ -1,4 +1,9 @@
-import type { AdapterSummary, AvailableRail, RailTransport, VenueKind } from '@keeta-agent-stack/types';
+import type {
+  AdapterSummary,
+  AvailableRail,
+  RailTransport,
+  VenueKind,
+} from '@keeta-agent-stack/types';
 
 export type { RailTransport };
 
@@ -31,7 +36,8 @@ const RAIL_CATALOG: RailDefinition[] = [
     kind: 'dex',
     transport: 'native',
     production: false,
-    description: 'Non-production mock DEX adapter for local development, demos, and simulation flows.',
+    description:
+      'Non-production mock DEX adapter for local development, demos, and simulation flows.',
   },
   {
     id: 'mock-anchor',
@@ -39,7 +45,8 @@ const RAIL_CATALOG: RailDefinition[] = [
     kind: 'anchor',
     transport: 'fiat-push',
     production: false,
-    description: 'Non-production mock payment anchor adapter for development and end-to-end testing.',
+    description:
+      'Non-production mock payment anchor adapter for development and end-to-end testing.',
   },
   {
     id: 'keeta-transfer',

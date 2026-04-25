@@ -2,10 +2,7 @@ import type { Database } from '../db';
 import { executionIntents } from '../schema/intents';
 import { desc, eq } from 'drizzle-orm';
 
-export async function insertIntent(
-  db: Database,
-  row: typeof executionIntents.$inferInsert
-) {
+export async function insertIntent(db: Database, row: typeof executionIntents.$inferInsert) {
   const [r] = await db.insert(executionIntents).values(row).returning();
   return r;
 }

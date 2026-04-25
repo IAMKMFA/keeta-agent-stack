@@ -50,7 +50,12 @@ export default [
         {
           patterns: [
             {
-              group: ['**/apps/mcp/**', 'apps/mcp/**', '@keeta-agent-stack/mcp', '@keeta-agent-stack/mcp/**'],
+              group: [
+                '**/apps/mcp/**',
+                'apps/mcp/**',
+                '@keeta-agent-stack/mcp',
+                '@keeta-agent-stack/mcp/**',
+              ],
               message:
                 'The dashboard must not import MCP internals. Move shared logic to packages/* or expose it via apps/api.',
             },

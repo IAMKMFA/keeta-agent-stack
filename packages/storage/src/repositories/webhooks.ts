@@ -13,11 +13,19 @@ export async function createWebhookSubscription(
 }
 
 export async function listWebhookSubscriptions(db: Database, limit = 100) {
-  return db.select().from(webhookSubscriptions).orderBy(desc(webhookSubscriptions.createdAt)).limit(limit);
+  return db
+    .select()
+    .from(webhookSubscriptions)
+    .orderBy(desc(webhookSubscriptions.createdAt))
+    .limit(limit);
 }
 
 export async function getWebhookSubscriptionById(db: Database, id: string) {
-  const rows = await db.select().from(webhookSubscriptions).where(eq(webhookSubscriptions.id, id)).limit(1);
+  const rows = await db
+    .select()
+    .from(webhookSubscriptions)
+    .where(eq(webhookSubscriptions.id, id))
+    .limit(1);
   return rows[0];
 }
 
@@ -53,7 +61,11 @@ export async function insertWebhookDelivery(
 }
 
 export async function getWebhookDeliveryById(db: Database, id: string) {
-  const rows = await db.select().from(webhookDeliveries).where(eq(webhookDeliveries.id, id)).limit(1);
+  const rows = await db
+    .select()
+    .from(webhookDeliveries)
+    .where(eq(webhookDeliveries.id, id))
+    .limit(1);
   return rows[0];
 }
 
@@ -64,7 +76,11 @@ export async function listWebhookDeliveries(
   const rows = await db
     .select()
     .from(webhookDeliveries)
-    .where(options.subscriptionId ? eq(webhookDeliveries.subscriptionId, options.subscriptionId) : undefined)
+    .where(
+      options.subscriptionId
+        ? eq(webhookDeliveries.subscriptionId, options.subscriptionId)
+        : undefined
+    )
     .orderBy(desc(webhookDeliveries.createdAt))
     .limit(options.limit ?? 100);
   return rows;

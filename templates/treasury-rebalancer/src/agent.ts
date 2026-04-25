@@ -8,11 +8,7 @@ import type { PolicyPack } from '@keeta-agent-stack/policy';
 import type { ExecutionIntent, WalletBalancesResponse } from '@keeta-agent-stack/types';
 import type { RebalancerConfig } from './config.js';
 import { POLICY_PACK_NAME, buildPolicyPack } from './policy.js';
-import {
-  decideRebalance,
-  type BalanceSnapshot,
-  type RebalanceDecision,
-} from './rebalancer.js';
+import { decideRebalance, type BalanceSnapshot, type RebalanceDecision } from './rebalancer.js';
 
 type SdkClient = ReturnType<typeof createClient>;
 
@@ -60,12 +56,27 @@ export async function buildBundle(cfg: RebalancerConfig): Promise<AgentBundle> {
     name: 'keeta-treasury-rebalancer',
     sdk,
     hooks: {
-      onIntent:        (ctx) => log('intent.received',  { intentId: ctx.intent.id, mode: ctx.intent.mode }),
-      afterRoute:      (ctx) => log('route.done',       { intentId: ctx.intent.id, bestRouteId: ctx.routes?.best.id, alternates: ctx.routes?.alternates.length }),
-      afterPolicy:     (ctx) => log('policy.done',      { intentId: ctx.intent.id, allowed: ctx.policyDecision?.allowed, packId: pack.id }),
-      afterSimulation: (ctx) => log('simulation.done',  { intentId: ctx.intent.id, slippageBps: ctx.simulationResult?.simulatedSlippageBps }),
-      afterExecution:  (ctx) => log('execution.done',   { intentId: ctx.intent.id }),
-      onError:         (ctx) => log('agent.error',      { intentId: ctx.intent.id, error: String(ctx.metadata.error) }),
+      onIntent: (ctx) => log('intent.received', { intentId: ctx.intent.id, mode: ctx.intent.mode }),
+      afterRoute: (ctx) =>
+        log('route.done', {
+          intentId: ctx.intent.id,
+          bestRouteId: ctx.routes?.best.id,
+          alternates: ctx.routes?.alternates.length,
+        }),
+      afterPolicy: (ctx) =>
+        log('policy.done', {
+          intentId: ctx.intent.id,
+          allowed: ctx.policyDecision?.allowed,
+          packId: pack.id,
+        }),
+      afterSimulation: (ctx) =>
+        log('simulation.done', {
+          intentId: ctx.intent.id,
+          slippageBps: ctx.simulationResult?.simulatedSlippageBps,
+        }),
+      afterExecution: (ctx) => log('execution.done', { intentId: ctx.intent.id }),
+      onError: (ctx) =>
+        log('agent.error', { intentId: ctx.intent.id, error: String(ctx.metadata.error) }),
     },
   });
 
@@ -88,14 +99,17 @@ export async function loadBalances(
     log('balances.fetch.error', { error: String(error) });
   }
 
-  const live = response && 'keeta' in response
-    ? response.keeta.map((entry) => ({ asset: entry.assetId, amount: Number(entry.amount) }))
-    : [];
+  const live =
+    response && 'keeta' in response
+      ? response.keeta.map((entry) => ({ asset: entry.assetId, amount: Number(entry.amount) }))
+      : [];
 
   if (live.length > 0) return live;
 
   // Sandbox path: synthesise a starting allocation so the loop produces work.
-  log('balances.synthetic', { reason: 'wallet has no on-chain balances; using synthetic 70/30 split for demo' });
+  log('balances.synthetic', {
+    reason: 'wallet has no on-chain balances; using synthetic 70/30 split for demo',
+  });
   return [
     { asset: 'KTA', amount: 7000 },
     { asset: 'USDC', amount: 3000 },

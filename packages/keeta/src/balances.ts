@@ -9,7 +9,10 @@ export interface BalanceEntry {
   amount: string;
 }
 
-export async function getBalances(address: string, network: KeetaNetworkName): Promise<BalanceEntry[]> {
+export async function getBalances(
+  address: string,
+  network: KeetaNetworkName
+): Promise<BalanceEntry[]> {
   const client = Client.fromNetwork(network);
   try {
     const rows = await client.getAllBalances(address);

@@ -110,9 +110,7 @@ describe('parseMeResponse', () => {
   });
 
   it('returns null when scopes is not an array', () => {
-    expect(
-      parseMeResponse({ role: 'operator', scopes: 'ops:read' })
-    ).toBeNull();
+    expect(parseMeResponse({ role: 'operator', scopes: 'ops:read' })).toBeNull();
   });
 
   it('tolerates a completely missing scopes field', () => {

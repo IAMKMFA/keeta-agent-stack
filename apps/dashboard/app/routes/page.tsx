@@ -86,11 +86,7 @@ export default async function Page() {
       />
 
       <KpiGrid columns={3}>
-        <Kpi
-          label="Route plans"
-          value={formatNumber(rows.length)}
-          hint="Latest first"
-        />
+        <Kpi label="Route plans" value={formatNumber(rows.length)} hint="Latest first" />
         <Kpi
           label="Positive score"
           value={formatNumber(highConfidence)}

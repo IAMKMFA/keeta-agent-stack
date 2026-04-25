@@ -48,7 +48,9 @@ type AnchorRow = {
 };
 
 function txHref(hash?: string): string | null {
-  const template = process.env.KEETA_EXPLORER_TX_URL_TEMPLATE ?? process.env.NEXT_PUBLIC_KEETA_EXPLORER_TX_URL_TEMPLATE;
+  const template =
+    process.env.KEETA_EXPLORER_TX_URL_TEMPLATE ??
+    process.env.NEXT_PUBLIC_KEETA_EXPLORER_TX_URL_TEMPLATE;
   if (!template || !hash) return null;
   return template.replace('{hash}', hash);
 }
@@ -71,14 +73,13 @@ export default async function Page() {
       ),
       corridor: anchor.corridorKey ?? '—',
       status: (
-        <StatusPill
-          tone={anchor.status === 'active' ? 'success' : 'neutral'}
-          dot={false}
-        >
+        <StatusPill tone={anchor.status === 'active' ? 'success' : 'neutral'} dot={false}>
           {anchor.status}
         </StatusPill>
       ),
-      bond: anchor.currentBond ? `${anchor.currentBond.amountAtomic} ${anchor.currentBond.assetId}` : '—',
+      bond: anchor.currentBond
+        ? `${anchor.currentBond.amountAtomic} ${anchor.currentBond.assetId}`
+        : '—',
       delay: anchor.currentBond ? `${anchor.currentBond.delayDays}d` : '—',
       bondStatus: anchor.currentBond ? (
         <StatusPill
@@ -126,16 +127,30 @@ export default async function Page() {
       operatorHealth: (
         <div className="space-y-1 text-xs text-[var(--keeta-muted)]">
           <div>
-            success {typeof anchor.operatorMetrics?.successRate === 'number' ? `${anchor.operatorMetrics.successRate.toFixed(1)}%` : '—'}
+            success{' '}
+            {typeof anchor.operatorMetrics?.successRate === 'number'
+              ? `${anchor.operatorMetrics.successRate.toFixed(1)}%`
+              : '—'}
           </div>
           <div>
-            p95 {typeof anchor.operatorMetrics?.p95LatencyMs === 'number' ? `${Math.round(anchor.operatorMetrics.p95LatencyMs)} ms` : '—'}
+            p95{' '}
+            {typeof anchor.operatorMetrics?.p95LatencyMs === 'number'
+              ? `${Math.round(anchor.operatorMetrics.p95LatencyMs)} ms`
+              : '—'}
           </div>
           <div>
-            unsettled {typeof anchor.operatorMetrics?.unsettledVolume === 'number' ? String(Math.round(anchor.operatorMetrics.unsettledVolume)) : '—'}
+            unsettled{' '}
+            {typeof anchor.operatorMetrics?.unsettledVolume === 'number'
+              ? String(Math.round(anchor.operatorMetrics.unsettledVolume))
+              : '—'}
           </div>
           <div>
-            bond {typeof anchor.operatorMetrics?.bondVerified === 'boolean' ? (anchor.operatorMetrics.bondVerified ? 'verified' : 'unverified') : '—'}
+            bond{' '}
+            {typeof anchor.operatorMetrics?.bondVerified === 'boolean'
+              ? anchor.operatorMetrics.bondVerified
+                ? 'verified'
+                : 'unverified'
+              : '—'}
             {typeof anchor.operatorMetrics?.bondAgeDays === 'number'
               ? ` / ${anchor.operatorMetrics.bondAgeDays.toFixed(1)}d`
               : ''}
@@ -169,12 +184,7 @@ export default async function Page() {
 
       <KpiGrid columns={4}>
         <Kpi label="Anchors" value={formatNumber(anchors.length)} hint="Registered records" />
-        <Kpi
-          label="Active"
-          value={formatNumber(active)}
-          hint="Operational anchors"
-          trend="up"
-        />
+        <Kpi label="Active" value={formatNumber(active)} hint="Operational anchors" trend="up" />
         <Kpi
           label="Bonded"
           value={formatNumber(bonded)}
@@ -191,9 +201,9 @@ export default async function Page() {
 
       <Card kicker="Directory" title="All payment anchors" padding="sm">
         <div className="mb-4 rounded-2xl border border-[var(--keeta-line)] bg-white/70 p-4 text-sm text-[var(--keeta-muted)]">
-          Anchor economics are modeled in three parts: a setup fee note for integration/commercial context, a locked
-          KTA bond with a 30 or 90 day withdrawal delay, and a volume fee in basis points. This is operator
-          configuration, not legal advice.
+          Anchor economics are modeled in three parts: a setup fee note for integration/commercial
+          context, a locked KTA bond with a 30 or 90 day withdrawal delay, and a volume fee in basis
+          points. This is operator configuration, not legal advice.
         </div>
 
         <DataTable

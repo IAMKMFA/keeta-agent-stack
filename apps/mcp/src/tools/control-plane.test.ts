@@ -372,7 +372,10 @@ describe('control-plane MCP tools', () => {
 
   it('registers the tools and wires each handler through the SDK client', async () => {
     const { calls, client } = buildFakeClient();
-    const registered: Array<{ name: string; handler: (args: Record<string, unknown>) => Promise<unknown> }> = [];
+    const registered: Array<{
+      name: string;
+      handler: (args: Record<string, unknown>) => Promise<unknown>;
+    }> = [];
     const server = {
       tool: (
         name: string,

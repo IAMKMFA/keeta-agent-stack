@@ -146,7 +146,9 @@ export function registerExecuteTools(server: McpServer): void {
           await getRequiredMethod(builder, 'publish', 'Builder').call(builder);
         }
 
-        const blockValues = Array.isArray(getProperty(builder, 'blocks')) ? getProperty(builder, 'blocks') : [];
+        const blockValues = Array.isArray(getProperty(builder, 'blocks'))
+          ? getProperty(builder, 'blocks')
+          : [];
         const blocks = (Array.isArray(blockValues) ? blockValues : []).map((block) => {
           const hash = getProperty(block, 'hash');
           const toString = getMethod(hash, 'toString');
@@ -190,18 +192,32 @@ export function registerExecuteTools(server: McpServer): void {
       args: z.array(z.unknown()).default([]),
       rootAddress: z.string().optional(),
     },
-    async ({ network, seed, accountIndex, subtarget, serviceName, libModule, method, args, rootAddress }) => {
+    async ({
+      network,
+      seed,
+      accountIndex,
+      subtarget,
+      serviceName,
+      libModule,
+      method,
+      args,
+      rootAddress,
+    }) => {
       const resolvedSeed = resolveSeedOrThrow(seed);
       const account = resolvedSeed ? accountFromSeed(resolvedSeed, accountIndex) : null;
       const client = createUserClient(validateNetwork(network), account);
       try {
-        const root = rootAddress ? accountFromPublicKey(rootAddress) : getUserClientTools(client).networkAddress;
+        const root = rootAddress
+          ? accountFromPublicKey(rootAddress)
+          : getUserClientTools(client).networkAddress;
         const resolvedArgs = resolveArgs(args);
         let result: unknown;
 
         if (subtarget === 'service') {
           if (!serviceName) {
-            throw new Error(`serviceName is required. Available: ${Object.keys(discoverAnchorServices()).join(', ')}`);
+            throw new Error(
+              `serviceName is required. Available: ${Object.keys(discoverAnchorServices()).join(', ')}`
+            );
           }
           const serviceClient = createAnchorServiceClient(serviceName, client, { root });
           const fn = getRequiredMethod(serviceClient, method, `AnchorService:${serviceName}`);
@@ -211,7 +227,9 @@ export function registerExecuteTools(server: McpServer): void {
 
         if (subtarget === 'lib') {
           if (!libModule) {
-            throw new Error(`libModule is required. Available: ${Object.keys(discoverAnchorLibModules()).join(', ')}`);
+            throw new Error(
+              `libModule is required. Available: ${Object.keys(discoverAnchorLibModules()).join(', ')}`
+            );
           }
           const moduleTarget = getAnchorLibModule(libModule);
           if (isConstructable(moduleTarget)) {
@@ -239,7 +257,11 @@ export function registerExecuteTools(server: McpServer): void {
             for (const value of Object.values(moduleTarget as Record<string, unknown>)) {
               if (isConstructable(value) && getMethod(value.prototype, method)) {
                 const instance = new value(resolvedArgs[0]);
-                const instanceMethod = getRequiredMethod(instance, method, `AnchorLib:${libModule}`);
+                const instanceMethod = getRequiredMethod(
+                  instance,
+                  method,
+                  `AnchorLib:${libModule}`
+                );
                 result = await instanceMethod.apply(instance, resolvedArgs.slice(1));
                 return { content: [{ type: 'text', text: formatResult(result) }] };
               }
@@ -249,7 +271,11 @@ export function registerExecuteTools(server: McpServer): void {
           throw new Error(`"${method}" is not available on AnchorLib:${libModule}.`);
         }
 
-        const metadataFn = getRequiredMethod(KeetaAnchor.lib.Resolver.Metadata, method, 'Resolver.Metadata');
+        const metadataFn = getRequiredMethod(
+          KeetaAnchor.lib.Resolver.Metadata,
+          method,
+          'Resolver.Metadata'
+        );
         result = await metadataFn.apply(KeetaAnchor.lib.Resolver.Metadata, resolvedArgs);
         return { content: [{ type: 'text', text: formatResult(result) }] };
       } finally {

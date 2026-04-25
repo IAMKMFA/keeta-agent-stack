@@ -1,14 +1,7 @@
 import { requireScope } from '../../../../lib/auth';
 import { requireV2Enabled } from '../../../../lib/flags';
 import { fetchJson } from '../../../../lib/api';
-import {
-  Card,
-  EmptyState,
-  Kpi,
-  KpiGrid,
-  PageHeader,
-  StatusPill,
-} from '../../../../components/ui';
+import { Card, EmptyState, Kpi, KpiGrid, PageHeader, StatusPill } from '../../../../components/ui';
 import { formatNumber } from '../../../../lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -46,16 +39,13 @@ export default async function CostPage({
   qs.set('groupBy', params.groupBy ?? 'adapter');
   qs.set('windowDays', params.windowDays ?? '30');
 
-  const data = await fetchJson<AggregateResponse>(
-    `/ops/fees/aggregate?${qs}`,
-    {
-      window: { from: '', to: '' },
-      bucket: 'day',
-      groupBy: 'adapter',
-      totals: { rows: 0, priced: 0, unpriced: 0 },
-      buckets: [],
-    }
-  );
+  const data = await fetchJson<AggregateResponse>(`/ops/fees/aggregate?${qs}`, {
+    window: { from: '', to: '' },
+    bucket: 'day',
+    groupBy: 'adapter',
+    totals: { rows: 0, priced: 0, unpriced: 0 },
+    buckets: [],
+  });
 
   const totalFee = data.buckets.reduce((a, b) => a + b.totalFee, 0);
   const totalCount = data.buckets.reduce((a, b) => a + b.count, 0);
@@ -81,11 +71,11 @@ export default async function CostPage({
         meta={
           <>
             <StatusPill tone="info">
-              {data.window.from ? `${data.window.from.slice(0, 10)} → ${data.window.to.slice(0, 10)}` : 'window'}
+              {data.window.from
+                ? `${data.window.from.slice(0, 10)} → ${data.window.to.slice(0, 10)}`
+                : 'window'}
             </StatusPill>
-            <StatusPill tone="warning">
-              {formatNumber(data.totals.unpriced)} unpriced
-            </StatusPill>
+            <StatusPill tone="warning">{formatNumber(data.totals.unpriced)} unpriced</StatusPill>
           </>
         }
       />
@@ -217,24 +207,27 @@ export default async function CostPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {data.buckets.slice(-80).reverse().map((b, idx) => (
-                    <tr key={`${b.bucket}-${b.group}-${idx}`} className="text-sm">
-                      <td className="px-2 py-2 font-mono text-xs">{b.bucket}</td>
-                      <td className="px-2 py-2 text-xs">{b.group}</td>
-                      <td className="px-2 py-2 text-right font-mono text-xs">
-                        {formatNumber(b.count)}
-                      </td>
-                      <td className="px-2 py-2 text-right font-mono text-xs">
-                        {b.totalFee.toLocaleString(undefined, { maximumFractionDigits: 4 })}
-                      </td>
-                      <td className="px-2 py-2 text-right font-mono text-xs">
-                        {b.p50Fee.toLocaleString(undefined, { maximumFractionDigits: 4 })}
-                      </td>
-                      <td className="px-2 py-2 text-right font-mono text-xs">
-                        {b.p95Fee.toLocaleString(undefined, { maximumFractionDigits: 4 })}
-                      </td>
-                    </tr>
-                  ))}
+                  {data.buckets
+                    .slice(-80)
+                    .reverse()
+                    .map((b, idx) => (
+                      <tr key={`${b.bucket}-${b.group}-${idx}`} className="text-sm">
+                        <td className="px-2 py-2 font-mono text-xs">{b.bucket}</td>
+                        <td className="px-2 py-2 text-xs">{b.group}</td>
+                        <td className="px-2 py-2 text-right font-mono text-xs">
+                          {formatNumber(b.count)}
+                        </td>
+                        <td className="px-2 py-2 text-right font-mono text-xs">
+                          {b.totalFee.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                        </td>
+                        <td className="px-2 py-2 text-right font-mono text-xs">
+                          {b.p50Fee.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                        </td>
+                        <td className="px-2 py-2 text-right font-mono text-xs">
+                          {b.p95Fee.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

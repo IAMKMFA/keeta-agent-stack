@@ -16,7 +16,10 @@ import { randomUUID } from 'node:crypto';
 const EXPLORER_TEMPLATE_KEY = 'keetaExplorerTxUrlTemplate';
 type ChainHealthReader = (network: KeetaNetworkName) => Promise<ChainHealthSnapshot>;
 
-function parseAtomicAmount(stepSizeIn: string, metadata: Record<string, unknown> | undefined): bigint {
+function parseAtomicAmount(
+  stepSizeIn: string,
+  metadata: Record<string, unknown> | undefined
+): bigint {
   const m = metadata?.amountAtomic;
   if (typeof m === 'string' && /^[0-9]+$/.test(m)) {
     return BigInt(m);
@@ -122,7 +125,10 @@ export class KeetaTransferAdapter implements VenueAdapter {
     const meta = context.intentMetadata ?? {};
     const transferTo = typeof meta.transferTo === 'string' ? meta.transferTo : undefined;
     if (!transferTo) {
-      return err('MISSING_TRANSFER_TO', 'Set intent.metadata.transferTo to a Keeta account address');
+      return err(
+        'MISSING_TRANSFER_TO',
+        'Set intent.metadata.transferTo to a Keeta account address'
+      );
     }
 
     let amount: bigint;

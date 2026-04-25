@@ -153,218 +153,206 @@ integration('policy pack persistence api', () => {
     });
   });
 
-  it(
-    'applies an intent-selected policy pack during worker policy evaluation',
-    async () => {
-      activeRuntime = await createPolicyPackRuntime();
+  it('applies an intent-selected policy pack during worker policy evaluation', async () => {
+    activeRuntime = await createPolicyPackRuntime();
 
-      const packResponse = await activeRuntime.app.inject({
-        method: 'POST',
-        url: '/policy/packs',
-        headers: activeRuntime.authHeaders(),
-        payload: {
-          name: 'live-override',
-          rules: [
-            {
-              ruleId: 'live_mode_enabled',
-              enabled: false,
-            },
-          ],
-          compositions: [],
-        },
-      });
-      expect(packResponse.statusCode).toBe(201);
-      const pack = JSON.parse(packResponse.body) as { id: string };
+    const packResponse = await activeRuntime.app.inject({
+      method: 'POST',
+      url: '/policy/packs',
+      headers: activeRuntime.authHeaders(),
+      payload: {
+        name: 'live-override',
+        rules: [
+          {
+            ruleId: 'live_mode_enabled',
+            enabled: false,
+          },
+        ],
+        compositions: [],
+      },
+    });
+    expect(packResponse.statusCode).toBe(201);
+    const pack = JSON.parse(packResponse.body) as { id: string };
 
-      const wallet = await activeRuntime.createWallet({ label: 'Pack Wallet' });
-      const intent = await activeRuntime.createIntent({
-        walletId: wallet.id,
-        mode: 'live',
+    const wallet = await activeRuntime.createWallet({ label: 'Pack Wallet' });
+    const intent = await activeRuntime.createIntent({
+      walletId: wallet.id,
+      mode: 'live',
+      policyPackId: pack.id,
+    });
+
+    await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
+    await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
+
+    const decision = await policyRepo.getLatestPolicyDecisionForIntent(activeRuntime.db, intent.id);
+    expect(decision).toBeDefined();
+    expect(decision?.payload).toMatchObject({
+      allowed: true,
+      effectivePolicyPackId: pack.id,
+      effectivePolicyPackSource: 'intent',
+    });
+
+    const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
+    expect(auditEvent.payload).toMatchObject({
+      allowed: true,
+      effectivePolicyPackId: pack.id,
+      policyPack: {
+        id: pack.id,
+        source: 'intent',
+      },
+    });
+  }, 30_000);
+
+  it('falls back to a wallet default policy pack during worker policy evaluation', async () => {
+    activeRuntime = await createPolicyPackRuntime();
+
+    const packResponse = await activeRuntime.app.inject({
+      method: 'POST',
+      url: '/policy/packs',
+      headers: activeRuntime.authHeaders(),
+      payload: {
+        name: 'wallet-default-live-override',
+        rules: [{ ruleId: 'live_mode_enabled', enabled: false }],
+        compositions: [],
+      },
+    });
+    expect(packResponse.statusCode).toBe(201);
+    const pack = JSON.parse(packResponse.body) as { id: string };
+
+    const wallet = await activeRuntime.createWallet({
+      label: 'Wallet Default Pack Wallet',
+      settings: {
+        defaultPolicyPackId: pack.id,
+      },
+    });
+    const intent = await activeRuntime.createIntent({
+      walletId: wallet.id,
+      mode: 'live',
+    });
+
+    await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
+    await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
+
+    const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
+    expect(auditEvent.payload).toMatchObject({
+      allowed: true,
+      effectivePolicyPackId: pack.id,
+      policyPack: {
+        id: pack.id,
+        source: 'wallet_default',
+      },
+    });
+  }, 30_000);
+
+  it('falls back to the global default policy pack during worker policy evaluation', async () => {
+    activeRuntime = await createPolicyPackRuntime();
+
+    const packResponse = await activeRuntime.app.inject({
+      method: 'POST',
+      url: '/policy/packs',
+      headers: activeRuntime.authHeaders(),
+      payload: {
+        name: 'global-default-live-override',
+        rules: [{ ruleId: 'live_mode_enabled', enabled: false }],
+        compositions: [],
+      },
+    });
+    expect(packResponse.statusCode).toBe(201);
+    const pack = JSON.parse(packResponse.body) as { id: string };
+    await settingsRepo.upsertSetting(
+      activeRuntime.db,
+      settingsRepo.POLICY_DEFAULT_PACK_SETTING_KEY,
+      {
         policyPackId: pack.id,
-      });
+      }
+    );
 
-      await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
-      await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
+    const wallet = await activeRuntime.createWallet({ label: 'Global Default Pack Wallet' });
+    const intent = await activeRuntime.createIntent({
+      walletId: wallet.id,
+      mode: 'live',
+    });
 
-      const decision = await policyRepo.getLatestPolicyDecisionForIntent(activeRuntime.db, intent.id);
-      expect(decision).toBeDefined();
-      expect(decision?.payload).toMatchObject({
-        allowed: true,
-        effectivePolicyPackId: pack.id,
-        effectivePolicyPackSource: 'intent',
-      });
+    await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
+    await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
 
-      const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
-      expect(auditEvent.payload).toMatchObject({
-        allowed: true,
-        effectivePolicyPackId: pack.id,
-        policyPack: {
-          id: pack.id,
-          source: 'intent',
-        },
-      });
-    },
-    30_000
-  );
+    const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
+    expect(auditEvent.payload).toMatchObject({
+      allowed: true,
+      effectivePolicyPackId: pack.id,
+      policyPack: {
+        id: pack.id,
+        source: 'global_default',
+      },
+    });
+  }, 30_000);
 
-  it(
-    'falls back to a wallet default policy pack during worker policy evaluation',
-    async () => {
-      activeRuntime = await createPolicyPackRuntime();
+  it('applies a strategy-assigned policy pack during worker policy evaluation', async () => {
+    activeRuntime = await createPolicyPackRuntime();
 
-      const packResponse = await activeRuntime.app.inject({
-        method: 'POST',
-        url: '/policy/packs',
-        headers: activeRuntime.authHeaders(),
-        payload: {
-          name: 'wallet-default-live-override',
-          rules: [{ ruleId: 'live_mode_enabled', enabled: false }],
-          compositions: [],
-        },
-      });
-      expect(packResponse.statusCode).toBe(201);
-      const pack = JSON.parse(packResponse.body) as { id: string };
+    const packResponse = await activeRuntime.app.inject({
+      method: 'POST',
+      url: '/policy/packs',
+      headers: activeRuntime.authHeaders(),
+      payload: {
+        name: 'strategy-live-override',
+        rules: [
+          {
+            ruleId: 'live_mode_enabled',
+            enabled: false,
+          },
+        ],
+        compositions: [],
+      },
+    });
+    expect(packResponse.statusCode).toBe(201);
+    const pack = JSON.parse(packResponse.body) as { id: string };
 
-      const wallet = await activeRuntime.createWallet({
-        label: 'Wallet Default Pack Wallet',
-        settings: {
-          defaultPolicyPackId: pack.id,
-        },
-      });
-      const intent = await activeRuntime.createIntent({
-        walletId: wallet.id,
-        mode: 'live',
-      });
-
-      await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
-      await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
-
-      const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
-      expect(auditEvent.payload).toMatchObject({
-        allowed: true,
-        effectivePolicyPackId: pack.id,
-        policyPack: {
-          id: pack.id,
-          source: 'wallet_default',
-        },
-      });
-    },
-    30_000
-  );
-
-  it(
-    'falls back to the global default policy pack during worker policy evaluation',
-    async () => {
-      activeRuntime = await createPolicyPackRuntime();
-
-      const packResponse = await activeRuntime.app.inject({
-        method: 'POST',
-        url: '/policy/packs',
-        headers: activeRuntime.authHeaders(),
-        payload: {
-          name: 'global-default-live-override',
-          rules: [{ ruleId: 'live_mode_enabled', enabled: false }],
-          compositions: [],
-        },
-      });
-      expect(packResponse.statusCode).toBe(201);
-      const pack = JSON.parse(packResponse.body) as { id: string };
-      await settingsRepo.upsertSetting(activeRuntime.db, settingsRepo.POLICY_DEFAULT_PACK_SETTING_KEY, {
+    const strategy = await activeRuntime.createStrategy({
+      name: 'Policy Strategy',
+    });
+    const assignResponse = await activeRuntime.app.inject({
+      method: 'PUT',
+      url: `/ops/strategies/${strategy.id}/policy-pack`,
+      headers: activeRuntime.authHeaders(),
+      payload: {
         policyPackId: pack.id,
-      });
+      },
+    });
+    expect(assignResponse.statusCode).toBe(200);
+    expect(JSON.parse(assignResponse.body)).toEqual({
+      strategyId: strategy.id,
+      policyPackId: pack.id,
+    });
 
-      const wallet = await activeRuntime.createWallet({ label: 'Global Default Pack Wallet' });
-      const intent = await activeRuntime.createIntent({
-        walletId: wallet.id,
-        mode: 'live',
-      });
+    const wallet = await activeRuntime.createWallet({ label: 'Strategy Pack Wallet' });
+    const intent = await activeRuntime.createIntent({
+      walletId: wallet.id,
+      strategyId: strategy.id,
+      mode: 'live',
+    });
 
-      await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
-      await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
+    await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
+    await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
 
-      const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
-      expect(auditEvent.payload).toMatchObject({
-        allowed: true,
-        effectivePolicyPackId: pack.id,
-        policyPack: {
-          id: pack.id,
-          source: 'global_default',
-        },
-      });
-    },
-    30_000
-  );
+    const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
+    expect(auditEvent.payload).toMatchObject({
+      allowed: true,
+      policyPack: {
+        id: pack.id,
+        source: 'strategy_config',
+      },
+    });
 
-  it(
-    'applies a strategy-assigned policy pack during worker policy evaluation',
-    async () => {
-      activeRuntime = await createPolicyPackRuntime();
-
-      const packResponse = await activeRuntime.app.inject({
-        method: 'POST',
-        url: '/policy/packs',
-        headers: activeRuntime.authHeaders(),
-        payload: {
-          name: 'strategy-live-override',
-          rules: [
-            {
-              ruleId: 'live_mode_enabled',
-              enabled: false,
-            },
-          ],
-          compositions: [],
-        },
-      });
-      expect(packResponse.statusCode).toBe(201);
-      const pack = JSON.parse(packResponse.body) as { id: string };
-
-      const strategy = await activeRuntime.createStrategy({
-        name: 'Policy Strategy',
-      });
-      const assignResponse = await activeRuntime.app.inject({
-        method: 'PUT',
-        url: `/ops/strategies/${strategy.id}/policy-pack`,
-        headers: activeRuntime.authHeaders(),
-        payload: {
-          policyPackId: pack.id,
-        },
-      });
-      expect(assignResponse.statusCode).toBe(200);
-      expect(JSON.parse(assignResponse.body)).toEqual({
-        strategyId: strategy.id,
-        policyPackId: pack.id,
-      });
-
-      const wallet = await activeRuntime.createWallet({ label: 'Strategy Pack Wallet' });
-      const intent = await activeRuntime.createIntent({
-        walletId: wallet.id,
-        strategyId: strategy.id,
-        mode: 'live',
-      });
-
-      await activeRuntime.driveIntentPipeline(intent.id, { execute: false });
-      await activeRuntime.waitForIntentStatus(intent.id, 'policy_checked');
-
-      const auditEvent = await activeRuntime.waitForAuditEvent(intent.id, 'policy.evaluated');
-      expect(auditEvent.payload).toMatchObject({
-        allowed: true,
-        policyPack: {
-          id: pack.id,
-          source: 'strategy_config',
-        },
-      });
-
-      const clearResponse = await activeRuntime.app.inject({
-        method: 'DELETE',
-        url: `/ops/strategies/${strategy.id}/policy-pack`,
-        headers: activeRuntime.authHeaders(),
-      });
-      expect(clearResponse.statusCode).toBe(200);
-      expect(JSON.parse(clearResponse.body)).toEqual({
-        strategyId: strategy.id,
-        policyPackId: null,
-      });
-    },
-    30_000
-  );
+    const clearResponse = await activeRuntime.app.inject({
+      method: 'DELETE',
+      url: `/ops/strategies/${strategy.id}/policy-pack`,
+      headers: activeRuntime.authHeaders(),
+    });
+    expect(clearResponse.statusCode).toBe(200);
+    expect(JSON.parse(clearResponse.body)).toEqual({
+      strategyId: strategy.id,
+      policyPackId: null,
+    });
+  }, 30_000);
 });

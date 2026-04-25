@@ -80,7 +80,10 @@ export class AgentRuntime {
     );
   }
 
-  private async runHook(hook: AgentRuntimeHook | undefined, ctx: AgentRuntimeHookContext): Promise<void> {
+  private async runHook(
+    hook: AgentRuntimeHook | undefined,
+    ctx: AgentRuntimeHookContext
+  ): Promise<void> {
     if (!hook) return;
     await hook(ctx);
   }
@@ -100,7 +103,9 @@ export class AgentRuntime {
     };
   }
 
-  async quoteAndRoute(intent: ExecutionIntent): Promise<{ best: RoutePlan; alternates: RoutePlan[] }> {
+  async quoteAndRoute(
+    intent: ExecutionIntent
+  ): Promise<{ best: RoutePlan; alternates: RoutePlan[] }> {
     const ctx = this.createHookContext(intent);
     await this.runHook(this.hooks.beforeQuote, ctx);
     const builtRoutes = await this.router.buildPlans(ctx.intent);
@@ -145,10 +150,7 @@ export class AgentRuntime {
     return decision;
   }
 
-  async runSimulation(
-    intent: ExecutionIntent,
-    route: RoutePlan
-  ): Promise<SimulationResult> {
+  async runSimulation(intent: ExecutionIntent, route: RoutePlan): Promise<SimulationResult> {
     const ctx = this.createHookContext(intent);
     ctx.route = route;
     await this.runHook(this.hooks.beforeSimulation, ctx);

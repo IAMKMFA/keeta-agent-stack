@@ -52,10 +52,14 @@ export const MeResponseSchema = z
     scopes: z.array(z.unknown()).optional(),
     authType: z.literal('jwt').optional(),
   })
-  .refine((val) => (val.role === 'tenant' ? typeof val.tenantId === 'string' && val.tenantId.length > 0 : true), {
-    message: 'tenantId required for tenant role',
-    path: ['tenantId'],
-  });
+  .refine(
+    (val) =>
+      val.role === 'tenant' ? typeof val.tenantId === 'string' && val.tenantId.length > 0 : true,
+    {
+      message: 'tenantId required for tenant role',
+      path: ['tenantId'],
+    }
+  );
 
 export type MeApiResponse = z.infer<typeof MeResponseSchema>;
 
@@ -139,8 +143,7 @@ export const getViewer = cache(async (): Promise<Viewer> => {
     return {
       role,
       displayName:
-        process.env.DASHBOARD_DEV_VIEWER_NAME ??
-        `${role[0]!.toUpperCase()}${role.slice(1)} (dev)`,
+        process.env.DASHBOARD_DEV_VIEWER_NAME ?? `${role[0]!.toUpperCase()}${role.slice(1)} (dev)`,
       scopes: DEV_ROLE_DEFAULT_SCOPES[role],
       ...(role === 'tenant'
         ? { tenantId: process.env.DASHBOARD_DEV_VIEWER_TENANT ?? 'tenant_dev' }

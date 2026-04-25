@@ -20,11 +20,7 @@ import type {
   ExecuteContext,
 } from '@keeta-agent-stack/adapter-base';
 import { err } from '@keeta-agent-stack/adapter-base';
-import type {
-  AdapterHealth,
-  CapabilityMap,
-  QuoteRequest,
-} from '@keeta-agent-stack/types';
+import type { AdapterHealth, CapabilityMap, QuoteRequest } from '@keeta-agent-stack/types';
 
 export interface TemplateAdapterConfig {
   /** Venue id surfaced in routes, metrics, and audit events. */
@@ -84,7 +80,10 @@ export class TemplateAdapter implements DexVenueAdapter {
 
   async getQuote(_request: QuoteRequest) {
     if (!this.supportsPair(_request.baseAsset, _request.quoteAsset)) {
-      return err('UNSUPPORTED_PAIR', `Pair ${_request.baseAsset}/${_request.quoteAsset} not listed`);
+      return err(
+        'UNSUPPORTED_PAIR',
+        `Pair ${_request.baseAsset}/${_request.quoteAsset} not listed`
+      );
     }
     // TODO: replace with a real upstream call.
     return err('NOT_IMPLEMENTED', 'TemplateAdapter.getQuote needs implementation');

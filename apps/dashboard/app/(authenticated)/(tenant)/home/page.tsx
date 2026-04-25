@@ -38,9 +38,7 @@ export default async function TenantHomePage() {
   const viewer = await requireRole(['tenant', 'admin', 'operator']);
   const tenantId = viewer.tenantId ?? 'shared';
 
-  const qs = viewer.tenantId
-    ? `?tenantId=${encodeURIComponent(viewer.tenantId)}`
-    : '';
+  const qs = viewer.tenantId ? `?tenantId=${encodeURIComponent(viewer.tenantId)}` : '';
 
   const [wallets, intents, deliveries] = await Promise.all([
     fetchJson<WalletRow[]>(`/wallets${qs}`, []),
@@ -48,12 +46,8 @@ export default async function TenantHomePage() {
     fetchJson<WebhookDelivery[]>(`/ops/webhook-deliveries${qs}`, []),
   ]);
 
-  const tenantWallets = viewer.tenantId
-    ? scopeByTenant(wallets, viewer.tenantId)
-    : wallets;
-  const tenantIntents = viewer.tenantId
-    ? scopeByTenant(intents, viewer.tenantId)
-    : intents;
+  const tenantWallets = viewer.tenantId ? scopeByTenant(wallets, viewer.tenantId) : wallets;
+  const tenantIntents = viewer.tenantId ? scopeByTenant(intents, viewer.tenantId) : intents;
   const tenantDeliveries = viewer.tenantId
     ? scopeByTenant(deliveries, viewer.tenantId)
     : deliveries;
@@ -87,11 +81,7 @@ export default async function TenantHomePage() {
         />
         <Kpi
           label="Latest activity"
-          value={
-            tenantIntents[0]
-              ? formatDateTime(tenantIntents[0].createdAt)
-              : '—'
-          }
+          value={tenantIntents[0] ? formatDateTime(tenantIntents[0].createdAt) : '—'}
           hint={tenantIntents[0]?.status ?? 'No intents yet'}
           size="sm"
         />
@@ -167,7 +157,10 @@ export default async function TenantHomePage() {
           ) : (
             <ul className="divide-y divide-[var(--keeta-line)]">
               {recentDeliveries.map((d) => (
-                <li key={d.id} className="flex items-center justify-between py-3 text-sm first:pt-0">
+                <li
+                  key={d.id}
+                  className="flex items-center justify-between py-3 text-sm first:pt-0"
+                >
                   <div className="min-w-0">
                     <div className="font-mono text-xs text-[var(--keeta-ink)]">
                       {shortId(d.id, 12)}

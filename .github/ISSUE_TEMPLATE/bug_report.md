@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Report a defect in the SDK, API, worker, dashboard, MCP server, or docs
-title: "[bug] "
+title: '[bug] '
 ---
 
 ## Summary
@@ -21,9 +21,9 @@ Describe the bug in one or two sentences.
 
 ## Reproduction
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Expected behaviour
 

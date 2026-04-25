@@ -24,10 +24,7 @@ export interface DiscoveredAdapter {
 }
 
 function featureMatches(capabilities: CapabilityMap, filter: AdapterDiscoveryFilter): boolean {
-  const required = [
-    ...(filter.feature ? [filter.feature] : []),
-    ...(filter.features ?? []),
-  ];
+  const required = [...(filter.feature ? [filter.feature] : []), ...(filter.features ?? [])];
   return required.every((feature) => capabilities.features.includes(feature));
 }
 
@@ -40,7 +37,8 @@ function assetMatches(capabilities: CapabilityMap, filter: AdapterDiscoveryFilte
 }
 
 function pairMatches(pair: CapabilityPair, filter: AdapterDiscoveryFilter): boolean {
-  if (filter.pair && (pair.base !== filter.pair.base || pair.quote !== filter.pair.quote)) return false;
+  if (filter.pair && (pair.base !== filter.pair.base || pair.quote !== filter.pair.quote))
+    return false;
   if (filter.baseAsset && pair.base !== filter.baseAsset) return false;
   if (filter.quoteAsset && pair.quote !== filter.quoteAsset) return false;
   return true;
@@ -87,8 +85,13 @@ export class AdapterRegistry {
 
       if (capabilities) {
         if (!featureMatches(capabilities, filter)) continue;
-        if ((filter.baseAsset || filter.quoteAsset) && !assetMatches(capabilities, filter)) continue;
-        if (filter.pair && !capabilities.pairs.some((pair) => adapter.supportsPair(pair.base, pair.quote))) continue;
+        if ((filter.baseAsset || filter.quoteAsset) && !assetMatches(capabilities, filter))
+          continue;
+        if (
+          filter.pair &&
+          !capabilities.pairs.some((pair) => adapter.supportsPair(pair.base, pair.quote))
+        )
+          continue;
         discovered.push({ adapter, capabilities });
         continue;
       }

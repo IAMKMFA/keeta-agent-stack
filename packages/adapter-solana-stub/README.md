@@ -11,13 +11,13 @@ include a Solana hop, but the **`execute(mode='live')` path throws
 
 ## What ships today
 
-| Path                       | Status                                                                |
-| -------------------------- | --------------------------------------------------------------------- |
-| `healthCheck`              | Always healthy                                                        |
-| `getCapabilities`          | Advertises configurable pairs (default `KTA/USDC`, `SOL/USDC`)        |
-| `getQuote`                 | Returns indicative `QuoteResponse` (marked `raw.stub: true`)          |
-| `execute({ mode: 'simulate' })` | Returns a confirmed-looking `ExecutionResult` for routing demos  |
-| `execute({ mode: 'live' })`     | **Throws `SolanaNotImplementedError` with a TODO list link**     |
+| Path                            | Status                                                          |
+| ------------------------------- | --------------------------------------------------------------- |
+| `healthCheck`                   | Always healthy                                                  |
+| `getCapabilities`               | Advertises configurable pairs (default `KTA/USDC`, `SOL/USDC`)  |
+| `getQuote`                      | Returns indicative `QuoteResponse` (marked `raw.stub: true`)    |
+| `execute({ mode: 'simulate' })` | Returns a confirmed-looking `ExecutionResult` for routing demos |
+| `execute({ mode: 'live' })`     | **Throws `SolanaNotImplementedError` with a TODO list link**    |
 
 ## Roadmap (the TODO list lives in `solana-stub.ts`)
 

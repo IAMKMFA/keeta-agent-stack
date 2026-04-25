@@ -16,7 +16,8 @@ export function shouldRunIntegrationTests(): boolean {
 export function getIntegrationRuntimeConfig(): IntegrationRuntimeConfig {
   const baseDatabaseUrl =
     process.env.INTEGRATION_DATABASE_URL ?? 'postgresql://keeta:keeta@localhost:5432/keeta_agent';
-  const adminDatabaseUrl = process.env.INTEGRATION_ADMIN_DATABASE_URL ?? buildAdminDatabaseUrl(baseDatabaseUrl);
+  const adminDatabaseUrl =
+    process.env.INTEGRATION_ADMIN_DATABASE_URL ?? buildAdminDatabaseUrl(baseDatabaseUrl);
 
   return {
     adminDatabaseUrl,
@@ -24,7 +25,10 @@ export function getIntegrationRuntimeConfig(): IntegrationRuntimeConfig {
     opsApiKey: process.env.INTEGRATION_OPS_API_KEY ?? 'integration-ops-key',
     databaseName:
       process.env.INTEGRATION_DATABASE_NAME ??
-      `keeta_integration_${Date.now()}_${Math.floor(Math.random() * 1_000_000)}`.replace(/[^a-z0-9_]/gi, '_'),
+      `keeta_integration_${Date.now()}_${Math.floor(Math.random() * 1_000_000)}`.replace(
+        /[^a-z0-9_]/gi,
+        '_'
+      ),
   };
 }
 

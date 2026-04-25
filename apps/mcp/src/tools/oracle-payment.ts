@@ -32,13 +32,19 @@ const PreviewSchema = z
   .object({
     amount: z.number().positive().describe('Amount to send, denominated in `currency`.'),
     currency: z.string().min(1).describe("ISO-4217 currency code, e.g. 'USD', 'EUR'."),
-    walletAddress: z.string().optional().describe('Optional sender wallet (keeta_ address) for tier-aware pricing.'),
+    walletAddress: z
+      .string()
+      .optional()
+      .describe('Optional sender wallet (keeta_ address) for tier-aware pricing.'),
     recipientWallet: z.string().optional().describe('Optional recipient wallet (keeta_ address).'),
     compareFrom: z
       .enum(['swift', 'bankwire', 'stripe', 'visa', 'all'])
       .optional()
       .describe('Which legacy rail(s) to compare against.'),
-    complianceRegion: z.string().optional().describe('Optional ISO country code for compliance hints.'),
+    complianceRegion: z
+      .string()
+      .optional()
+      .describe('Optional ISO country code for compliance hints.'),
     network: z.enum(['main', 'test']).default('test'),
   })
   .strict();
@@ -51,8 +57,13 @@ const ExecuteSchema = z
       .describe(
         'Idempotency key. Identical correlationIds return the same response without re-executing.'
       ),
-    intentId: z.string().uuid().describe('Persisted intent id (`oracle.payment.preview` returns one).'),
-    confirmation: z.literal('CONFIRM').describe('Operator must literally pass "CONFIRM" to proceed.'),
+    intentId: z
+      .string()
+      .uuid()
+      .describe('Persisted intent id (`oracle.payment.preview` returns one).'),
+    confirmation: z
+      .literal('CONFIRM')
+      .describe('Operator must literally pass "CONFIRM" to proceed.'),
   })
   .strict();
 
@@ -65,7 +76,10 @@ const SubscriptionListSchema = z
 
 const ReplaySchema = z
   .object({
-    correlationId: z.string().min(8).describe('Identifier of the previous oracle.payment.execute run.'),
+    correlationId: z
+      .string()
+      .min(8)
+      .describe('Identifier of the previous oracle.payment.execute run.'),
     reason: z.string().min(8).describe('Operator audit trail reason.'),
   })
   .strict();
@@ -153,7 +167,7 @@ export function registerOraclePaymentTools(server: McpServer): void {
   server.tool(
     'oracle.subscription.list',
     [
-      'List the agent\'s recurring oracle payment subscriptions.',
+      "List the agent's recurring oracle payment subscriptions.",
       'Use for "what is the agent currently set up to send?" queries.',
       'Returns at most 200 rows; paginate by walletAddress if you need more.',
     ].join(' '),
@@ -190,7 +204,7 @@ export function registerOraclePaymentTools(server: McpServer): void {
     'oracle.replay',
     [
       'Operator-gated replay of a previous payment run.',
-      'REQUIRES OPS_API_KEY in the MCP server\'s environment.',
+      "REQUIRES OPS_API_KEY in the MCP server's environment.",
       'Use only for audit/forensics — never user-facing.',
     ].join(' '),
     ReplaySchema.shape,
@@ -205,10 +219,14 @@ export function registerOraclePaymentTools(server: McpServer): void {
 
       const opsKey = process.env.OPS_API_KEY;
       if (!opsKey) {
-        return errResp('FORBIDDEN', 'oracle.replay requires OPS_API_KEY in the MCP server environment', {
-          retryable: false,
-          hint: 'Set OPS_API_KEY before launching the MCP server, then retry.',
-        });
+        return errResp(
+          'FORBIDDEN',
+          'oracle.replay requires OPS_API_KEY in the MCP server environment',
+          {
+            retryable: false,
+            hint: 'Set OPS_API_KEY before launching the MCP server, then retry.',
+          }
+        );
       }
 
       // Stub: the real implementation will read the original correlationId

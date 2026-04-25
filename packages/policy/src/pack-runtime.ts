@@ -1,8 +1,5 @@
 import { PolicyEngine } from './engine.js';
-import type {
-  PolicyComposition,
-  PolicyPack,
-} from './types.js';
+import type { PolicyComposition, PolicyPack } from './types.js';
 
 export interface AppliedPolicyPackSummary {
   id: string;
@@ -43,13 +40,16 @@ export function applyPolicyPack(engine: PolicyEngine, pack: PolicyPack): ApplyPo
     }
 
     if (rule.config !== undefined) {
-      customRuleConfig[rule.configKey ?? ruleMetadata.get(rule.ruleId)?.configKey ?? rule.ruleId] = rule.config;
+      customRuleConfig[rule.configKey ?? ruleMetadata.get(rule.ruleId)?.configKey ?? rule.ruleId] =
+        rule.config;
     }
   }
 
   for (const composition of pack.compositions) {
     if (engine.has(composition.ruleId)) {
-      warnings.push(`Policy pack "${pack.name}" composition "${composition.ruleId}" conflicts with an existing rule id`);
+      warnings.push(
+        `Policy pack "${pack.name}" composition "${composition.ruleId}" conflicts with an existing rule id`
+      );
       continue;
     }
 

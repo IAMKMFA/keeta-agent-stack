@@ -15,10 +15,7 @@ export function ActivityFeed({ events }: { events: DashboardEvent[] }) {
   return (
     <ol className="space-y-2">
       {events.map((event) => (
-        <li
-          key={event.id}
-          className="rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3"
-        >
+        <li key={event.id} className="rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <StatusPill tone="accent" dot={false}>
               {event.eventType}

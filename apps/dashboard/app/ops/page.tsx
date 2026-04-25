@@ -24,9 +24,7 @@ export default async function OpsPage() {
   );
   const names = new Set(metrics.samples.map((sample) => sample.name));
   const maxValue =
-    metrics.samples.length > 0
-      ? Math.max(...metrics.samples.map((sample) => sample.value))
-      : 0;
+    metrics.samples.length > 0 ? Math.max(...metrics.samples.map((sample) => sample.value)) : 0;
 
   const tableRows = metrics.samples.slice(0, 100).map((sample) => ({
     _key: sample.id,
@@ -37,9 +35,7 @@ export default async function OpsPage() {
         {JSON.stringify(sample.labels)}
       </span>
     ),
-    captured: (
-      <span className="font-mono text-xs">{formatDateTime(sample.capturedAt)}</span>
-    ),
+    captured: <span className="font-mono text-xs">{formatDateTime(sample.capturedAt)}</span>,
   }));
 
   return (
@@ -61,16 +57,8 @@ export default async function OpsPage() {
           value={formatNumber(metrics.samples.length)}
           hint="Recent rows"
         />
-        <Kpi
-          label="Unique metrics"
-          value={formatNumber(names.size)}
-          hint="Signal types"
-        />
-        <Kpi
-          label="Peak value"
-          value={formatNumber(maxValue, 4)}
-          hint="Visible window maximum"
-        />
+        <Kpi label="Unique metrics" value={formatNumber(names.size)} hint="Signal types" />
+        <Kpi label="Peak value" value={formatNumber(maxValue, 4)} hint="Visible window maximum" />
       </KpiGrid>
 
       <Card kicker="Samples" title="Recent metric samples" padding="sm">

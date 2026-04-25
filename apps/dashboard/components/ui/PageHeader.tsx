@@ -25,9 +25,7 @@ export function PageHeader({
             {title}
           </h1>
           {description ? (
-            <p className="mt-2 max-w-3xl text-sm text-[var(--keeta-muted)]">
-              {description}
-            </p>
+            <p className="mt-2 max-w-3xl text-sm text-[var(--keeta-muted)]">{description}</p>
           ) : null}
         </div>
         {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -51,9 +49,7 @@ export function SectionHeader({
   return (
     <div className={clsx('flex flex-wrap items-end justify-between gap-3', className)}>
       <div>
-        <h2 className="hub-heading text-lg font-semibold text-[var(--keeta-ink)]">
-          {title}
-        </h2>
+        <h2 className="hub-heading text-lg font-semibold text-[var(--keeta-ink)]">{title}</h2>
         {description ? (
           <p className="mt-1 text-sm text-[var(--keeta-muted)]">{description}</p>
         ) : null}

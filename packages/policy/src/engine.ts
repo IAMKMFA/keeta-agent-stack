@@ -72,30 +72,117 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const defaultPolicyRules: PolicyRuleDefinition[] = [
-  wrapRule('max_order_size', 'maxOrderSize', 'Reject intents that exceed the configured maximum order size.', ruleMaxOrderSize),
-  wrapRule('max_slippage', 'maxSlippageBps', 'Reject intents whose slippage budget exceeds the configured maximum.', ruleMaxSlippage),
-  wrapRule('venue_allowlist', 'venueAllowlist', 'Restrict route steps to approved venue adapter ids when configured.', ruleVenueAllowlist),
-  wrapRule('asset_allowlist', 'assetAllowlist', 'Restrict intents to approved base and quote assets when configured.', ruleAssetAllowlist),
-  wrapRule('live_mode_enabled', 'liveModeEnabled', 'Prevent live execution when the environment disables live mode.', ruleLiveMode),
-  wrapRule('identity_attestation', 'identityPolicyEnabled', 'Require identity hints for live-adjacent flows when enabled.', ruleIdentityAttestation),
-  wrapRule('keeta_extension', 'keetaPolicyEnabled', 'Require Keeta network preflight hints when Keeta-aware policy is enabled.', ruleKeetaExtension),
-  wrapRule('anchor_bond_active', 'anchorBondVerificationRequired', 'Require live payment-anchor routes to have an active verified bond.', ruleAnchorBondActive),
-  wrapRule('unsupported_route', 'unsupported_route', 'Reject route plans that contain unsupported or missing execution steps.', ruleUnsupportedRoute),
-  wrapRule('cooldown', 'cooldown', 'Placeholder cooldown rule for future trade pacing controls.', ruleCooldownPlaceholder),
-  wrapRule('daily_trades', 'maxDailyTrades', 'Cap daily execution count using worker-supplied portfolio statistics.', ruleDailyTrades),
-  wrapRule('unsettled_cap', 'maxUnsettledExecutions', 'Cap unsettled executions using worker-supplied portfolio statistics.', ruleUnsettledCap),
-  wrapRule('notional_per_strategy', 'maxNotionalPerStrategy', 'Cap notional exposure per strategy using worker-supplied identity hints.', ruleNotionalPerStrategy),
-  wrapRule('exposure_per_asset', 'maxExposurePerAsset', 'Cap open exposure by asset using worker-supplied portfolio statistics.', ruleExposurePerAsset),
-  wrapRule('exposure_per_venue', 'maxExposurePerVenue', 'Cap open exposure by venue using worker-supplied portfolio statistics.', ruleExposurePerVenue),
-  wrapRule('exposure_per_wallet', 'maxExposurePerWallet', 'Cap wallet exposure using worker-supplied portfolio statistics.', ruleExposurePerWallet),
-  wrapRule('drawdown', 'maxDrawdownBps', 'Reserved drawdown guardrail awaiting equity-history integration.', ruleDrawdown),
+  wrapRule(
+    'max_order_size',
+    'maxOrderSize',
+    'Reject intents that exceed the configured maximum order size.',
+    ruleMaxOrderSize
+  ),
+  wrapRule(
+    'max_slippage',
+    'maxSlippageBps',
+    'Reject intents whose slippage budget exceeds the configured maximum.',
+    ruleMaxSlippage
+  ),
+  wrapRule(
+    'venue_allowlist',
+    'venueAllowlist',
+    'Restrict route steps to approved venue adapter ids when configured.',
+    ruleVenueAllowlist
+  ),
+  wrapRule(
+    'asset_allowlist',
+    'assetAllowlist',
+    'Restrict intents to approved base and quote assets when configured.',
+    ruleAssetAllowlist
+  ),
+  wrapRule(
+    'live_mode_enabled',
+    'liveModeEnabled',
+    'Prevent live execution when the environment disables live mode.',
+    ruleLiveMode
+  ),
+  wrapRule(
+    'identity_attestation',
+    'identityPolicyEnabled',
+    'Require identity hints for live-adjacent flows when enabled.',
+    ruleIdentityAttestation
+  ),
+  wrapRule(
+    'keeta_extension',
+    'keetaPolicyEnabled',
+    'Require Keeta network preflight hints when Keeta-aware policy is enabled.',
+    ruleKeetaExtension
+  ),
+  wrapRule(
+    'anchor_bond_active',
+    'anchorBondVerificationRequired',
+    'Require live payment-anchor routes to have an active verified bond.',
+    ruleAnchorBondActive
+  ),
+  wrapRule(
+    'unsupported_route',
+    'unsupported_route',
+    'Reject route plans that contain unsupported or missing execution steps.',
+    ruleUnsupportedRoute
+  ),
+  wrapRule(
+    'cooldown',
+    'cooldown',
+    'Placeholder cooldown rule for future trade pacing controls.',
+    ruleCooldownPlaceholder
+  ),
+  wrapRule(
+    'daily_trades',
+    'maxDailyTrades',
+    'Cap daily execution count using worker-supplied portfolio statistics.',
+    ruleDailyTrades
+  ),
+  wrapRule(
+    'unsettled_cap',
+    'maxUnsettledExecutions',
+    'Cap unsettled executions using worker-supplied portfolio statistics.',
+    ruleUnsettledCap
+  ),
+  wrapRule(
+    'notional_per_strategy',
+    'maxNotionalPerStrategy',
+    'Cap notional exposure per strategy using worker-supplied identity hints.',
+    ruleNotionalPerStrategy
+  ),
+  wrapRule(
+    'exposure_per_asset',
+    'maxExposurePerAsset',
+    'Cap open exposure by asset using worker-supplied portfolio statistics.',
+    ruleExposurePerAsset
+  ),
+  wrapRule(
+    'exposure_per_venue',
+    'maxExposurePerVenue',
+    'Cap open exposure by venue using worker-supplied portfolio statistics.',
+    ruleExposurePerVenue
+  ),
+  wrapRule(
+    'exposure_per_wallet',
+    'maxExposurePerWallet',
+    'Cap wallet exposure using worker-supplied portfolio statistics.',
+    ruleExposurePerWallet
+  ),
+  wrapRule(
+    'drawdown',
+    'maxDrawdownBps',
+    'Reserved drawdown guardrail awaiting equity-history integration.',
+    ruleDrawdown
+  ),
 ];
 
 export function createDefaultPolicyRules(): PolicyRuleDefinition[] {
   return defaultPolicyRules.map((rule) => ({ ...rule }));
 }
 
-export function definePolicyRule<TConfig = unknown>(definition: PolicyRuleDefinition<TConfig>): PolicyRuleDefinition<TConfig> {
+export function definePolicyRule<TConfig = unknown>(
+  definition: PolicyRuleDefinition<TConfig>
+): PolicyRuleDefinition<TConfig> {
   return definition;
 }
 
@@ -134,7 +221,8 @@ export class PolicyEngine {
     if (this.rules.has(definition.ruleId)) {
       throw new Error(`Policy rule already registered: ${definition.ruleId}`);
     }
-    const composition = kind === 'composition' ? (definition as PolicyRuleCompositionDefinition) : undefined;
+    const composition =
+      kind === 'composition' ? (definition as PolicyRuleCompositionDefinition) : undefined;
     if (composition && composition.operator === 'not' && composition.children.length !== 1) {
       throw new Error('Policy composition "not" requires exactly one child rule');
     }
@@ -192,7 +280,8 @@ export class PolicyEngine {
       priority: entry.definition.priority,
       configKey: 'configKey' in entry.definition ? entry.definition.configKey : undefined,
       description: entry.definition.description,
-      hasConfigSchema: 'configSchema' in entry.definition && entry.definition.configSchema !== undefined,
+      hasConfigSchema:
+        'configSchema' in entry.definition && entry.definition.configSchema !== undefined,
       source: entry.source,
       enabled: entry.enabled,
       kind: entry.kind,
@@ -303,21 +392,26 @@ export class PolicyEngine {
       };
     }
 
-    const childContributions = children.map((child) => this.evaluateEntry(child, ctx, nextVisiting));
+    const childContributions = children.map((child) =>
+      this.evaluateEntry(child, ctx, nextVisiting)
+    );
     const passed =
       definition.operator === 'allOf'
         ? childContributions.every((contribution) => contribution.passed)
         : definition.operator === 'anyOf'
-        ? childContributions.some((contribution) => contribution.passed)
-        : !childContributions[0]!.passed;
+          ? childContributions.some((contribution) => contribution.passed)
+          : !childContributions[0]!.passed;
 
     const reason = passed
       ? `${definition.operator} composition passed`
       : definition.operator === 'allOf'
-      ? `Blocked by ${childContributions.filter((contribution) => !contribution.passed).map((contribution) => contribution.ruleId).join(', ')}`
-      : definition.operator === 'anyOf'
-      ? `None of the child rules passed (${childContributions.map((contribution) => contribution.ruleId).join(', ')})`
-      : `Negated child rule ${childContributions[0]!.ruleId} passed`;
+        ? `Blocked by ${childContributions
+            .filter((contribution) => !contribution.passed)
+            .map((contribution) => contribution.ruleId)
+            .join(', ')}`
+        : definition.operator === 'anyOf'
+          ? `None of the child rules passed (${childContributions.map((contribution) => contribution.ruleId).join(', ')})`
+          : `Negated child rule ${childContributions[0]!.ruleId} passed`;
 
     return {
       ruleId: definition.ruleId,
@@ -339,7 +433,10 @@ export class PolicyEngine {
     const allowed = contributions.every((c) => c.passed);
     const summary = allowed
       ? 'All policy rules passed'
-      : `Blocked: ${contributions.filter((c) => !c.passed).map((c) => c.ruleId).join(', ')}`;
+      : `Blocked: ${contributions
+          .filter((c) => !c.passed)
+          .map((c) => c.ruleId)
+          .join(', ')}`;
     return {
       intentId: ctx.intent.id,
       allowed,

@@ -68,17 +68,29 @@ describeIntegration('integration routing', () => {
     expect(routePlan.hopCount).toBe(2);
     expect(routePlan.steps).toHaveLength(2);
     expect(routePlan.steps.map((step) => step.adapterId)).toEqual(['mock-dex-spot', 'mock-dex-fx']);
-    expect(routePlan.steps.map((step) => `${step.baseAsset}:${step.quoteAsset}`)).toEqual(['KTA:USDC', 'USDC:AED']);
+    expect(routePlan.steps.map((step) => `${step.baseAsset}:${step.quoteAsset}`)).toEqual([
+      'KTA:USDC',
+      'USDC:AED',
+    ]);
 
-    const latestExecution = await runtime.waitForLatestExecution(intent.id, (row) => row?.status === 'confirmed');
+    const latestExecution = await runtime.waitForLatestExecution(
+      intent.id,
+      (row) => row?.status === 'confirmed'
+    );
     expect(latestExecution?.adapterId).toBe('mock-dex-fx');
 
-    const executionRows = (await executionRepo.listExecutions(runtime.db, 20)).filter((row) => row.intentId === intent.id);
+    const executionRows = (await executionRepo.listExecutions(runtime.db, 20)).filter(
+      (row) => row.intentId === intent.id
+    );
     expect(executionRows).toHaveLength(2);
-    expect(new Set(executionRows.map((row) => row.adapterId))).toEqual(new Set(['mock-dex-spot', 'mock-dex-fx']));
+    expect(new Set(executionRows.map((row) => row.adapterId))).toEqual(
+      new Set(['mock-dex-spot', 'mock-dex-fx'])
+    );
 
     const auditRows = await auditRepo.listRecentAuditEvents(runtime.db, 50);
-    const stepEvents = auditRows.filter((row) => row.intentId === intent.id && row.eventType === 'execution.step_completed');
+    const stepEvents = auditRows.filter(
+      (row) => row.intentId === intent.id && row.eventType === 'execution.step_completed'
+    );
     expect(stepEvents).toHaveLength(2);
 
     const completionEvent = await runtime.waitForAuditEvent(intent.id, 'execution.completed');

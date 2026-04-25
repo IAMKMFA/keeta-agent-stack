@@ -64,12 +64,16 @@ Targets: Client, UserClient, Builder, Account, Block, Permissions, Config, Ancho
         case 'Account': {
           statics = getOwnMethodNames(KeetaNet.lib.Account);
           enums = {
-            AccountKeyAlgorithm: Object.fromEntries(Object.entries(KeetaNet.lib.Account.AccountKeyAlgorithm)),
+            AccountKeyAlgorithm: Object.fromEntries(
+              Object.entries(KeetaNet.lib.Account.AccountKeyAlgorithm)
+            ),
           };
           break;
         }
         case 'Block': {
-          statics = Object.getOwnPropertyNames(KeetaNet.lib.Block).filter((name) => !['prototype', 'name', 'length'].includes(name));
+          statics = Object.getOwnPropertyNames(KeetaNet.lib.Block).filter(
+            (name) => !['prototype', 'name', 'length'].includes(name)
+          );
           enums = {
             OperationType: Object.fromEntries(Object.entries(KeetaNet.lib.Block.OperationType)),
             AdjustMethod: Object.fromEntries(Object.entries(KeetaNet.lib.Block.AdjustMethod)),
@@ -77,7 +81,9 @@ Targets: Client, UserClient, Builder, Account, Block, Permissions, Config, Ancho
           break;
         }
         case 'Permissions': {
-          statics = Object.getOwnPropertyNames(KeetaNet.lib.Permissions.prototype).filter((name) => name !== 'constructor');
+          statics = Object.getOwnPropertyNames(KeetaNet.lib.Permissions.prototype).filter(
+            (name) => name !== 'constructor'
+          );
           break;
         }
         case 'Config': {
@@ -90,7 +96,9 @@ Targets: Client, UserClient, Builder, Account, Block, Permissions, Config, Ancho
 
           const serviceDetails: Record<string, string[]> = {};
           for (const [name, ctor] of Object.entries(services)) {
-            serviceDetails[name] = getPrototypeMethodNames(ctor).filter((method) => !method.startsWith('_'));
+            serviceDetails[name] = getPrototypeMethodNames(ctor).filter(
+              (method) => !method.startsWith('_')
+            );
           }
 
           const moduleDetails: Record<string, { type: string; members: string[] }> = {};
@@ -107,7 +115,9 @@ Targets: Client, UserClient, Builder, Account, Block, Permissions, Config, Ancho
               continue;
             }
             if (typeof mod === 'object' && mod !== null) {
-              const members = Object.getOwnPropertyNames(mod).filter((member) => !['default', '__esModule'].includes(member));
+              const members = Object.getOwnPropertyNames(mod).filter(
+                (member) => !['default', '__esModule'].includes(member)
+              );
               moduleDetails[name] = { type: 'namespace', members };
             }
           }
@@ -136,7 +146,9 @@ Targets: Client, UserClient, Builder, Account, Block, Permissions, Config, Ancho
 
             if (isConstructable(mod)) {
               methods = getPrototypeMethodNames(mod);
-              statics = getOwnMethodNames(mod).filter((method) => !['prototype', 'name', 'length'].includes(method));
+              statics = getOwnMethodNames(mod).filter(
+                (method) => !['prototype', 'name', 'length'].includes(method)
+              );
               break;
             }
             if (typeof mod === 'object' && mod !== null) {
@@ -145,7 +157,9 @@ Targets: Client, UserClient, Builder, Account, Block, Permissions, Config, Ancho
                 if (isConstructable(exportValue)) {
                   const prototypeMethodNames = getPrototypeMethodNames(exportValue);
                   if (prototypeMethodNames.length > 0) {
-                    const classMethods = prototypeMethodNames.filter((method) => method !== 'constructor');
+                    const classMethods = prototypeMethodNames.filter(
+                      (method) => method !== 'constructor'
+                    );
                     statics.push(`${exportName} [class: ${classMethods.join(', ')}]`);
                   } else {
                     statics.push(`${exportName} [function]`);

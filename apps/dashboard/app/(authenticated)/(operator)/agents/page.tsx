@@ -29,9 +29,21 @@ export default async function AgentsPage() {
 
       <KpiGrid columns={4}>
         <Kpi label="Agents" value={formatNumber(data.agents.length)} hint="Persisted strategies" />
-        <Kpi label="Active" value={formatNumber(active)} hint={`${formatNumber(data.agents.length - active)} paused`} />
-        <Kpi label="Policy-linked" value={formatNumber(policyLinked)} hint="With policy pack assignment" />
-        <Kpi label="Templates" value={formatNumber(data.templates.length)} hint="Seeded blueprints" />
+        <Kpi
+          label="Active"
+          value={formatNumber(active)}
+          hint={`${formatNumber(data.agents.length - active)} paused`}
+        />
+        <Kpi
+          label="Policy-linked"
+          value={formatNumber(policyLinked)}
+          hint="With policy pack assignment"
+        />
+        <Kpi
+          label="Templates"
+          value={formatNumber(data.templates.length)}
+          hint="Seeded blueprints"
+        />
       </KpiGrid>
 
       {data.agents.length === 0 ? (
@@ -79,9 +91,14 @@ export default async function AgentsPage() {
       <Card kicker="Templates" title="Template gallery bridge">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {data.templates.slice(0, 6).map((template) => (
-            <div key={template.id} className="rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3">
+            <div
+              key={template.id}
+              className="rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3"
+            >
               <div className="font-medium text-[var(--keeta-ink)]">{template.name}</div>
-              <div className="mt-1 text-xs text-[var(--keeta-muted)]">{template.description ?? template.slug}</div>
+              <div className="mt-1 text-xs text-[var(--keeta-muted)]">
+                {template.description ?? template.slug}
+              </div>
             </div>
           ))}
         </div>

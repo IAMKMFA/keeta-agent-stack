@@ -48,7 +48,10 @@ export const ORACLE_MIRRORED_TOOLS: OracleMirroredToolDefinition[] = [
     name: 'get_currencies_by_region',
     description: 'List available currencies grouped by region.',
     fields: {
-      region: { type: 'string', enum: ['ALL', 'Americas', 'Europe', 'Asia Pacific', 'Middle East', 'Africa'] },
+      region: {
+        type: 'string',
+        enum: ['ALL', 'Americas', 'Europe', 'Asia Pacific', 'Middle East', 'Africa'],
+      },
     },
   },
   {
@@ -104,7 +107,10 @@ export const ORACLE_MIRRORED_TOOLS: OracleMirroredToolDefinition[] = [
     required: ['region'],
     fields: {
       region: { type: 'string' },
-      section: { type: 'string', enum: ['all', 'vat', 'aml', 'trade', 'invoicing', 'rails', 'regulators'] },
+      section: {
+        type: 'string',
+        enum: ['all', 'vat', 'aml', 'trade', 'invoicing', 'rails', 'regulators'],
+      },
       wallet_address: { type: 'string' },
     },
   },
@@ -122,7 +128,15 @@ export const ORACLE_MIRRORED_TOOLS: OracleMirroredToolDefinition[] = [
     fields: {
       operation: {
         type: 'string',
-        enum: ['create_wallet', 'send_kta', 'check_balance', 'atomic_swap', 'create_token', 'subscribe_oracle', 'read_history'],
+        enum: [
+          'create_wallet',
+          'send_kta',
+          'check_balance',
+          'atomic_swap',
+          'create_token',
+          'subscribe_oracle',
+          'read_history',
+        ],
       },
       network: { type: 'string', enum: ['main', 'test'] },
       wallet_address: { type: 'string' },
@@ -132,7 +146,10 @@ export const ORACLE_MIRRORED_TOOLS: OracleMirroredToolDefinition[] = [
     name: 'get_anchor_info',
     description: 'Anchor ecosystem details (fx/kyc/asset movement/etc).',
     fields: {
-      service: { type: 'string', enum: ['all', 'fx', 'kyc', 'asset_movement', 'username', 'notifications'] },
+      service: {
+        type: 'string',
+        enum: ['all', 'fx', 'kyc', 'asset_movement', 'username', 'notifications'],
+      },
       wallet_address: { type: 'string' },
     },
   },
@@ -140,7 +157,10 @@ export const ORACLE_MIRRORED_TOOLS: OracleMirroredToolDefinition[] = [
     name: 'get_agent_onboarding',
     description: 'Autonomous agent onboarding flow.',
     fields: {
-      agent_type: { type: 'string', enum: ['general', 'cfo', 'ecommerce', 'payroll', 'treasury', 'marketplace'] },
+      agent_type: {
+        type: 'string',
+        enum: ['general', 'cfo', 'ecommerce', 'payroll', 'treasury', 'marketplace'],
+      },
     },
   },
   {

@@ -40,12 +40,30 @@ export function buildControlPlaneToolSpecs(
     .describe('Rule composition entries using allOf/anyOf/not semantics.');
   const policyPreviewSchema = {
     intentId: z.string().uuid().optional().describe('Persisted intent id to evaluate.'),
-    intent: ExecutionIntentSchema.optional().describe('Optional inline intent payload for preview evaluation.'),
+    intent: ExecutionIntentSchema.optional().describe(
+      'Optional inline intent payload for preview evaluation.'
+    ),
     reason: z.string().min(1).describe('Short operator reason recorded in audit history.'),
-    policyPackId: z.string().uuid().optional().describe('Optional persisted policy pack id to apply explicitly.'),
-    configOverrides: z.record(z.unknown()).optional().describe('Optional policy-config overrides for preview only.'),
-    contextOverrides: z.record(z.unknown()).optional().describe('Optional evaluation-context overrides for preview only.'),
-  } satisfies Record<keyof Pick<PolicyEvaluateRequest, 'intentId' | 'intent' | 'reason' | 'policyPackId' | 'configOverrides' | 'contextOverrides'>, z.ZodTypeAny>;
+    policyPackId: z
+      .string()
+      .uuid()
+      .optional()
+      .describe('Optional persisted policy pack id to apply explicitly.'),
+    configOverrides: z
+      .record(z.unknown())
+      .optional()
+      .describe('Optional policy-config overrides for preview only.'),
+    contextOverrides: z
+      .record(z.unknown())
+      .optional()
+      .describe('Optional evaluation-context overrides for preview only.'),
+  } satisfies Record<
+    keyof Pick<
+      PolicyEvaluateRequest,
+      'intentId' | 'intent' | 'reason' | 'policyPackId' | 'configOverrides' | 'contextOverrides'
+    >,
+    z.ZodTypeAny
+  >;
   const createIntentBodySchema = ExecutionIntentSchema.omit({
     id: true,
     createdAt: true,
@@ -60,7 +78,10 @@ export function buildControlPlaneToolSpecs(
       metadata: true,
     })
     .extend({
-      requiresApproval: z.boolean().optional().describe('Require explicit admin approval before live execution.'),
+      requiresApproval: z
+        .boolean()
+        .optional()
+        .describe('Require explicit admin approval before live execution.'),
     });
 
   return [
@@ -77,7 +98,8 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_quote_intent',
-      description: 'Queue the quote-generation stage for an existing intent and return the job id and queue.',
+      description:
+        'Queue the quote-generation stage for an existing intent and return the job id and queue.',
       inputSchema: {
         intentId: z.string().uuid().describe('Intent id to quote.'),
       },
@@ -88,7 +110,8 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_route_intent',
-      description: 'Queue the route-generation stage for an existing intent and return the job id and queue.',
+      description:
+        'Queue the route-generation stage for an existing intent and return the job id and queue.',
       inputSchema: {
         intentId: z.string().uuid().describe('Intent id to route.'),
       },
@@ -102,8 +125,15 @@ export function buildControlPlaneToolSpecs(
       description:
         'Queue the intent pipeline policy-evaluation stage (`POST /intents/:id/policy`). This is not the admin preview endpoint.',
       inputSchema: {
-        intentId: z.string().uuid().describe('Intent id to evaluate through the pipeline policy stage.'),
-        policyPackId: z.string().uuid().optional().describe('Optional override policy pack id to persist on the intent before evaluation.'),
+        intentId: z
+          .string()
+          .uuid()
+          .describe('Intent id to evaluate through the pipeline policy stage.'),
+        policyPackId: z
+          .string()
+          .uuid()
+          .optional()
+          .describe('Optional override policy pack id to persist on the intent before evaluation.'),
       },
       handler: async ({ intentId, policyPackId }) => {
         const client = getClient();
@@ -116,7 +146,8 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_execute_intent',
-      description: 'Queue the execution stage for an existing intent and return the job id and queue.',
+      description:
+        'Queue the execution stage for an existing intent and return the job id and queue.',
       inputSchema: {
         intentId: z.string().uuid().describe('Intent id to execute.'),
       },
@@ -139,7 +170,8 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_release_intent',
-      description: 'Release a previously held intent and allow the pipeline to resume from the next backend stage.',
+      description:
+        'Release a previously held intent and allow the pipeline to resume from the next backend stage.',
       inputSchema: {
         intentId: z.string().uuid().describe('Intent id to release.'),
       },
@@ -163,10 +195,14 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_override_intent_route',
-      description: 'Override the selected route plan for an intent using an existing route plan id.',
+      description:
+        'Override the selected route plan for an intent using an existing route plan id.',
       inputSchema: {
         intentId: z.string().uuid().describe('Intent id to update.'),
-        routePlanId: z.string().uuid().describe('Route plan id that should become the explicit override.'),
+        routePlanId: z
+          .string()
+          .uuid()
+          .describe('Route plan id that should become the explicit override.'),
       },
       handler: async ({ intentId, routePlanId }) => {
         const client = getClient();
@@ -201,12 +237,21 @@ export function buildControlPlaneToolSpecs(
       description:
         'Run the admin policy preview endpoint. Use this to test an intent or policy pack without enqueuing the pipeline policy stage.',
       inputSchema: policyPreviewSchema,
-      handler: async ({ intentId, intent, reason, policyPackId, configOverrides, contextOverrides }) => {
+      handler: async ({
+        intentId,
+        intent,
+        reason,
+        policyPackId,
+        configOverrides,
+        contextOverrides,
+      }) => {
         const client = getClient();
         return textResult(
           await client.evaluatePolicy({
             ...(typeof intentId === 'string' ? { intentId } : {}),
-            ...(intent && typeof intent === 'object' ? { intent: intent as PolicyEvaluateRequest['intent'] } : {}),
+            ...(intent && typeof intent === 'object'
+              ? { intent: intent as PolicyEvaluateRequest['intent'] }
+              : {}),
             reason: String(reason),
             ...(typeof policyPackId === 'string' ? { policyPackId } : {}),
             ...(configOverrides && typeof configOverrides === 'object'
@@ -297,7 +342,9 @@ export function buildControlPlaneToolSpecs(
       },
       handler: async ({ strategyId, policyPackId }) => {
         const client = getClient();
-        return textResult(await client.setStrategyPolicyPack(String(strategyId), String(policyPackId)));
+        return textResult(
+          await client.setStrategyPolicyPack(String(strategyId), String(policyPackId))
+        );
       },
     },
     {
@@ -313,7 +360,8 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_get_wallet_balances',
-      description: 'Fetch wallet balances from the control plane, including stored snapshots and Keeta network balances.',
+      description:
+        'Fetch wallet balances from the control plane, including stored snapshots and Keeta network balances.',
       inputSchema: {
         walletId: z.string().uuid().describe('Wallet id to inspect.'),
       },
@@ -333,7 +381,8 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_get_config_modes',
-      description: 'Read current runtime modes such as live mode, network selection, and mock-adapter usage.',
+      description:
+        'Read current runtime modes such as live mode, network selection, and mock-adapter usage.',
       inputSchema: {},
       handler: async () => {
         const client = getClient();
@@ -342,7 +391,8 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_get_strategy_templates',
-      description: 'List strategy templates available to seed new strategies or inspect default configs.',
+      description:
+        'List strategy templates available to seed new strategies or inspect default configs.',
       inputSchema: {},
       handler: async () => {
         const client = getClient();
@@ -370,12 +420,19 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_subscribe_webhook',
-      description: 'Create a webhook subscription for audit and anchor event delivery from the control plane.',
+      description:
+        'Create a webhook subscription for audit and anchor event delivery from the control plane.',
       inputSchema: {
         targetUrl: z.string().url().describe('Webhook receiver URL.'),
-        eventTypes: z.array(z.string().min(1)).min(1).describe('Event type allowlist for deliveries.'),
+        eventTypes: z
+          .array(z.string().min(1))
+          .min(1)
+          .describe('Event type allowlist for deliveries.'),
         secret: z.string().optional().describe('Optional HMAC secret for signed webhook payloads.'),
-        status: z.enum(['active', 'paused']).optional().describe('Initial webhook subscription status.'),
+        status: z
+          .enum(['active', 'paused'])
+          .optional()
+          .describe('Initial webhook subscription status.'),
       },
       handler: async ({ targetUrl, eventTypes, secret, status }) => {
         const client = getClient();
@@ -400,9 +457,14 @@ export function buildControlPlaneToolSpecs(
     },
     {
       name: 'keeta_list_events',
-      description: 'List recent control-plane events with the same filters supported by the `/events` API route.',
+      description:
+        'List recent control-plane events with the same filters supported by the `/events` API route.',
       inputSchema: {
-        after: z.string().datetime().optional().describe('Only include events created at or after this ISO timestamp.'),
+        after: z
+          .string()
+          .datetime()
+          .optional()
+          .describe('Only include events created at or after this ISO timestamp.'),
         eventType: z.string().min(1).optional().describe('Filter by exact event type.'),
         intentId: z.string().uuid().optional().describe('Filter by intent id.'),
         paymentAnchorId: z.string().uuid().optional().describe('Filter by payment anchor id.'),
@@ -426,15 +488,45 @@ export function buildControlPlaneToolSpecs(
       description:
         'Open the existing SSE event stream, collect events for a bounded window, and return the captured payloads as JSON.',
       inputSchema: {
-        after: z.string().datetime().optional().describe('Only stream events created at or after this ISO timestamp.'),
+        after: z
+          .string()
+          .datetime()
+          .optional()
+          .describe('Only stream events created at or after this ISO timestamp.'),
         eventType: z.string().min(1).optional().describe('Filter by exact event type.'),
         intentId: z.string().uuid().optional().describe('Filter by intent id.'),
         paymentAnchorId: z.string().uuid().optional().describe('Filter by payment anchor id.'),
-        limit: z.number().int().min(1).max(500).optional().describe('Backend fetch limit used for each SSE poll cycle.'),
-        maxEvents: z.number().int().min(1).max(200).default(25).describe('Maximum number of events to collect before closing the stream.'),
-        timeoutMs: z.number().int().min(250).max(60_000).default(5_000).describe('How long to keep the SSE stream open before returning.'),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(500)
+          .optional()
+          .describe('Backend fetch limit used for each SSE poll cycle.'),
+        maxEvents: z
+          .number()
+          .int()
+          .min(1)
+          .max(200)
+          .default(25)
+          .describe('Maximum number of events to collect before closing the stream.'),
+        timeoutMs: z
+          .number()
+          .int()
+          .min(250)
+          .max(60_000)
+          .default(5_000)
+          .describe('How long to keep the SSE stream open before returning.'),
       },
-      handler: async ({ after, eventType, intentId, paymentAnchorId, limit, maxEvents, timeoutMs }) => {
+      handler: async ({
+        after,
+        eventType,
+        intentId,
+        paymentAnchorId,
+        limit,
+        maxEvents,
+        timeoutMs,
+      }) => {
         const client = getClient();
         const events: EventStreamEvent[] = [];
         let timedOut = false;

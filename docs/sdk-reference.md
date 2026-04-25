@@ -7,10 +7,10 @@ The Keeta Agent Stack exposes two complementary reference surfaces. This page is
 The Fastify API under `apps/api` emits a fully-typed OpenAPI 3.1 document on
 every boot. Two endpoints are wired into every environment:
 
-| Endpoint | Purpose |
-|---|---|
-| `GET /openapi.json` | Raw spec, cached for 5 minutes via `cache-control: public, max-age=300`. |
-| `GET /docs` | Swagger UI backed by [`@fastify/swagger-ui`](https://www.npmjs.com/package/@fastify/swagger-ui). Try-It-Out is enabled by default outside production and can be explicitly gated with `API_SWAGGER_TRY_IT_OUT_ENABLED`. |
+| Endpoint            | Purpose                                                                                                                                                                                                                 |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /openapi.json` | Raw spec, cached for 5 minutes via `cache-control: public, max-age=300`.                                                                                                                                                |
+| `GET /docs`         | Swagger UI backed by [`@fastify/swagger-ui`](https://www.npmjs.com/package/@fastify/swagger-ui). Try-It-Out is enabled by default outside production and can be explicitly gated with `API_SWAGGER_TRY_IT_OUT_ENABLED`. |
 
 ### Try it locally
 
@@ -36,7 +36,10 @@ The bundle is written to `apps/docs/dist/`. GitHub Pages publishes the same outp
 ```ts
 import { writeFileSync } from 'node:fs';
 import { buildOpenApiDocument } from '@keeta-agent-stack/api/openapi';
-writeFileSync('openapi.json', JSON.stringify(buildOpenApiDocument({ serverUrl: 'https://api.your.tld' }), null, 2));
+writeFileSync(
+  'openapi.json',
+  JSON.stringify(buildOpenApiDocument({ serverUrl: 'https://api.your.tld' }), null, 2)
+);
 ```
 
 Drop the resulting file into your public docs site or hand it to a downstream code-generator.

@@ -84,9 +84,7 @@ export function decideRebalance(
     return { kind: 'noop', reason: 'wallet total notional is zero' };
   }
 
-  const targetCoverage = cfg.targets.every(
-    (target) => findTarget(cfg.targets, target.asset) > 0
-  );
+  const targetCoverage = cfg.targets.every((target) => findTarget(cfg.targets, target.asset) > 0);
   if (!targetCoverage) {
     return { kind: 'noop', reason: 'no positive target weights configured' };
   }

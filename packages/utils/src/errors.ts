@@ -23,7 +23,12 @@ export class NonRetryableError extends Error {
 }
 
 export function isRetryableError(e: unknown): boolean {
-  if (e && typeof e === 'object' && 'retryable' in e && (e as { retryable: boolean }).retryable === true) {
+  if (
+    e &&
+    typeof e === 'object' &&
+    'retryable' in e &&
+    (e as { retryable: boolean }).retryable === true
+  ) {
     return true;
   }
   return false;

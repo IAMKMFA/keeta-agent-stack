@@ -1,14 +1,7 @@
 import { requireScope } from '../../../lib/auth';
 import { requireV2Enabled } from '../../../lib/flags';
 import { fetchJson } from '../../../lib/api';
-import {
-  Card,
-  EmptyState,
-  Kpi,
-  KpiGrid,
-  PageHeader,
-  StatusPill,
-} from '../../../components/ui';
+import { Card, EmptyState, Kpi, KpiGrid, PageHeader, StatusPill } from '../../../components/ui';
 import { formatNumber } from '../../../lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -79,19 +72,10 @@ export default async function RailsPage({
       />
 
       <KpiGrid columns={4}>
-        <Kpi
-          label="Keeta native"
-          value={formatNumber(byTransport.get('native') ?? 0)}
-        />
+        <Kpi label="Keeta native" value={formatNumber(byTransport.get('native') ?? 0)} />
         <Kpi label="Crypto" value={formatNumber(byTransport.get('crypto') ?? 0)} />
-        <Kpi
-          label="Fiat push"
-          value={formatNumber(byTransport.get('fiat-push') ?? 0)}
-        />
-        <Kpi
-          label="Fiat pull"
-          value={formatNumber(byTransport.get('fiat-pull') ?? 0)}
-        />
+        <Kpi label="Fiat push" value={formatNumber(byTransport.get('fiat-push') ?? 0)} />
+        <Kpi label="Fiat pull" value={formatNumber(byTransport.get('fiat-pull') ?? 0)} />
       </KpiGrid>
 
       <form className="flex flex-wrap items-center gap-2" method="get">
@@ -156,9 +140,7 @@ export default async function RailsPage({
                         {transportLabel[r.transport]}
                       </StatusPill>
                     </td>
-                    <td className="px-2 py-3 text-xs text-[var(--keeta-ink-subtle)]">
-                      {r.kind}
-                    </td>
+                    <td className="px-2 py-3 text-xs text-[var(--keeta-ink-subtle)]">{r.kind}</td>
                     <td className="px-2 py-3">
                       <StatusPill tone={r.production ? 'success' : 'warning'} dot={false}>
                         {r.production ? 'Production' : 'Preview'}

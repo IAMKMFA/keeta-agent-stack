@@ -59,7 +59,11 @@ export function Card({
           {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
         </div>
       ) : null}
-      <div className={clsx(hasHeader && padding !== 'none' ? paddingMap[padding] : paddingMap[padding])}>
+      <div
+        className={clsx(
+          hasHeader && padding !== 'none' ? paddingMap[padding] : paddingMap[padding]
+        )}
+      >
         {children}
       </div>
     </div>

@@ -1,6 +1,10 @@
 import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
 import type { PolicyConfig, PolicyRuleDefinition } from '@keeta-agent-stack/policy';
-import { createClient, type CreateIntentRequest, type EventSubscription } from '@keeta-agent-stack/sdk';
+import {
+  createClient,
+  type CreateIntentRequest,
+  type EventSubscription,
+} from '@keeta-agent-stack/sdk';
 import type {
   EventStreamEvent,
   ExecutionIntent,
@@ -140,7 +144,12 @@ async function pollForTerminalEvents(
   intentId: string,
   after: string,
   timeoutMs: number
-): Promise<{ events: EventStreamEvent[]; executionId?: string; failed: boolean; terminalObserved: boolean }> {
+): Promise<{
+  events: EventStreamEvent[];
+  executionId?: string;
+  failed: boolean;
+  terminalObserved: boolean;
+}> {
   const events: EventStreamEvent[] = [];
   const seenIds = new Set<string>();
   let executionId: string | undefined;
@@ -179,10 +188,7 @@ async function pollForTerminalEvents(
     timeout.unref?.();
   });
 
-  await Promise.race([
-    stream.done.catch(() => undefined),
-    timeoutPromise,
-  ]);
+  await Promise.race([stream.done.catch(() => undefined), timeoutPromise]);
   if (timeout) clearTimeout(timeout);
 
   if (!terminalObserved) {
@@ -196,7 +202,8 @@ async function pollForTerminalEvents(
 }
 
 export function createKeetaAgent(opts: CreateKeetaAgentOptions): KeetaAgent {
-  const { name, sdk, registry, policy, policyRules, hooks, simulationScenario, pollTimeoutMs } = opts;
+  const { name, sdk, registry, policy, policyRules, hooks, simulationScenario, pollTimeoutMs } =
+    opts;
   const runtimeHooks = buildRuntimeHooks(hooks);
   const runtime =
     registry && policy

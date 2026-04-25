@@ -1,7 +1,16 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { KeetaAnchor, KeetaNet } from './helpers.js';
-import { getProperty, isConstructable, listMethods, listProperties, safeSerialize, validateNetwork, createUserClient, accountFromSeed } from './helpers.js';
+import {
+  getProperty,
+  isConstructable,
+  listMethods,
+  listProperties,
+  safeSerialize,
+  validateNetwork,
+  createUserClient,
+  accountFromSeed,
+} from './helpers.js';
 
 /**
  * MCP tools that expose `@keetanetwork/anchor` chaining capabilities (0.0.58+):
@@ -25,7 +34,8 @@ function render(payload: unknown) {
 }
 
 function getAnchorChainingClass(): new (config: unknown) => unknown {
-  const AnchorChaining = getProperty(KeetaAnchor, 'AnchorChaining') ?? getProperty(KeetaAnchor, 'Chaining');
+  const AnchorChaining =
+    getProperty(KeetaAnchor, 'AnchorChaining') ?? getProperty(KeetaAnchor, 'Chaining');
   if (!isConstructable(AnchorChaining)) {
     throw new Error(
       'AnchorChaining is not exported by @keetanetwork/anchor at this version. ' +
@@ -36,12 +46,18 @@ function getAnchorChainingClass(): new (config: unknown) => unknown {
 }
 
 type AnchorChainingInstance = {
-  graph: { computeGraphNodes: () => Promise<unknown>; findPaths: (input: unknown) => Promise<unknown>; resolveAssets: (filter?: unknown) => Promise<unknown>; listAssets: (filter?: unknown) => Promise<unknown> };
+  graph: {
+    computeGraphNodes: () => Promise<unknown>;
+    findPaths: (input: unknown) => Promise<unknown>;
+    resolveAssets: (filter?: unknown) => Promise<unknown>;
+    listAssets: (filter?: unknown) => Promise<unknown>;
+  };
 };
 
 function resolveSeed(inlineSeed: string | undefined): string | undefined {
   if (inlineSeed !== undefined) {
-    const allow = process.env.MCP_ALLOW_INLINE_SEEDS === 'true' || process.env.MCP_ALLOW_INLINE_SEEDS === '1';
+    const allow =
+      process.env.MCP_ALLOW_INLINE_SEEDS === 'true' || process.env.MCP_ALLOW_INLINE_SEEDS === '1';
     if (!allow) {
       throw new Error(
         'Inline seeds are disabled in this MCP deployment. Remove the `seed` argument or set MCP_ALLOW_INLINE_SEEDS=true (dev only).'
@@ -100,7 +116,8 @@ export function registerAnchorChainingTools(server: McpServer): void {
     {},
     async () => {
       try {
-        const AnchorChaining = getProperty(KeetaAnchor, 'AnchorChaining') ?? getProperty(KeetaAnchor, 'Chaining');
+        const AnchorChaining =
+          getProperty(KeetaAnchor, 'AnchorChaining') ?? getProperty(KeetaAnchor, 'Chaining');
         return render({
           version: (getProperty(KeetaAnchor, 'VERSION') ?? 'unknown') as unknown,
           anchorTopLevelKeys: Object.keys(KeetaAnchor as Record<string, unknown>),
@@ -123,7 +140,10 @@ export function registerAnchorChainingTools(server: McpServer): void {
       to: sideFilterSchema.optional(),
       max_step_count: z.number().int().min(1).max(10).optional(),
       only_allow_fx_like: z.boolean().optional(),
-      seed: z.string().optional().describe('Optional seed; if omitted, uses a read-only UserClient.'),
+      seed: z
+        .string()
+        .optional()
+        .describe('Optional seed; if omitted, uses a read-only UserClient.'),
       account_index: z.number().int().nonnegative().default(0),
     },
     async ({ network, from, to, max_step_count, only_allow_fx_like, seed, account_index }) => {
@@ -157,7 +177,17 @@ export function registerAnchorChainingTools(server: McpServer): void {
       seed: z.string().optional(),
       account_index: z.number().int().nonnegative().default(0),
     },
-    async ({ network, side, location, asset, rail, max_step_count, only_allow_fx_like, seed, account_index }) => {
+    async ({
+      network,
+      side,
+      location,
+      asset,
+      rail,
+      max_step_count,
+      only_allow_fx_like,
+      seed,
+      account_index,
+    }) => {
       try {
         const result = await withAnchorChaining(network, seed, account_index, async ({ graph }) => {
           const sideFilter: Record<string, unknown> = {};
@@ -220,7 +250,8 @@ export function registerAnchorChainingTools(server: McpServer): void {
     async ({ network, source, destination, seed, account_index }) => {
       try {
         const result = await withAnchorChaining(network, seed, account_index, async ({ graph }) => {
-          const toBigint = (v: string | undefined) => (typeof v === 'string' ? BigInt(v) : undefined);
+          const toBigint = (v: string | undefined) =>
+            typeof v === 'string' ? BigInt(v) : undefined;
           return await graph.findPaths({
             source: {
               asset: source.asset,

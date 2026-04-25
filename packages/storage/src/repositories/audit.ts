@@ -11,12 +11,20 @@ export async function insertAuditEvent(
 }
 
 export async function getAuditEventById(db: Database, id: string) {
-  const rows = await db.select().from(executionAuditEvents).where(eq(executionAuditEvents.id, id)).limit(1);
+  const rows = await db
+    .select()
+    .from(executionAuditEvents)
+    .where(eq(executionAuditEvents.id, id))
+    .limit(1);
   return rows[0];
 }
 
 export async function listRecentAuditEvents(db: Database, limit = 100) {
-  return db.select().from(executionAuditEvents).orderBy(desc(executionAuditEvents.createdAt)).limit(limit);
+  return db
+    .select()
+    .from(executionAuditEvents)
+    .orderBy(desc(executionAuditEvents.createdAt))
+    .limit(limit);
 }
 
 export async function listAuditEventsSince(db: Database, since: Date, limit = 100) {

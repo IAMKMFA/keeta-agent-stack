@@ -73,18 +73,19 @@ async function toAnchorResponse(
     row.adapterId,
     row.corridorKey ?? undefined
   );
-  const operatorMetrics: PaymentAnchorOperatorMetrics | undefined =
-    Object.values(operatorMetricsSnapshot).some((value) => value !== undefined)
-      ? {
-          successRate: operatorMetricsSnapshot.successRate,
-          p50LatencyMs: operatorMetricsSnapshot.p50LatencyMs,
-          p95LatencyMs: operatorMetricsSnapshot.p95LatencyMs,
-          unsettledVolume: operatorMetricsSnapshot.unsettledVolume,
-          bondAgeDays: operatorMetricsSnapshot.bondAgeDays,
-          bondVerified: operatorMetricsSnapshot.bondVerified,
-          sampledAt: toIso(operatorMetricsSnapshot.sampledAt),
-        }
-      : undefined;
+  const operatorMetrics: PaymentAnchorOperatorMetrics | undefined = Object.values(
+    operatorMetricsSnapshot
+  ).some((value) => value !== undefined)
+    ? {
+        successRate: operatorMetricsSnapshot.successRate,
+        p50LatencyMs: operatorMetricsSnapshot.p50LatencyMs,
+        p95LatencyMs: operatorMetricsSnapshot.p95LatencyMs,
+        unsettledVolume: operatorMetricsSnapshot.unsettledVolume,
+        bondAgeDays: operatorMetricsSnapshot.bondAgeDays,
+        bondVerified: operatorMetricsSnapshot.bondVerified,
+        sampledAt: toIso(operatorMetricsSnapshot.sampledAt),
+      }
+    : undefined;
   return {
     ...response,
     readiness: evaluatePaymentAnchorReadiness(response, { strictBondVerification }),
@@ -111,9 +112,11 @@ const createAnchorBody = z.object({
   metadata: z.record(z.unknown()).default({}),
 });
 
-const patchAnchorBody = createAnchorBody.partial().refine((value) => Object.keys(value).length > 0, {
-  message: 'At least one field is required',
-});
+const patchAnchorBody = createAnchorBody
+  .partial()
+  .refine((value) => Object.keys(value).length > 0, {
+    message: 'At least one field is required',
+  });
 
 const patchBondBody = z.object({
   amountAtomic: z.string().min(1),
@@ -149,7 +152,9 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
       return;
     }
     const rows = await paymentAnchorRepo.listPaymentAnchors(app.db, 200);
-    const anchors = await Promise.all(rows.map((row) => toAnchorResponse(app.db, row, app.env.ANCHOR_BOND_STRICT === true)));
+    const anchors = await Promise.all(
+      rows.map((row) => toAnchorResponse(app.db, row, app.env.ANCHOR_BOND_STRICT === true))
+    );
     return anchors.filter((anchor) => anchor !== null);
   });
 
@@ -180,8 +185,7 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
       const hasBond = !!bond;
       const isBonded = hasBond && bond!.status !== 'released';
       const isVerified = hasBond && bond!.verified === true;
-      const isWithdrawing =
-        hasBond && !!bond!.withdrawalRequestedAt && bond!.status !== 'released';
+      const isWithdrawing = hasBond && !!bond!.withdrawalRequestedAt && bond!.status !== 'released';
       if (isBonded) bonded += 1;
       if (isVerified) verified += 1;
       if (isWithdrawing) withdrawalRequested += 1;
@@ -206,12 +210,7 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
               verified: bond!.verified,
               withdrawalRequestedAt: bond!.withdrawalRequestedAt,
               ageDays: bond!.createdAt
-                ? Math.max(
-                    0,
-                    Math.floor(
-                      (Date.now() - Date.parse(bond!.createdAt)) / 86_400_000
-                    )
-                  )
+                ? Math.max(0, Math.floor((Date.now() - Date.parse(bond!.createdAt)) / 86_400_000))
                 : null,
             }
           : null,
@@ -241,7 +240,9 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = reconcileAnchorsBody.safeParse(req.body ?? {});
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const job = await enqueueJobWithTelemetry(req, {
       queue: app.queues[QUEUE_NAMES.anchorBondReconciliation]!,
@@ -273,7 +274,9 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = onboardingAnchorsBody.safeParse(req.body ?? {});
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const job = await enqueueJobWithTelemetry(req, {
       queue: app.queues[QUEUE_NAMES.anchorOnboarding]!,
@@ -366,9 +369,13 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
     if (!row) {
       return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Anchor not found' } });
     }
-    const parsed = z.object({ reason: z.string().min(1).optional(), reconcileBond: z.boolean().optional() }).safeParse(req.body ?? {});
+    const parsed = z
+      .object({ reason: z.string().min(1).optional(), reconcileBond: z.boolean().optional() })
+      .safeParse(req.body ?? {});
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const job = await enqueueJobWithTelemetry(req, {
       queue: app.queues[QUEUE_NAMES.anchorOnboarding]!,
@@ -401,18 +408,24 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = createAnchorBody.safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const created = await paymentAnchorRepo.insertPaymentAnchor(app.db, parsed.data);
     if (!created) {
-      return reply.status(500).send({ error: { code: 'CREATE_FAILED', message: 'Anchor was not created' } });
+      return reply
+        .status(500)
+        .send({ error: { code: 'CREATE_FAILED', message: 'Anchor was not created' } });
     }
     await paymentAnchorRepo.insertAnchorEvent(app.db, {
       paymentAnchorId: created.id,
       eventType: 'payment_anchor.created',
       payload: { adapterId: created.adapterId, status: created.status },
     });
-    return reply.status(201).send(await toAnchorResponse(app.db, created, app.env.ANCHOR_BOND_STRICT === true));
+    return reply
+      .status(201)
+      .send(await toAnchorResponse(app.db, created, app.env.ANCHOR_BOND_STRICT === true));
   });
 
   app.patch('/anchors/:id', async (req, reply) => {
@@ -422,7 +435,9 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
     const { id } = req.params as { id: string };
     const parsed = patchAnchorBody.safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const updated = await paymentAnchorRepo.updatePaymentAnchor(app.db, id, parsed.data);
     if (!updated) {
@@ -447,9 +462,16 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = z.object({ status: PaymentAnchorStatusSchema }).safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
-    if (!canTransitionPaymentAnchorStatus(current.status as Parameters<typeof canTransitionPaymentAnchorStatus>[0], parsed.data.status)) {
+    if (
+      !canTransitionPaymentAnchorStatus(
+        current.status as Parameters<typeof canTransitionPaymentAnchorStatus>[0],
+        parsed.data.status
+      )
+    ) {
       return reply.status(400).send({
         error: {
           code: 'INVALID_TRANSITION',
@@ -457,7 +479,11 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
         },
       });
     }
-    const currentAnchor = await toAnchorResponse(app.db, current, app.env.ANCHOR_BOND_STRICT === true);
+    const currentAnchor = await toAnchorResponse(
+      app.db,
+      current,
+      app.env.ANCHOR_BOND_STRICT === true
+    );
     if (!currentAnchor) {
       return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Anchor not found' } });
     }
@@ -497,9 +523,13 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
         },
       });
     }
-    const updated = await paymentAnchorRepo.updatePaymentAnchor(app.db, id, { status: parsed.data.status });
+    const updated = await paymentAnchorRepo.updatePaymentAnchor(app.db, id, {
+      status: parsed.data.status,
+    });
     if (!updated) {
-      return reply.status(500).send({ error: { code: 'UPDATE_FAILED', message: 'Anchor status was not updated' } });
+      return reply
+        .status(500)
+        .send({ error: { code: 'UPDATE_FAILED', message: 'Anchor status was not updated' } });
     }
     await paymentAnchorRepo.insertAnchorEvent(app.db, {
       paymentAnchorId: id,
@@ -520,7 +550,9 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = patchBondBody.safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const existing = await paymentAnchorRepo.getLatestAnchorBondForAnchor(app.db, id);
     const payload = {
@@ -530,7 +562,9 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
       status: parsed.data.status,
       lockTxHash: parsed.data.lockTxHash,
       lockAccount: parsed.data.lockAccount,
-      withdrawalRequestedAt: parsed.data.withdrawalRequestedAt ? new Date(parsed.data.withdrawalRequestedAt) : undefined,
+      withdrawalRequestedAt: parsed.data.withdrawalRequestedAt
+        ? new Date(parsed.data.withdrawalRequestedAt)
+        : undefined,
       activatedAt: parsed.data.activatedAt ? new Date(parsed.data.activatedAt) : undefined,
       releasedAt: parsed.data.releasedAt ? new Date(parsed.data.releasedAt) : undefined,
       verified: parsed.data.verified ?? false,
@@ -544,7 +578,9 @@ export const anchorsRoutes: FastifyPluginAsync = async (app) => {
           ...payload,
         });
     if (!bond) {
-      return reply.status(500).send({ error: { code: 'BOND_UPDATE_FAILED', message: 'Anchor bond was not saved' } });
+      return reply
+        .status(500)
+        .send({ error: { code: 'BOND_UPDATE_FAILED', message: 'Anchor bond was not saved' } });
     }
     await paymentAnchorRepo.insertAnchorEvent(app.db, {
       paymentAnchorId: id,

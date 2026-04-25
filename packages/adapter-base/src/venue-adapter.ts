@@ -1,8 +1,4 @@
-import type {
-  AdapterHealth,
-  CapabilityMap,
-  QuoteRequest,
-} from '@keeta-agent-stack/types';
+import type { AdapterHealth, CapabilityMap, QuoteRequest } from '@keeta-agent-stack/types';
 import type { ExecuteContext } from './context.js';
 import type { ExecuteAdapterResult, QuoteAdapterResult } from './result.js';
 import type { VenueKind } from '@keeta-agent-stack/types';

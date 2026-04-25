@@ -14,7 +14,9 @@ export interface MockDexPriceFeedInput {
   quoteAsset: string;
 }
 
-export type MockDexPriceFeed = (input: MockDexPriceFeedInput) => number | string | Promise<number | string>;
+export type MockDexPriceFeed = (
+  input: MockDexPriceFeedInput
+) => number | string | Promise<number | string>;
 
 export interface MockDexConfig {
   id?: string;
@@ -105,7 +107,9 @@ export class MockDexAdapter implements DexVenueAdapter {
       })) ?? 1;
     const mid = Number(rawMid);
     if (!Number.isFinite(mid) || mid <= 0) {
-      throw new Error(`Invalid mock DEX mid price for ${request.baseAsset}/${request.quoteAsset}: ${rawMid}`);
+      throw new Error(
+        `Invalid mock DEX mid price for ${request.baseAsset}/${request.quoteAsset}: ${rawMid}`
+      );
     }
     return mid;
   }
@@ -123,7 +127,10 @@ export class MockDexAdapter implements DexVenueAdapter {
     try {
       mid = await this.getMidPrice(request);
     } catch (error) {
-      return err('INVALID_PRICE_FEED', error instanceof Error ? error.message : 'Invalid mock DEX price feed');
+      return err(
+        'INVALID_PRICE_FEED',
+        error instanceof Error ? error.message : 'Invalid mock DEX price feed'
+      );
     }
     const spreadAdj = (this.spreadBps / 10_000) * mid;
     const price =

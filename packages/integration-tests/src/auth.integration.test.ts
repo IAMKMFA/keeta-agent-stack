@@ -70,7 +70,9 @@ async function createRemoteJwtAuthority() {
         .setExpirationTime('5m')
         .sign(privateKey),
     close: async () =>
-      new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve()))),
+      new Promise<void>((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve()))
+      ),
   };
 }
 

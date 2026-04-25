@@ -27,7 +27,8 @@ const scenarioPresets = [
   {
     name: 'Shadow',
     mode: 'shadow',
-    description: 'Compares the proposed run against live execution posture when API/worker snapshots are available.',
+    description:
+      'Compares the proposed run against live execution posture when API/worker snapshots are available.',
   },
   {
     name: 'Replay',
@@ -71,7 +72,11 @@ export default async function SimulationLabPage() {
 
       <KpiGrid columns={4}>
         <Kpi label="Runs" value={formatNumber(rows.length)} hint="Recent simulation jobs" />
-        <Kpi label="Completed" value={formatNumber(completed)} trend={failed === 0 ? 'up' : 'flat'} />
+        <Kpi
+          label="Completed"
+          value={formatNumber(completed)}
+          trend={failed === 0 ? 'up' : 'flat'}
+        />
         <Kpi label="Pending" value={formatNumber(pending)} trend={pending === 0 ? 'up' : 'flat'} />
         <Kpi label="Fidelity modes" value={formatNumber(fidelityModes.size)} />
       </KpiGrid>
@@ -102,7 +107,8 @@ export default async function SimulationLabPage() {
               Heavy simulation stays server-side through the existing queue contract.
             </div>
             <div className="rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3">
-              Shadow and replay modes show whether worker/API snapshots are available before claiming fidelity.
+              Shadow and replay modes show whether worker/API snapshots are available before
+              claiming fidelity.
             </div>
           </div>
         </Card>
@@ -116,11 +122,22 @@ export default async function SimulationLabPage() {
           ) : (
             <div className="space-y-2">
               {rows.slice(0, 8).map((row) => (
-                <div key={row.id} className="rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3">
+                <div
+                  key={row.id}
+                  className="rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-mono text-xs text-[var(--keeta-ink)]">{shortId(row.id, 10)}</div>
+                    <div className="font-mono text-xs text-[var(--keeta-ink)]">
+                      {shortId(row.id, 10)}
+                    </div>
                     <StatusPill
-                      tone={row.status === 'completed' ? 'success' : row.status === 'failed' ? 'danger' : 'warning'}
+                      tone={
+                        row.status === 'completed'
+                          ? 'success'
+                          : row.status === 'failed'
+                            ? 'danger'
+                            : 'warning'
+                      }
                       dot={false}
                     >
                       {row.status}

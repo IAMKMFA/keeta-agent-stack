@@ -14,25 +14,34 @@ function log(stage: string, payload: Record<string, unknown> = {}): void {
 export function buildAgent(opts: BuildAgentOptions): KeetaAgent {
   const sdk = createClient({
     baseUrl: opts.apiUrl,
-    defaultHeaders: opts.apiToken
-      ? { Authorization: `Bearer ${opts.apiToken}` }
-      : undefined,
+    defaultHeaders: opts.apiToken ? { Authorization: `Bearer ${opts.apiToken}` } : undefined,
   });
 
   return createKeetaAgent({
     name: 'keeta-starter-agent',
     sdk,
     hooks: {
-      onIntent:        (ctx) => log('intent.received', { intentId: ctx.intent.id, mode: ctx.intent.mode }),
-      beforeRoute:     (ctx) => log('route.start',     { intentId: ctx.intent.id }),
-      afterRoute:      (ctx) => log('route.done',      { intentId: ctx.intent.id, bestRouteId: ctx.routes?.best.id, alternates: ctx.routes?.alternates.length }),
-      beforePolicy:    (ctx) => log('policy.start',    { intentId: ctx.intent.id }),
-      afterPolicy:     (ctx) => log('policy.done',     { intentId: ctx.intent.id, allowed: ctx.policyDecision?.allowed }),
-      beforeSimulation:(ctx) => log('simulation.start',{ intentId: ctx.intent.id }),
-      afterSimulation: (ctx) => log('simulation.done', { intentId: ctx.intent.id, slippageBps: ctx.simulationResult?.simulatedSlippageBps }),
+      onIntent: (ctx) => log('intent.received', { intentId: ctx.intent.id, mode: ctx.intent.mode }),
+      beforeRoute: (ctx) => log('route.start', { intentId: ctx.intent.id }),
+      afterRoute: (ctx) =>
+        log('route.done', {
+          intentId: ctx.intent.id,
+          bestRouteId: ctx.routes?.best.id,
+          alternates: ctx.routes?.alternates.length,
+        }),
+      beforePolicy: (ctx) => log('policy.start', { intentId: ctx.intent.id }),
+      afterPolicy: (ctx) =>
+        log('policy.done', { intentId: ctx.intent.id, allowed: ctx.policyDecision?.allowed }),
+      beforeSimulation: (ctx) => log('simulation.start', { intentId: ctx.intent.id }),
+      afterSimulation: (ctx) =>
+        log('simulation.done', {
+          intentId: ctx.intent.id,
+          slippageBps: ctx.simulationResult?.simulatedSlippageBps,
+        }),
       beforeExecution: (ctx) => log('execution.start', { intentId: ctx.intent.id }),
-      afterExecution:  (ctx) => log('execution.done',  { intentId: ctx.intent.id }),
-      onError:         (ctx) => log('agent.error',     { intentId: ctx.intent.id, error: String(ctx.metadata.error) }),
+      afterExecution: (ctx) => log('execution.done', { intentId: ctx.intent.id }),
+      onError: (ctx) =>
+        log('agent.error', { intentId: ctx.intent.id, error: String(ctx.metadata.error) }),
     },
   });
 }

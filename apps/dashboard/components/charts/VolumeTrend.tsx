@@ -57,12 +57,7 @@ export function VolumeTrend({ data, compact }: VolumeTrendProps) {
               fill="url(#volume-grad)"
               stroke="none"
             />
-            <path
-              d={path}
-              fill="none"
-              stroke="var(--keeta-accent-deep)"
-              strokeWidth={1.5}
-            />
+            <path d={path} fill="none" stroke="var(--keeta-accent-deep)" strokeWidth={1.5} />
             <path
               d={successPath}
               fill="none"

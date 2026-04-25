@@ -25,11 +25,7 @@ type ToolCallResponse = {
   data: unknown;
 };
 
-export function McpToolConsole({
-  initialTools = [],
-}: {
-  initialTools?: OracleMcpTool[];
-}) {
+export function McpToolConsole({ initialTools = [] }: { initialTools?: OracleMcpTool[] }) {
   const [tools, setTools] = useState<OracleMcpTool[]>(initialTools);
   const [selectedTool, setSelectedTool] = useState(initialTools[0]?.name ?? '');
   const [argsText, setArgsText] = useState('{}');
@@ -57,7 +53,8 @@ export function McpToolConsole({
         setSelectedTool(response.tools[0].name);
       }
     } catch (refreshError) {
-      const message = refreshError instanceof Error ? refreshError.message : 'Unable to list MCP tools';
+      const message =
+        refreshError instanceof Error ? refreshError.message : 'Unable to list MCP tools';
       setError(message);
     }
   }
@@ -80,11 +77,14 @@ export function McpToolConsole({
       return;
     }
     try {
-      const response = await requestJson<ToolCallResponse>(`/oracle/mcp/tools/${encodeURIComponent(selectedTool)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsedArgs),
-      });
+      const response = await requestJson<ToolCallResponse>(
+        `/oracle/mcp/tools/${encodeURIComponent(selectedTool)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsedArgs),
+        }
+      );
       startTransition(() => {
         setOutput(response.data);
       });

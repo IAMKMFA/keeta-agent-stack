@@ -415,9 +415,7 @@ describe('Zod schemas', () => {
       intentId: '550e8400-e29b-41d4-a716-446655440000',
       allowed: true,
       summary: 'ok',
-      contributions: [
-        { ruleId: 'max_order_size', passed: true },
-      ],
+      contributions: [{ ruleId: 'max_order_size', passed: true }],
       effectivePolicyPackId: '550e8400-e29b-41d4-a716-446655440012',
       effectivePolicyPackName: 'wallet-default',
       effectivePolicyPackSource: 'wallet_default' as const,

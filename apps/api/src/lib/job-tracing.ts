@@ -38,7 +38,12 @@ export async function enqueueJobWithTelemetry<T extends Record<string, unknown>>
           ...options.attributes,
         },
       },
-      async () => options.queue.add(options.jobName, withRequestTelemetry(req, options.data), options.jobOptions)
+      async () =>
+        options.queue.add(
+          options.jobName,
+          withRequestTelemetry(req, options.data),
+          options.jobOptions
+        )
     )
   );
 }

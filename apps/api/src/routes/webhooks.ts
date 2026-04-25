@@ -10,17 +10,18 @@ const createWebhookSchema = z.object({
   status: z.enum(['active', 'paused']).default('active'),
 });
 
-const updateWebhookSchema = createWebhookSchema.partial().refine(
-  (value) => Object.keys(value).length > 0,
-  'Provide at least one field to update'
-);
+const updateWebhookSchema = createWebhookSchema
+  .partial()
+  .refine((value) => Object.keys(value).length > 0, 'Provide at least one field to update');
 
 const deliveriesQuerySchema = z.object({
   subscriptionId: z.string().uuid().optional(),
   limit: z.coerce.number().int().min(1).max(500).default(100),
 });
 
-function serializeSubscription(row: Awaited<ReturnType<typeof webhookRepo.getWebhookSubscriptionById>>) {
+function serializeSubscription(
+  row: Awaited<ReturnType<typeof webhookRepo.getWebhookSubscriptionById>>
+) {
   if (!row) return row;
   return {
     id: row.id,
@@ -68,7 +69,9 @@ export const webhooksRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = createWebhookSchema.safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const created = await webhookRepo.createWebhookSubscription(app.db, {
       targetUrl: parsed.data.targetUrl,
@@ -88,7 +91,9 @@ export const webhooksRoutes: FastifyPluginAsync = async (app) => {
     const { id } = req.params as { id: string };
     const parsed = updateWebhookSchema.safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const updated = await webhookRepo.updateWebhookSubscription(app.db, id, {
       targetUrl: parsed.data.targetUrl,
@@ -108,7 +113,9 @@ export const webhooksRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = deliveriesQuerySchema.safeParse(req.query);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const rows = await webhookRepo.listWebhookDeliveries(app.db, parsed.data);
     return { deliveries: rows.map((row) => serializeDelivery(row)) };

@@ -27,7 +27,11 @@ export const simulationsRoutes: FastifyPluginAsync = async (app) => {
     const parsed = runBody.safeParse(req.body);
     if (!parsed.success) {
       return reply.status(400).send({
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid body', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid body',
+          details: parsed.error.flatten(),
+        },
       });
     }
     const job = await enqueueJobWithTelemetry(req, {
@@ -54,7 +58,9 @@ export const simulationsRoutes: FastifyPluginAsync = async (app) => {
     const { id } = req.params as { id: string };
     const run = await simulationRepo.getSimulationRun(app.db, id);
     if (!run) {
-      return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Simulation not found' } });
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Simulation not found' } });
     }
     const result = await simulationRepo.getSimulationResultByRun(app.db, id);
     if (!result) {

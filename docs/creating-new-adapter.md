@@ -45,15 +45,15 @@ pnpm install
 Open `packages/adapter-myvenue/src/template-adapter.ts` (rename the file to
 match your venue if you want). Each method maps to a routing-engine guarantee:
 
-| Method                | Purpose                                                          | Notes                                                                   |
-| --------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `id`                  | Stable identifier used by routes, audit logs, and routing weights | Lowercase kebab-case, e.g. `binance-usdt-spot`                         |
-| `kind`                | `'dex' \| 'anchor' \| 'transfer'`                                | Drives default capability discovery                                    |
-| `healthCheck()`       | Report liveness                                                  | Cheap. Used for adapter-health dashboards.                              |
-| `getCapabilities()`   | Advertise supported pairs + features                             | Static is fine; refresh on a timer if your venue listings change         |
-| `supportsPair(b, q)`  | Fast path filter for the router                                  | Pure boolean check                                                       |
-| `getQuote(req)`       | Return a `QuoteResponse` or a structured `AdapterErr`            | No side-effects. Wrap upstream errors in `err('UPSTREAM_5XX', msg)`.    |
-| `execute(ctx)`        | Settle a route step                                              | Idempotent on `ctx.intentId`. Honour `ctx.mode`.                        |
+| Method               | Purpose                                                           | Notes                                                                |
+| -------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `id`                 | Stable identifier used by routes, audit logs, and routing weights | Lowercase kebab-case, e.g. `binance-usdt-spot`                       |
+| `kind`               | `'dex' \| 'anchor' \| 'transfer'`                                 | Drives default capability discovery                                  |
+| `healthCheck()`      | Report liveness                                                   | Cheap. Used for adapter-health dashboards.                           |
+| `getCapabilities()`  | Advertise supported pairs + features                              | Static is fine; refresh on a timer if your venue listings change     |
+| `supportsPair(b, q)` | Fast path filter for the router                                   | Pure boolean check                                                   |
+| `getQuote(req)`      | Return a `QuoteResponse` or a structured `AdapterErr`             | No side-effects. Wrap upstream errors in `err('UPSTREAM_5XX', msg)`. |
+| `execute(ctx)`       | Settle a route step                                               | Idempotent on `ctx.intentId`. Honour `ctx.mode`.                     |
 
 Use the helpers from `@keeta-agent-stack/adapter-base`:
 
@@ -108,7 +108,11 @@ never auto-loads in production. Mock adapters use the convention
 import { MyVenueAdapter } from '@keeta-agent-stack/adapter-myvenue';
 // inside createDefaultDevAdapters
 if (MyVenueAdapter.isEnabled()) {
-  adapters.push(new MyVenueAdapter({ /* config */ }));
+  adapters.push(
+    new MyVenueAdapter({
+      /* config */
+    })
+  );
 }
 ```
 
@@ -155,14 +159,14 @@ pnpm --filter @keeta-agent-stack/adapter-myvenue publish --dry-run --no-git-chec
 
 ## Reference Implementations
 
-| Pattern                                | Package                                    | Notes                                                            |
-| -------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
-| Documented boilerplate (throws live)   | [`adapter-template`](../packages/adapter-template) | Copy this first.                                                |
-| Working in-memory mock DEX             | [`adapter-mock-dex`](../packages/adapter-mock-dex) | Spread + slippage simulation.                                   |
-| Working in-memory CLOB-style mock CEX  | [`adapter-mock-cex`](../packages/adapter-mock-cex) | Per-pair books, balances, fills. Env-flagged.                  |
-| Documented stub (live throws)          | [`adapter-solana-stub`](../packages/adapter-solana-stub) | Quote + simulate work; live throws `SolanaNotImplementedError`. |
-| Real native rail                        | [`adapter-keeta-transfer`](../packages/adapter-keeta-transfer) | Reference for production patterns.                              |
-| Real anchor bridge                      | [`adapter-mock-anchor`](../packages/adapter-mock-anchor)        | Pattern for asynchronous settlement.                             |
+| Pattern                               | Package                                                        | Notes                                                           |
+| ------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------- |
+| Documented boilerplate (throws live)  | [`adapter-template`](../packages/adapter-template)             | Copy this first.                                                |
+| Working in-memory mock DEX            | [`adapter-mock-dex`](../packages/adapter-mock-dex)             | Spread + slippage simulation.                                   |
+| Working in-memory CLOB-style mock CEX | [`adapter-mock-cex`](../packages/adapter-mock-cex)             | Per-pair books, balances, fills. Env-flagged.                   |
+| Documented stub (live throws)         | [`adapter-solana-stub`](../packages/adapter-solana-stub)       | Quote + simulate work; live throws `SolanaNotImplementedError`. |
+| Real native rail                      | [`adapter-keeta-transfer`](../packages/adapter-keeta-transfer) | Reference for production patterns.                              |
+| Real anchor bridge                    | [`adapter-mock-anchor`](../packages/adapter-mock-anchor)       | Pattern for asynchronous settlement.                            |
 
 ## Why "throw on execute" is safe
 

@@ -171,9 +171,7 @@ export function LiveExecutionStream() {
                   </span>
                 </div>
                 <pre className="mt-1 overflow-x-auto rounded bg-[rgba(44,42,42,0.04)] p-2 font-mono text-[11px] text-[var(--keeta-ink-subtle)]">
-                  {typeof ev.data === 'string'
-                    ? ev.data
-                    : JSON.stringify(ev.data, null, 2)}
+                  {typeof ev.data === 'string' ? ev.data : JSON.stringify(ev.data, null, 2)}
                 </pre>
               </li>
             ))}

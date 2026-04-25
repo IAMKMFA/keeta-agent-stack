@@ -1,14 +1,7 @@
 import { requireScope } from '../../../../lib/auth';
 import { requireV2Enabled } from '../../../../lib/flags';
 import { fetchJson } from '../../../../lib/api';
-import {
-  Card,
-  EmptyState,
-  Kpi,
-  KpiGrid,
-  PageHeader,
-  StatusPill,
-} from '../../../../components/ui';
+import { Card, EmptyState, Kpi, KpiGrid, PageHeader, StatusPill } from '../../../../components/ui';
 import { formatDateTime, formatNumber, shortId } from '../../../../lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -58,10 +51,9 @@ export default async function WebhooksPage() {
   await requireScope('webhooks:read');
 
   const [subs, deliveries] = await Promise.all([
-    fetchJson<{ webhooks: WebhookSubscription[] } | WebhookSubscription[]>(
-      '/ops/webhooks',
-      { webhooks: [] }
-    ).then((x) => (Array.isArray(x) ? x : (x.webhooks ?? []))),
+    fetchJson<{ webhooks: WebhookSubscription[] } | WebhookSubscription[]>('/ops/webhooks', {
+      webhooks: [],
+    }).then((x) => (Array.isArray(x) ? x : (x.webhooks ?? []))),
     fetchJson<{ deliveries: WebhookDelivery[] } | WebhookDelivery[]>(
       '/ops/webhook-deliveries?limit=200',
       { deliveries: [] }
@@ -211,9 +203,7 @@ export default async function WebhooksPage() {
                         </StatusPill>
                       </td>
                       <td className="px-2 py-2 font-mono text-xs">{d.attemptCount}</td>
-                      <td className="px-2 py-2 font-mono text-xs">
-                        {d.responseStatus ?? '—'}
-                      </td>
+                      <td className="px-2 py-2 font-mono text-xs">{d.responseStatus ?? '—'}</td>
                       <td className="px-2 py-2 text-xs text-[var(--keeta-muted)]">
                         {d.lastError ? d.lastError.slice(0, 120) : '—'}
                       </td>

@@ -143,7 +143,11 @@ export interface UpdatePolicyPackRequest {
 
 export type CreateIntentRequest = Omit<
   ExecutionIntent,
-  'id' | 'createdAt' | 'effectivePolicyPackId' | 'effectivePolicyPackName' | 'effectivePolicyPackSource'
+  | 'id'
+  | 'createdAt'
+  | 'effectivePolicyPackId'
+  | 'effectivePolicyPackName'
+  | 'effectivePolicyPackSource'
 > & {
   requiresApproval?: boolean;
 };
@@ -399,11 +403,16 @@ export function createClient(opts: SdkClientOptions) {
       })
     );
   const isRequestOptions = (value: unknown): value is RequestOptions =>
-    !!value && typeof value === 'object' && 'signal' in (value as Record<string, unknown>) && !('policyPackId' in (value as Record<string, unknown>));
-  const createServerWallet = (body: CreateServerWalletRequest) => postJson<CreatedServerWallet>('/wallets', body);
+    !!value &&
+    typeof value === 'object' &&
+    'signal' in (value as Record<string, unknown>) &&
+    !('policyPackId' in (value as Record<string, unknown>));
+  const createServerWallet = (body: CreateServerWalletRequest) =>
+    postJson<CreatedServerWallet>('/wallets', body);
   const createOrImportServerWallet = (body: ImportOrCreateServerWalletRequest) =>
     postJson<ImportOrCreateServerWalletResult>('/wallets/import-or-create', body);
-  const importWallet = (body: ImportWalletRequest) => postJson<WalletSummary>('/wallets/import', body);
+  const importWallet = (body: ImportWalletRequest) =>
+    postJson<WalletSummary>('/wallets/import', body);
   const createWallet = async (body: CreateWalletRequest = {}): Promise<CreateWalletResult> => {
     const created = createKeetaWallet({
       index: body.index,
@@ -423,7 +432,9 @@ export function createClient(opts: SdkClientOptions) {
     });
     return { created, wallet };
   };
-  const createOrImportWallet = async (body: CreateOrImportWalletRequest): Promise<CreateOrImportWalletResult> => {
+  const createOrImportWallet = async (
+    body: CreateOrImportWalletRequest
+  ): Promise<CreateOrImportWalletResult> => {
     if (body.mode === 'import') {
       const wallet = await importWallet({
         label: body.label,
@@ -567,11 +578,12 @@ export function createClient(opts: SdkClientOptions) {
     /**
      * Filter the rail catalog by transport and/or production-only.
      */
-    filterRailCatalog: (opts?: { transports?: RailTransport[]; productionOnly?: boolean }): RailMetadataEntry[] =>
-      listBuiltinRailsByTransport(opts),
+    filterRailCatalog: (opts?: {
+      transports?: RailTransport[];
+      productionOnly?: boolean;
+    }): RailMetadataEntry[] => listBuiltinRailsByTransport(opts),
 
-    createIntent: (body: CreateIntentRequest) =>
-      postJson<ExecutionIntent>('/intents', body),
+    createIntent: (body: CreateIntentRequest) => postJson<ExecutionIntent>('/intents', body),
 
     getIntent: (id: string, options: RequestOptions = {}) =>
       getJson<ExecutionIntent>(`/intents/${id}`, options),
@@ -670,7 +682,9 @@ export function createClient(opts: SdkClientOptions) {
       return getJson<unknown>(`/oracle/rate?${query.toString()}`);
     },
 
-    oracleCompare: (params: { from?: OracleCompareFrom; amount?: number; currency?: string } = {}) => {
+    oracleCompare: (
+      params: { from?: OracleCompareFrom; amount?: number; currency?: string } = {}
+    ) => {
       const query = new URLSearchParams();
       if (params.from) query.set('from', params.from);
       if (typeof params.amount === 'number') query.set('amount', String(params.amount));
@@ -706,7 +720,12 @@ export function createClient(opts: SdkClientOptions) {
         amountAtomic: string;
         assetId?: string;
         delayDays: 30 | 90;
-        status: 'pending_lock' | 'active' | 'withdrawal_requested' | 'released' | 'failed_verification';
+        status:
+          | 'pending_lock'
+          | 'active'
+          | 'withdrawal_requested'
+          | 'released'
+          | 'failed_verification';
         lockTxHash?: string;
         lockAccount?: string;
         withdrawalRequestedAt?: string;
@@ -722,7 +741,10 @@ export function createClient(opts: SdkClientOptions) {
       postJson<{ jobId: string; queue: string }>('/anchors/reconcile', body),
 
     reconcileAnchor: (id: string) =>
-      postJson<{ jobId: string; queue: string; paymentAnchorId: string }>(`/anchors/${id}/reconcile`, {}),
+      postJson<{ jobId: string; queue: string; paymentAnchorId: string }>(
+        `/anchors/${id}/reconcile`,
+        {}
+      ),
 
     runAnchorOnboarding: (body: AnchorOnboardingRunRequest = {}) =>
       postJson<{ jobId: string; queue: string }>('/anchors/onboarding/run', body),
@@ -731,6 +753,9 @@ export function createClient(opts: SdkClientOptions) {
       id: string,
       body: Omit<AnchorOnboardingRunRequest, 'paymentAnchorId' | 'adapterId'> = {}
     ) =>
-      postJson<{ jobId: string; queue: string; paymentAnchorId: string }>(`/anchors/${id}/onboarding/run`, body),
+      postJson<{ jobId: string; queue: string; paymentAnchorId: string }>(
+        `/anchors/${id}/onboarding/run`,
+        body
+      ),
   };
 }

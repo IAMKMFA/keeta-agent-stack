@@ -64,9 +64,9 @@ export function KillSwitchPanel({ engaged, canWrite }: KillSwitchPanelProps) {
         },
         body: JSON.stringify({ confirm: expected }),
       });
-      const body = (await res.json().catch(() => null)) as
-        | { error?: { code?: string; message?: string; action?: Mutation } }
-        | null;
+      const body = (await res.json().catch(() => null)) as {
+        error?: { code?: string; message?: string; action?: Mutation };
+      } | null;
 
       if (res.status === 501 && body?.error?.code === 'kill_switch_backend_pending') {
         setStatus({ kind: 'placeholder', action });
@@ -121,8 +121,8 @@ export function KillSwitchPanel({ engaged, canWrite }: KillSwitchPanelProps) {
     >
       <div className="space-y-3">
         <p className="text-sm text-[var(--keeta-muted)]">
-          Engaging the kill switch halts all new execution submissions. In-flight executions
-          are not cancelled; they continue through their normal settlement/retry paths.
+          Engaging the kill switch halts all new execution submissions. In-flight executions are not
+          cancelled; they continue through their normal settlement/retry paths.
         </p>
 
         {canWrite ? (
@@ -144,8 +144,14 @@ export function KillSwitchPanel({ engaged, canWrite }: KillSwitchPanelProps) {
                 </span>
               </div>
             ) : (
-              <form onSubmit={onSubmit} className="space-y-2 rounded-xl border border-[var(--keeta-line)] bg-[rgba(255,255,255,0.5)] p-3">
-                <label className="block text-xs font-semibold text-[var(--keeta-muted)]" htmlFor="kill-switch-confirm">
+              <form
+                onSubmit={onSubmit}
+                className="space-y-2 rounded-xl border border-[var(--keeta-line)] bg-[rgba(255,255,255,0.5)] p-3"
+              >
+                <label
+                  className="block text-xs font-semibold text-[var(--keeta-muted)]"
+                  htmlFor="kill-switch-confirm"
+                >
                   Type <span className="font-mono">{expected}</span> to {action}
                 </label>
                 <input
@@ -190,8 +196,8 @@ export function KillSwitchPanel({ engaged, canWrite }: KillSwitchPanelProps) {
               <div className="rounded-xl border border-[var(--keeta-line)] bg-[rgba(0,0,0,0.03)] p-3 text-xs text-[var(--keeta-muted)]">
                 <span className="font-semibold">Backend endpoint pending.</span> The dashboard
                 enforced the full CSRF + scope + confirmation contract for{' '}
-                <span className="font-mono">kill_switch:{status.action}</span>, but the upstream
-                API does not yet expose a mutation route. Audit event was recorded.
+                <span className="font-mono">kill_switch:{status.action}</span>, but the upstream API
+                does not yet expose a mutation route. Audit event was recorded.
               </div>
             )}
           </div>

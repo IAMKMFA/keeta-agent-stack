@@ -57,7 +57,8 @@ export function OracleAutopilotForm() {
         setResult(response.plan);
       });
     } catch (submitError) {
-      const message = submitError instanceof Error ? submitError.message : 'Unable to build payment plan';
+      const message =
+        submitError instanceof Error ? submitError.message : 'Unable to build payment plan';
       setError(message);
     }
   }
@@ -66,9 +67,12 @@ export function OracleAutopilotForm() {
     <div className="space-y-4">
       <div>
         <div className="hub-kicker">Oracle Autopilot</div>
-        <h3 className="hub-heading mt-1 text-xl font-semibold">Generate payment execution playbook</h3>
+        <h3 className="hub-heading mt-1 text-xl font-semibold">
+          Generate payment execution playbook
+        </h3>
         <p className="mt-1 text-sm text-[var(--hub-muted)]">
-          Build structured rail comparison, exchange instructions, compliance guidance, and optional SDK snippet.
+          Build structured rail comparison, exchange instructions, compliance guidance, and optional
+          SDK snippet.
         </p>
       </div>
 
@@ -113,7 +117,9 @@ export function OracleAutopilotForm() {
           <span className="text-[var(--hub-muted)]">Compare from</span>
           <select
             value={compareFrom}
-            onChange={(event) => setCompareFrom(event.target.value as (typeof compareOptions)[number])}
+            onChange={(event) =>
+              setCompareFrom(event.target.value as (typeof compareOptions)[number])
+            }
             className="w-full rounded-xl border border-[var(--hub-line)] bg-white px-3 py-2 outline-none ring-[var(--hub-accent)] transition focus:ring-2"
           >
             {compareOptions.map((value) => (

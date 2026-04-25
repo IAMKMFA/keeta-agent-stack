@@ -8,86 +8,86 @@ It is intentionally precise. It describes what is first-class today, what is par
 
 ## Coverage Tiers
 
-| Tier | Meaning |
-|---|---|
-| Strong | Available as a public backend/API capability and surfaced in the SDK and/or MCP in a clear typed/productized way |
-| Good | Available publicly and surfaced in at least one primary client layer, but still missing parity or polish somewhere |
-| Partial | Real capability exists, but it is not yet promoted into a strong first-class surface |
-| Not Yet Surfaced | Underlying capability may exist internally or dynamically, but there is not yet a stable public product surface |
+| Tier             | Meaning                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Strong           | Available as a public backend/API capability and surfaced in the SDK and/or MCP in a clear typed/productized way   |
+| Good             | Available publicly and surfaced in at least one primary client layer, but still missing parity or polish somewhere |
+| Partial          | Real capability exists, but it is not yet promoted into a strong first-class surface                               |
+| Not Yet Surfaced | Underlying capability may exist internally or dynamically, but there is not yet a stable public product surface    |
 
 ## Control Plane Coverage
 
-| Capability | Backend/API | TypeScript SDK | MCP | Status | Notes |
-|---|---|---|---|---|---|
-| Create intent | Yes | Yes | Yes | Strong | Core pipeline entrypoint |
-| Quote intent | Yes | Yes | Yes | Strong | Queue-backed async stage |
-| Route intent | Yes | Yes | Yes | Strong | Queue-backed async stage |
-| Policy-stage enqueue | Yes | Yes | Yes | Strong | MCP tool uses existing pipeline semantics |
-| Execute intent | Yes | Yes | Yes | Strong | Queue-backed execution stage |
-| Hold intent | Yes | Yes | Yes | Strong | Operational intervention supported |
-| Release intent | Yes | Yes | Yes | Strong | Resumes pipeline from current durable state |
-| Approve intent | Yes | Yes | Yes | Strong | Admin approval path supported |
-| Register route override | Yes | Yes | Yes | Strong | API, SDK, and MCP parity present |
-| List route plans | Yes | Partial | No | Partial | Backend exists; not a dedicated primary SDK surface in this pass |
-| List executions | Yes | Partial | No | Partial | Backend exists; SDK can still expand here |
-| Run simulation | Yes | Yes | No dedicated tool | Good | SDK parity present |
-| Get simulation result | Yes | Yes | No dedicated tool | Good | MCP can add a direct wrapper later |
+| Capability              | Backend/API | TypeScript SDK | MCP               | Status  | Notes                                                            |
+| ----------------------- | ----------- | -------------- | ----------------- | ------- | ---------------------------------------------------------------- |
+| Create intent           | Yes         | Yes            | Yes               | Strong  | Core pipeline entrypoint                                         |
+| Quote intent            | Yes         | Yes            | Yes               | Strong  | Queue-backed async stage                                         |
+| Route intent            | Yes         | Yes            | Yes               | Strong  | Queue-backed async stage                                         |
+| Policy-stage enqueue    | Yes         | Yes            | Yes               | Strong  | MCP tool uses existing pipeline semantics                        |
+| Execute intent          | Yes         | Yes            | Yes               | Strong  | Queue-backed execution stage                                     |
+| Hold intent             | Yes         | Yes            | Yes               | Strong  | Operational intervention supported                               |
+| Release intent          | Yes         | Yes            | Yes               | Strong  | Resumes pipeline from current durable state                      |
+| Approve intent          | Yes         | Yes            | Yes               | Strong  | Admin approval path supported                                    |
+| Register route override | Yes         | Yes            | Yes               | Strong  | API, SDK, and MCP parity present                                 |
+| List route plans        | Yes         | Partial        | No                | Partial | Backend exists; not a dedicated primary SDK surface in this pass |
+| List executions         | Yes         | Partial        | No                | Partial | Backend exists; SDK can still expand here                        |
+| Run simulation          | Yes         | Yes            | No dedicated tool | Good    | SDK parity present                                               |
+| Get simulation result   | Yes         | Yes            | No dedicated tool | Good    | MCP can add a direct wrapper later                               |
 
 ## Wallet Coverage
 
-| Capability | Backend/API | TypeScript SDK | MCP | Status | Notes |
-|---|---|---|---|---|---|
-| List wallets | Yes | Yes | Indirect | Good | Strong SDK parity |
-| Create wallet locally | No server requirement | Yes | Yes | Strong | Seed derived client-side |
-| Create wallet server-side | Yes | Yes | Indirect | Good | Seed return is explicit and one-time |
-| Import wallet address | Yes | Yes | Yes | Strong | Registers address metadata only |
-| Unified create/import flow | Yes | Yes | Yes | Strong | Now consistent across REST/SDK/MCP |
-| Get wallet balances | Yes | Yes | Yes | Strong | API, SDK, and MCP parity present |
-| Multi-wallet managed signing | No | No | No | Not Yet Surfaced | Current signing remains worker-scoped |
+| Capability                   | Backend/API           | TypeScript SDK | MCP      | Status           | Notes                                 |
+| ---------------------------- | --------------------- | -------------- | -------- | ---------------- | ------------------------------------- |
+| List wallets                 | Yes                   | Yes            | Indirect | Good             | Strong SDK parity                     |
+| Create wallet locally        | No server requirement | Yes            | Yes      | Strong           | Seed derived client-side              |
+| Create wallet server-side    | Yes                   | Yes            | Indirect | Good             | Seed return is explicit and one-time  |
+| Import wallet address        | Yes                   | Yes            | Yes      | Strong           | Registers address metadata only       |
+| Unified create/import flow   | Yes                   | Yes            | Yes      | Strong           | Now consistent across REST/SDK/MCP    |
+| Get wallet balances          | Yes                   | Yes            | Yes      | Strong           | API, SDK, and MCP parity present      |
+| Multi-wallet managed signing | No                    | No             | No       | Not Yet Surfaced | Current signing remains worker-scoped |
 
 ## Policy Coverage
 
-| Capability | Backend/API | TypeScript SDK | MCP | Status | Notes |
-|---|---|---|---|---|---|
-| List policy rules | Yes | Yes | Yes | Strong | API, SDK, and MCP parity present |
-| Evaluate policy preview | Yes | Yes | Yes | Strong | Separate from pipeline policy-stage enqueue |
-| Persist policy packs | Yes | Yes | Yes | Strong | CRUD exists across API, SDK, and MCP |
-| Assign strategy policy packs | Yes | Yes | Yes | Strong | Strategy-level selection is supported across API, SDK, and MCP |
-| `allOf` / `anyOf` / `not` composition | Yes | Yes | Yes | Strong | Reuses engine semantics through persisted packs |
-| Load persisted packs into runtime enforcement | Yes | Yes | Yes | Strong | Worker resolves explicit intent, intent metadata, wallet default, strategy assignment, then global default before policy evaluation |
+| Capability                                    | Backend/API | TypeScript SDK | MCP | Status | Notes                                                                                                                               |
+| --------------------------------------------- | ----------- | -------------- | --- | ------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| List policy rules                             | Yes         | Yes            | Yes | Strong | API, SDK, and MCP parity present                                                                                                    |
+| Evaluate policy preview                       | Yes         | Yes            | Yes | Strong | Separate from pipeline policy-stage enqueue                                                                                         |
+| Persist policy packs                          | Yes         | Yes            | Yes | Strong | CRUD exists across API, SDK, and MCP                                                                                                |
+| Assign strategy policy packs                  | Yes         | Yes            | Yes | Strong | Strategy-level selection is supported across API, SDK, and MCP                                                                      |
+| `allOf` / `anyOf` / `not` composition         | Yes         | Yes            | Yes | Strong | Reuses engine semantics through persisted packs                                                                                     |
+| Load persisted packs into runtime enforcement | Yes         | Yes            | Yes | Strong | Worker resolves explicit intent, intent metadata, wallet default, strategy assignment, then global default before policy evaluation |
 
 ## Events and Webhooks Coverage
 
-| Capability | Backend/API | TypeScript SDK | MCP | Status | Notes |
-|---|---|---|---|---|---|
-| List events | Yes | Yes | Yes | Strong | Supports filters |
-| Stream events via SSE | Yes | Yes | Yes, bounded collection | Good | MCP returns a bounded result, not an endless open stream |
-| List webhooks | Yes | Yes | Yes | Strong | |
-| Create webhook subscription | Yes | Yes | Yes | Strong | |
-| Update webhook subscription | Yes | Yes | No dedicated tool | Good | |
-| List webhook deliveries | Yes | Yes | No dedicated tool | Good | |
+| Capability                  | Backend/API | TypeScript SDK | MCP                     | Status | Notes                                                    |
+| --------------------------- | ----------- | -------------- | ----------------------- | ------ | -------------------------------------------------------- |
+| List events                 | Yes         | Yes            | Yes                     | Strong | Supports filters                                         |
+| Stream events via SSE       | Yes         | Yes            | Yes, bounded collection | Good   | MCP returns a bounded result, not an endless open stream |
+| List webhooks               | Yes         | Yes            | Yes                     | Strong |                                                          |
+| Create webhook subscription | Yes         | Yes            | Yes                     | Strong |                                                          |
+| Update webhook subscription | Yes         | Yes            | No dedicated tool       | Good   |                                                          |
+| List webhook deliveries     | Yes         | Yes            | No dedicated tool       | Good   |                                                          |
 
 ## Network / Ops Reads
 
-| Capability | Backend/API | TypeScript SDK | MCP | Status | Notes |
-|---|---|---|---|---|---|
-| Health | Yes | Yes | Indirect | Good | |
-| Chain health | Yes | Yes | Yes | Strong | |
-| Config modes | Yes | Yes | Yes | Strong | |
-| Strategy templates | Yes | Yes | Yes | Strong | |
-| Ops metrics | Yes | Yes | Yes | Strong | |
+| Capability         | Backend/API | TypeScript SDK | MCP      | Status | Notes |
+| ------------------ | ----------- | -------------- | -------- | ------ | ----- |
+| Health             | Yes         | Yes            | Indirect | Good   |       |
+| Chain health       | Yes         | Yes            | Yes      | Strong |       |
+| Config modes       | Yes         | Yes            | Yes      | Strong |       |
+| Strategy templates | Yes         | Yes            | Yes      | Strong |       |
+| Ops metrics        | Yes         | Yes            | Yes      | Strong |       |
 
 ## Anchors and Oracle
 
-| Capability | Backend/API | TypeScript SDK | MCP | Status | Notes |
-|---|---|---|---|---|---|
-| List/get/create/update anchors | Yes | Yes | Yes | Strong | |
-| Update anchor status | Yes | Yes | Yes | Strong | |
-| Update anchor bond | Yes | Yes | Yes | Strong | |
-| Reconcile bonds | Yes | Yes | Yes | Strong | |
-| Run onboarding | Yes | Yes | Yes | Strong | |
-| Oracle status/tools/rates/compare | Yes | Yes | Yes | Strong | |
-| Oracle payment planning | Yes | Yes | Yes | Strong | |
+| Capability                        | Backend/API | TypeScript SDK | MCP | Status | Notes |
+| --------------------------------- | ----------- | -------------- | --- | ------ | ----- |
+| List/get/create/update anchors    | Yes         | Yes            | Yes | Strong |       |
+| Update anchor status              | Yes         | Yes            | Yes | Strong |       |
+| Update anchor bond                | Yes         | Yes            | Yes | Strong |       |
+| Reconcile bonds                   | Yes         | Yes            | Yes | Strong |       |
+| Run onboarding                    | Yes         | Yes            | Yes | Strong |       |
+| Oracle status/tools/rates/compare | Yes         | Yes            | Yes | Strong |       |
+| Oracle payment planning           | Yes         | Yes            | Yes | Strong |       |
 
 ## Rails / Adapters
 
@@ -97,29 +97,29 @@ It is intentionally precise. It describes what is first-class today, what is par
 > useful for development, a stub that quotes and simulates but cannot
 > execute live, or a template you copy and fill in. See the per-adapter rows.
 
-| Adapter / Capability | Status | Notes |
-|---|---|---|
-| `@keeta-agent-stack/adapter-keeta-transfer` (native KTA) | **Live** | Real native KTA transfers via `@keetanetwork/keetanet-client` 0.16.x. Signing happens in `apps/worker`. |
-| `@keeta-agent-stack/adapter-oracle-rail` (HTTP partner) | **Live (with config)** | KTA Oracle for quotes; configurable live CCTP-style URL for execution. Set `ORACLE_RAIL_*` env vars before flipping `mode: 'live'`. |
-| `@keeta-agent-stack/adapter-mock-dex` | **Synthetic** | Used by `examples/paper-trader` and the integration harness. Not a real venue. |
-| `@keeta-agent-stack/adapter-mock-anchor` | **Synthetic** | Mock anchor venue. Used in tests and demos. |
-| `@keeta-agent-stack/adapter-mock-cex` | **Synthetic** | In-memory CLOB-style adapter. Disabled unless `KEETA_ENABLE_MOCK_CEX=true`. Quote + simulate + live (in-memory balances) all real, but balances are ephemeral. |
-| `@keeta-agent-stack/adapter-solana-stub` | **Stub (simulate only)** | Quote + simulate work for routing demos. `execute(mode='live')` throws `SolanaNotImplementedError`. Disabled unless `KEETA_ENABLE_SOLANA_STUB=true`. |
-| `@keeta-agent-stack/adapter-template` | **Boilerplate** | `execute` throws `NotImplementedError`. Copy this when integrating a real venue. See [`docs/creating-new-adapter.md`](./creating-new-adapter.md). |
-| List adapters | Strong | `GET /adapters`; SDK `listAdapters()` |
-| Adapter health | Good | Backend route exists; SDK has `partial` exposure |
-| Shared built-in rail metadata | Strong | Backend `/rails/catalog`, SDK `listRailCatalog()` / `filterRailCatalog()`, and MCP `keeta_list_available_rails` expose production vs mock labeling |
-| Enumerated fiat-push / fiat-pull / crypto rails (UAE, CAD, Plaid, PULL) | Good | Backed by `@keetanetwork/anchor` 0.0.58 enum surface |
-| Anchor chaining (resolveAssets / pathOwner / distance) | Good | MCP tools `keeta_anchor_chaining_*`. Require server-held seed unless `MCP_ALLOW_INLINE_SEEDS=true`. |
+| Adapter / Capability                                                    | Status                   | Notes                                                                                                                                                          |
+| ----------------------------------------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@keeta-agent-stack/adapter-keeta-transfer` (native KTA)                | **Live**                 | Real native KTA transfers via `@keetanetwork/keetanet-client` 0.16.x. Signing happens in `apps/worker`.                                                        |
+| `@keeta-agent-stack/adapter-oracle-rail` (HTTP partner)                 | **Live (with config)**   | KTA Oracle for quotes; configurable live CCTP-style URL for execution. Set `ORACLE_RAIL_*` env vars before flipping `mode: 'live'`.                            |
+| `@keeta-agent-stack/adapter-mock-dex`                                   | **Synthetic**            | Used by `examples/paper-trader` and the integration harness. Not a real venue.                                                                                 |
+| `@keeta-agent-stack/adapter-mock-anchor`                                | **Synthetic**            | Mock anchor venue. Used in tests and demos.                                                                                                                    |
+| `@keeta-agent-stack/adapter-mock-cex`                                   | **Synthetic**            | In-memory CLOB-style adapter. Disabled unless `KEETA_ENABLE_MOCK_CEX=true`. Quote + simulate + live (in-memory balances) all real, but balances are ephemeral. |
+| `@keeta-agent-stack/adapter-solana-stub`                                | **Stub (simulate only)** | Quote + simulate work for routing demos. `execute(mode='live')` throws `SolanaNotImplementedError`. Disabled unless `KEETA_ENABLE_SOLANA_STUB=true`.           |
+| `@keeta-agent-stack/adapter-template`                                   | **Boilerplate**          | `execute` throws `NotImplementedError`. Copy this when integrating a real venue. See [`docs/creating-new-adapter.md`](./creating-new-adapter.md).              |
+| List adapters                                                           | Strong                   | `GET /adapters`; SDK `listAdapters()`                                                                                                                          |
+| Adapter health                                                          | Good                     | Backend route exists; SDK has `partial` exposure                                                                                                               |
+| Shared built-in rail metadata                                           | Strong                   | Backend `/rails/catalog`, SDK `listRailCatalog()` / `filterRailCatalog()`, and MCP `keeta_list_available_rails` expose production vs mock labeling             |
+| Enumerated fiat-push / fiat-pull / crypto rails (UAE, CAD, Plaid, PULL) | Good                     | Backed by `@keetanetwork/anchor` 0.0.58 enum surface                                                                                                           |
+| Anchor chaining (resolveAssets / pathOwner / distance)                  | Good                     | MCP tools `keeta_anchor_chaining_*`. Require server-held seed unless `MCP_ALLOW_INLINE_SEEDS=true`.                                                            |
 
 ## Keeta Network Primitive Coverage
 
-| Capability Class | Backend/API | TypeScript SDK | MCP | Status | Notes |
-|---|---|---|---|---|---|
-| Lower-level Keeta client methods | No public typed API | Limited | Yes, dynamic execution tools | Partial | Available through dynamic MCP execution rather than broad typed product surfaces |
-| User client / builder workflows | No public typed API | Limited | Yes, dynamic execution tools | Partial | Useful, but not yet the polished “first-class” path |
-| Native transfer via worker | Yes | Indirect | Indirect | Good | Strong as a system capability, but not fully generalized as a public signing model |
-| Full typed surface over underlying Keeta SDK | No | No | No | Not Yet Surfaced | Future platform expansion |
+| Capability Class                             | Backend/API         | TypeScript SDK | MCP                          | Status           | Notes                                                                              |
+| -------------------------------------------- | ------------------- | -------------- | ---------------------------- | ---------------- | ---------------------------------------------------------------------------------- |
+| Lower-level Keeta client methods             | No public typed API | Limited        | Yes, dynamic execution tools | Partial          | Available through dynamic MCP execution rather than broad typed product surfaces   |
+| User client / builder workflows              | No public typed API | Limited        | Yes, dynamic execution tools | Partial          | Useful, but not yet the polished “first-class” path                                |
+| Native transfer via worker                   | Yes                 | Indirect       | Indirect                     | Good             | Strong as a system capability, but not fully generalized as a public signing model |
+| Full typed surface over underlying Keeta SDK | No                  | No             | No                           | Not Yet Surfaced | Future platform expansion                                                          |
 
 ## What Is Fully Strong Today
 
@@ -153,24 +153,24 @@ Use this wording internally when discussing the frontier:
 
 ## Dashboard Operator Surface (V2 foundation + Epic V3 cockpit)
 
-| Surface | Backend API | Dashboard Route | Role Gate | Capability Gate | Status |
-|---|---|---|---|---|---|
-| Viewer identity | `GET /me` | n/a | any authenticated | — | Strong |
-| Role-based home redirect | — | `/` | any authenticated | — | Strong |
-| Operator cockpit | `GET /ops/dashboard-summary` | `/dashboard` | admin, operator | `ops:read` | Strong |
-| Operator Command Center | existing ops APIs + dashboard kill-switch proxy | `/command-center` | admin, operator | `ops:read` (+ `kill_switch:write` to mutate) | Good; backend kill-switch mutation remains proposed |
-| Live Execution Stream | `/events/stream` via hardened proxy | `/live` | admin, operator | `ops:read` | Strong |
-| Policy Insights | `GET /policy/decisions` | `/policy` | admin, operator | `policy:read` | Strong |
-| Policy Builder foundation | `GET /policy/rules`, `GET /policy/packs` | `/policy/builder` | admin, operator | `policy:read` | Good; graph editing remains future UI work |
-| Agent list and detail | `GET /ops/agents`, `GET /ops/agents/:id` | `/agents`, `/agents/[id]` | admin, operator | `ops:read` | Strong |
-| Simulation Lab | simulation and intent APIs | `/simulate` | admin, operator | `ops:read` | Good; richer scenario persistence remains future work |
-| Backtest foundation | policy, simulation, and historical intent reads | `/backtest` | admin, operator | `ops:read` | Good; durable backtest jobs remain future work |
-| Anchor & Bond Health | `GET /anchors/health` | `/anchors-health` | admin, operator | `ops:read` | Strong |
-| Webhook Deliveries | `GET /ops/webhooks`, `/ops/webhook-deliveries` | `/webhooks` | admin, operator | `webhooks:read` | Strong |
-| Cost & Fees Analytics | `GET /ops/fees/aggregate` | `/cost` | admin, operator | `ops:read` | Good (in-memory agg; materialization planned) |
-| Exec Overview | existing execution/anchor APIs | `/overview` | admin, operator, exec | `exec:read` | Strong |
-| Tenant Home | tenant-scoped ops | `/home` | admin, operator, tenant | `tenant:read` | Strong |
-| Rail Catalog | `GET /rails/catalog` | `/rails` | admin, operator, tenant, exec | `rails:read` | Strong |
+| Surface                   | Backend API                                     | Dashboard Route           | Role Gate                     | Capability Gate                              | Status                                                |
+| ------------------------- | ----------------------------------------------- | ------------------------- | ----------------------------- | -------------------------------------------- | ----------------------------------------------------- |
+| Viewer identity           | `GET /me`                                       | n/a                       | any authenticated             | —                                            | Strong                                                |
+| Role-based home redirect  | —                                               | `/`                       | any authenticated             | —                                            | Strong                                                |
+| Operator cockpit          | `GET /ops/dashboard-summary`                    | `/dashboard`              | admin, operator               | `ops:read`                                   | Strong                                                |
+| Operator Command Center   | existing ops APIs + dashboard kill-switch proxy | `/command-center`         | admin, operator               | `ops:read` (+ `kill_switch:write` to mutate) | Good; backend kill-switch mutation remains proposed   |
+| Live Execution Stream     | `/events/stream` via hardened proxy             | `/live`                   | admin, operator               | `ops:read`                                   | Strong                                                |
+| Policy Insights           | `GET /policy/decisions`                         | `/policy`                 | admin, operator               | `policy:read`                                | Strong                                                |
+| Policy Builder foundation | `GET /policy/rules`, `GET /policy/packs`        | `/policy/builder`         | admin, operator               | `policy:read`                                | Good; graph editing remains future UI work            |
+| Agent list and detail     | `GET /ops/agents`, `GET /ops/agents/:id`        | `/agents`, `/agents/[id]` | admin, operator               | `ops:read`                                   | Strong                                                |
+| Simulation Lab            | simulation and intent APIs                      | `/simulate`               | admin, operator               | `ops:read`                                   | Good; richer scenario persistence remains future work |
+| Backtest foundation       | policy, simulation, and historical intent reads | `/backtest`               | admin, operator               | `ops:read`                                   | Good; durable backtest jobs remain future work        |
+| Anchor & Bond Health      | `GET /anchors/health`                           | `/anchors-health`         | admin, operator               | `ops:read`                                   | Strong                                                |
+| Webhook Deliveries        | `GET /ops/webhooks`, `/ops/webhook-deliveries`  | `/webhooks`               | admin, operator               | `webhooks:read`                              | Strong                                                |
+| Cost & Fees Analytics     | `GET /ops/fees/aggregate`                       | `/cost`                   | admin, operator               | `ops:read`                                   | Good (in-memory agg; materialization planned)         |
+| Exec Overview             | existing execution/anchor APIs                  | `/overview`               | admin, operator, exec         | `exec:read`                                  | Strong                                                |
+| Tenant Home               | tenant-scoped ops                               | `/home`                   | admin, operator, tenant       | `tenant:read`                                | Strong                                                |
+| Rail Catalog              | `GET /rails/catalog`                            | `/rails`                  | admin, operator, tenant, exec | `rails:read`                                 | Strong                                                |
 
 ### Security guarantees
 

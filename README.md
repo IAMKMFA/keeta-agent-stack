@@ -6,6 +6,13 @@
 
 Build Keeta-native agents that can take an intent, find the best route, enforce policy, simulate risk, execute safely, and keep users and operators informed in real time.
 
+|                           |                                                                                                                                                                |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Install path today**    | **Clone the monorepo** — use workspace packages via `pnpm` (see [Get started in 30 seconds](#get-started-in-30-seconds)).                                      |
+| **NPM packages**          | **`@keeta-agent-stack/*` is not on npm yet** (deliberate; first publish is gated on the scope decision).                                                       |
+| **Hosted API / Typedoc**  | **Build locally** — `pnpm --filter @keeta-agent-stack/docs build` → `apps/docs/dist` + `openapi.json`. GitHub Pages is gated; no public doc URL until enabled. |
+| **Fastest “see it work”** | [Quick Start](#quick-start) (`docker compose` → `db:migrate` → `pnpm dev:all` → `pnpm demo`) or run [`examples/hello-agent`](./examples/hello-agent).          |
+
 ## Status
 
 **Pre-publish alpha (`0.1.0-alpha.0`).** The SDK family
@@ -111,28 +118,28 @@ This is not a prompt wrapper. It is an execution platform.
 
 ## Main Surfaces
 
-| Surface | Path | Purpose |
-|---|---|---|
-| SDK client | `packages/sdk` | Typed client for intents, routes, simulations, events, webhooks, oracle, and anchor operations |
-| API | `apps/api` | Fastify control plane with typed routes, auth, metrics, and OpenAPI |
-| Worker | `apps/worker` | BullMQ-driven execution, policy, simulation, reconciliation, and delivery engine |
-| Dashboard | `apps/dashboard` | Operator UI for platform visibility and control |
-| MCP server | `apps/mcp` | Tool surface for LLM-driven workflows and oracle-assisted playbooks |
-| Agent runtime | `packages/agent-runtime` | High-level orchestration hooks for custom agent behavior |
+| Surface       | Path                     | Purpose                                                                                        |
+| ------------- | ------------------------ | ---------------------------------------------------------------------------------------------- |
+| SDK client    | `packages/sdk`           | Typed client for intents, routes, simulations, events, webhooks, oracle, and anchor operations |
+| API           | `apps/api`               | Fastify control plane with typed routes, auth, metrics, and OpenAPI                            |
+| Worker        | `apps/worker`            | BullMQ-driven execution, policy, simulation, reconciliation, and delivery engine               |
+| Dashboard     | `apps/dashboard`         | Operator UI for platform visibility and control                                                |
+| MCP server    | `apps/mcp`               | Tool surface for LLM-driven workflows and oracle-assisted playbooks                            |
+| Agent runtime | `packages/agent-runtime` | High-level orchestration hooks for custom agent behavior                                       |
 
 ## What Is Real Today
 
-| Area | Current state |
-|---|---|
-| Keeta chain reads | Real via `@keetanetwork/keetanet-client` |
-| Native KTA transfer execution | Real in live mode through the worker |
-| Oracle-assisted rate and rail planning | Real |
-| Multi-hop routing | Real |
-| Policy engine with custom rules and composition | Real |
-| Dashboard, events, webhooks, metrics, tracing | Real |
-| Integration test harness with Postgres and Redis | Real |
-| Mock DEX and mock anchor venues | Simulated by design |
-| Additional live third-party venue adapters | Future expansion through the adapter contract |
+| Area                                             | Current state                                 |
+| ------------------------------------------------ | --------------------------------------------- |
+| Keeta chain reads                                | Real via `@keetanetwork/keetanet-client`      |
+| Native KTA transfer execution                    | Real in live mode through the worker          |
+| Oracle-assisted rate and rail planning           | Real                                          |
+| Multi-hop routing                                | Real                                          |
+| Policy engine with custom rules and composition  | Real                                          |
+| Dashboard, events, webhooks, metrics, tracing    | Real                                          |
+| Integration test harness with Postgres and Redis | Real                                          |
+| Mock DEX and mock anchor venues                  | Simulated by design                           |
+| Additional live third-party venue adapters       | Future expansion through the adapter contract |
 
 ## Security Model
 
@@ -216,10 +223,11 @@ const agent = createKeetaAgent({
     liveModeEnabled: true,
   },
   hooks: {
-    onIntent:        (ctx) => console.log('intent', ctx.intent.id),
-    afterRoute:      (ctx) => console.log('best route', ctx.routes?.best.id),
-    afterPolicy:     (ctx) => console.log('policy allowed?', ctx.policyDecision?.allowed),
-    afterSimulation: (ctx) => console.log('simulated slippage bps', ctx.simulationResult?.simulatedSlippageBps),
+    onIntent: (ctx) => console.log('intent', ctx.intent.id),
+    afterRoute: (ctx) => console.log('best route', ctx.routes?.best.id),
+    afterPolicy: (ctx) => console.log('policy allowed?', ctx.policyDecision?.allowed),
+    afterSimulation: (ctx) =>
+      console.log('simulated slippage bps', ctx.simulationResult?.simulatedSlippageBps),
   },
 });
 
@@ -269,14 +277,14 @@ The worker (not the agent process) holds the Keeta signing key, so this code pat
 
 Five turn-key reference agents live under [`examples/`](./examples). Each folder has its own README explaining the scenario, prerequisites, and run command.
 
-| Pattern | Folder | What it shows |
-|---|---|---|
-| Hello agent (60-second smoke) | [`examples/hello-agent`](./examples/hello-agent) | Minimal `createClient` -> wallet -> intent -> quote in one file. Start here. |
-| Paper trader | [`examples/paper-trader`](./examples/paper-trader) | Hands-off simulation loop using `createKeetaAgent` and the mock DEX. |
-| Rebalance bot | [`examples/rebalance-bot`](./examples/rebalance-bot) | Periodic portfolio rebalancing via policy-gated route execution. |
-| Oracle payment playbook | [`examples/oracle-payment-playbook`](./examples/oracle-payment-playbook) | Oracle-priced fiat → KTA payment with the new `oracle.payment.*` MCP tools. |
-| Route inspector | [`examples/route-inspector`](./examples/route-inspector) | Pull alternates and explainable scoring out of the routing engine. |
-| Simulation fidelity | [`examples/simulation-fidelity`](./examples/simulation-fidelity) | Compare standard / shadow / replay simulation modes against live chain reads. |
+| Pattern                       | Folder                                                                   | What it shows                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Hello agent (60-second smoke) | [`examples/hello-agent`](./examples/hello-agent)                         | Minimal `createClient` -> wallet -> intent -> quote in one file. Start here.  |
+| Paper trader                  | [`examples/paper-trader`](./examples/paper-trader)                       | Hands-off simulation loop using `createKeetaAgent` and the mock DEX.          |
+| Rebalance bot                 | [`examples/rebalance-bot`](./examples/rebalance-bot)                     | Periodic portfolio rebalancing via policy-gated route execution.              |
+| Oracle payment playbook       | [`examples/oracle-payment-playbook`](./examples/oracle-payment-playbook) | Oracle-priced fiat → KTA payment with the new `oracle.payment.*` MCP tools.   |
+| Route inspector               | [`examples/route-inspector`](./examples/route-inspector)                 | Pull alternates and explainable scoring out of the routing engine.            |
+| Simulation fidelity           | [`examples/simulation-fidelity`](./examples/simulation-fidelity)         | Compare standard / shadow / replay simulation modes against live chain reads. |
 
 For an end-to-end smoke harness that exercises the API + worker together, see [`examples/mock-live-run`](./examples/mock-live-run).
 

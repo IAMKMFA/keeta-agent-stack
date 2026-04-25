@@ -11,10 +11,11 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { buildOpenApiDocument } from '../../api/src/openapi.js';
 
-const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? process.env.API_URL ?? 'http://localhost:3001').replace(
-  /\/$/,
-  '',
-);
+const apiUrl = (
+  process.env.NEXT_PUBLIC_API_URL ??
+  process.env.API_URL ??
+  'http://localhost:3001'
+).replace(/\/$/, '');
 
 const docsRoot = resolve('dist');
 await mkdir(docsRoot, { recursive: true });

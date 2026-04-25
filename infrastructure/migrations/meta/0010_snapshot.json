@@ -49,9 +49,7 @@
         "wallets_address_unique": {
           "name": "wallets_address_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "address"
-          ]
+          "columns": ["address"]
         }
       },
       "policies": {},
@@ -96,9 +94,7 @@
         "assets_symbol_unique": {
           "name": "assets_symbol_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "symbol"
-          ]
+          "columns": ["symbol"]
         }
       },
       "policies": {},
@@ -279,12 +275,8 @@
           "name": "execution_intents_strategy_id_strategies_id_fk",
           "tableFrom": "execution_intents",
           "tableTo": "strategies",
-          "columnsFrom": [
-            "strategy_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["strategy_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -292,12 +284,8 @@
           "name": "execution_intents_wallet_id_wallets_id_fk",
           "tableFrom": "execution_intents",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -351,12 +339,8 @@
           "name": "quotes_intent_id_execution_intents_id_fk",
           "tableFrom": "quotes",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -410,12 +394,8 @@
           "name": "route_plans_intent_id_execution_intents_id_fk",
           "tableFrom": "route_plans",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -468,12 +448,8 @@
           "name": "route_steps_plan_id_route_plans_id_fk",
           "tableFrom": "route_steps",
           "tableTo": "route_plans",
-          "columnsFrom": [
-            "plan_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["plan_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -543,12 +519,8 @@
           "name": "policy_decisions_intent_id_execution_intents_id_fk",
           "tableFrom": "policy_decisions",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -744,12 +716,8 @@
           "name": "executions_intent_id_execution_intents_id_fk",
           "tableFrom": "executions",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -803,12 +771,8 @@
           "name": "balance_snapshots_wallet_id_wallets_id_fk",
           "tableFrom": "balance_snapshots",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -816,12 +780,8 @@
           "name": "balance_snapshots_asset_id_assets_id_fk",
           "tableFrom": "balance_snapshots",
           "tableTo": "assets",
-          "columnsFrom": [
-            "asset_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["asset_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -908,12 +868,8 @@
           "name": "simulation_results_run_id_simulation_runs_id_fk",
           "tableFrom": "simulation_results",
           "tableTo": "simulation_runs",
-          "columnsFrom": [
-            "run_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["run_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -974,12 +930,8 @@
           "name": "simulation_runs_intent_id_execution_intents_id_fk",
           "tableFrom": "simulation_runs",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -987,12 +939,8 @@
           "name": "simulation_runs_route_plan_id_route_plans_id_fk",
           "tableFrom": "simulation_runs",
           "tableTo": "route_plans",
-          "columnsFrom": [
-            "route_plan_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["route_plan_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1058,12 +1006,8 @@
           "name": "execution_audit_events_execution_id_executions_id_fk",
           "tableFrom": "execution_audit_events",
           "tableTo": "executions",
-          "columnsFrom": [
-            "execution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["execution_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1071,12 +1015,8 @@
           "name": "execution_audit_events_intent_id_execution_intents_id_fk",
           "tableFrom": "execution_audit_events",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1124,12 +1064,8 @@
           "name": "intent_snapshots_intent_id_execution_intents_id_fk",
           "tableFrom": "intent_snapshots",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1183,12 +1119,8 @@
           "name": "policy_snapshots_intent_id_execution_intents_id_fk",
           "tableFrom": "policy_snapshots",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1242,12 +1174,8 @@
           "name": "route_snapshots_intent_id_execution_intents_id_fk",
           "tableFrom": "route_snapshots",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1301,12 +1229,8 @@
           "name": "route_overrides_intent_id_execution_intents_id_fk",
           "tableFrom": "route_overrides",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1372,12 +1296,8 @@
           "name": "job_failures_intent_id_execution_intents_id_fk",
           "tableFrom": "job_failures",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1503,12 +1423,8 @@
           "name": "portfolio_state_wallet_id_wallets_id_fk",
           "tableFrom": "portfolio_state",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1632,12 +1548,8 @@
           "name": "anchor_bonds_payment_anchor_id_payment_anchors_id_fk",
           "tableFrom": "anchor_bonds",
           "tableTo": "payment_anchors",
-          "columnsFrom": [
-            "payment_anchor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payment_anchor_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1698,12 +1610,8 @@
           "name": "anchor_events_payment_anchor_id_payment_anchors_id_fk",
           "tableFrom": "anchor_events",
           "tableTo": "payment_anchors",
-          "columnsFrom": [
-            "payment_anchor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payment_anchor_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1711,12 +1619,8 @@
           "name": "anchor_events_anchor_bond_id_anchor_bonds_id_fk",
           "tableFrom": "anchor_events",
           "tableTo": "anchor_bonds",
-          "columnsFrom": [
-            "anchor_bond_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["anchor_bond_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1826,9 +1730,7 @@
         "payment_anchors_adapter_id_unique": {
           "name": "payment_anchors_adapter_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "adapter_id"
-          ]
+          "columns": ["adapter_id"]
         }
       },
       "policies": {},
@@ -1902,12 +1804,8 @@
           "name": "execution_journal_entries_intent_id_execution_intents_id_fk",
           "tableFrom": "execution_journal_entries",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1915,12 +1813,8 @@
           "name": "execution_journal_entries_execution_id_executions_id_fk",
           "tableFrom": "execution_journal_entries",
           "tableTo": "executions",
-          "columnsFrom": [
-            "execution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["execution_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2068,12 +1962,8 @@
           "name": "webhook_deliveries_subscription_id_webhook_subscriptions_id_fk",
           "tableFrom": "webhook_deliveries",
           "tableTo": "webhook_subscriptions",
-          "columnsFrom": [
-            "subscription_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["subscription_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

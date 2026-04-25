@@ -73,7 +73,8 @@ function requestOrigin(req: Request): string | null {
 function expectedOrigin(req: Request): string | null {
   const host = req.headers.get('host');
   if (!host) return null;
-  const proto = req.headers.get('x-forwarded-proto') ?? (req.url.startsWith('https:') ? 'https' : 'http');
+  const proto =
+    req.headers.get('x-forwarded-proto') ?? (req.url.startsWith('https:') ? 'https' : 'http');
   return `${proto}://${host}`;
 }
 

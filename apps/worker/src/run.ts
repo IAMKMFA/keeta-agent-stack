@@ -1,12 +1,7 @@
 import { Queue, UnrecoverableError, Worker } from 'bullmq';
 import { Redis } from 'ioredis';
 import { createHash, createHmac } from 'node:crypto';
-import {
-  loadEnv,
-  QUEUE_NAMES,
-  getWorkerOptions,
-  type AppEnv,
-} from '@keeta-agent-stack/config';
+import { loadEnv, QUEUE_NAMES, getWorkerOptions, type AppEnv } from '@keeta-agent-stack/config';
 import { createDb, type Database } from '@keeta-agent-stack/storage';
 import {
   intentRepo,
@@ -30,7 +25,10 @@ import {
   operatorMetricsRepo,
   webhookRepo,
 } from '@keeta-agent-stack/storage';
-import { createDefaultDevRegistry, type AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import {
+  createDefaultDevRegistry,
+  type AdapterRegistry,
+} from '@keeta-agent-stack/adapter-registry';
 import { Router } from '@keeta-agent-stack/routing';
 import {
   applyPolicyPack,
@@ -141,7 +139,13 @@ function executionToRow(
 } {
   const raw = data.raw;
   let receipt: Record<string, unknown> | null = null;
-  if (raw && typeof raw === 'object' && 'receipt' in raw && raw.receipt && typeof raw.receipt === 'object') {
+  if (
+    raw &&
+    typeof raw === 'object' &&
+    'receipt' in raw &&
+    raw.receipt &&
+    typeof raw.receipt === 'object'
+  ) {
     receipt = raw.receipt as Record<string, unknown>;
   } else if (raw && typeof raw === 'object') {
     receipt = raw as Record<string, unknown>;
@@ -150,20 +154,22 @@ function executionToRow(
     data.status === 'failed'
       ? 'failed'
       : data.settlementState === 'confirmed'
-      ? 'confirmed'
-      : data.settlementState === 'failed'
-        ? 'failed'
-        : data.settlementState === 'submitted'
-          ? 'submitted'
-          : data.status === 'pending'
-            ? 'pending'
-            : 'unknown';
+        ? 'confirmed'
+        : data.settlementState === 'failed'
+          ? 'failed'
+          : data.settlementState === 'submitted'
+            ? 'submitted'
+            : data.status === 'pending'
+              ? 'pending'
+              : 'unknown';
   const normalizedReceipt = NormalizedReceiptSchema.parse({
     blockHash: data.blockHash,
     txHash: data.txId,
     settlementState: data.settlementState,
     adapterId,
-    ...(data.normalizedReceipt && typeof data.normalizedReceipt === 'object' ? data.normalizedReceipt : {}),
+    ...(data.normalizedReceipt && typeof data.normalizedReceipt === 'object'
+      ? data.normalizedReceipt
+      : {}),
   });
   return {
     intentId,
@@ -305,7 +311,9 @@ function corridorKeyForIntent(intent: { baseAsset: string; quoteAsset: string })
 }
 
 function readStringArray(value: unknown): string[] {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.length > 0) : [];
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.length > 0)
+    : [];
 }
 
 function readFiniteNumber(value: unknown): number | undefined {
@@ -353,9 +361,7 @@ function resolveAnchorOperatorPriority(anchor: {
   );
 }
 
-function asStoredVerificationSource(
-  source: string
-): 'database' | 'keeta' | undefined {
+function asStoredVerificationSource(source: string): 'database' | 'keeta' | undefined {
   return source === 'database' || source === 'keeta' ? source : undefined;
 }
 
@@ -380,14 +386,8 @@ function serializeAnchorBond(
       bond.withdrawalRequestedAt instanceof Date
         ? bond.withdrawalRequestedAt.toISOString()
         : undefined,
-    activatedAt:
-      bond.activatedAt instanceof Date
-        ? bond.activatedAt.toISOString()
-        : undefined,
-    releasedAt:
-      bond.releasedAt instanceof Date
-        ? bond.releasedAt.toISOString()
-        : undefined,
+    activatedAt: bond.activatedAt instanceof Date ? bond.activatedAt.toISOString() : undefined,
+    releasedAt: bond.releasedAt instanceof Date ? bond.releasedAt.toISOString() : undefined,
     verified: bond.verified,
     verificationSource,
     verificationDetails: bond.verificationDetails ?? undefined,
@@ -486,8 +486,9 @@ async function reconcileAnchorBondRecord(
 
   // Write bond health metrics to metric_samples for Phase 4 dynamic scoring
   const capturedAt = new Date();
-  const bondAgeMs =
-    existing.activatedAt ? capturedAt.getTime() - new Date(existing.activatedAt).getTime() : null;
+  const bondAgeMs = existing.activatedAt
+    ? capturedAt.getTime() - new Date(existing.activatedAt).getTime()
+    : null;
   const bondAgeDays = bondAgeMs !== null ? bondAgeMs / (1000 * 60 * 60 * 24) : null;
 
   const bondMetrics = [
@@ -522,16 +523,15 @@ async function runAnchorBondReconciliation(
   job: AnchorBondReconciliationJobData
 ): Promise<{ scanned: number; checked: number; changed: number }> {
   const reason = job.reason ?? 'scheduled';
-  const anchors =
-    job.paymentAnchorId
-      ? [await paymentAnchorRepo.getPaymentAnchor(db, job.paymentAnchorId)]
-      : job.adapterId
-        ? [await paymentAnchorRepo.getPaymentAnchorByAdapterId(db, job.adapterId)]
-        : await paymentAnchorRepo.listPaymentAnchorsByStatuses(
-            db,
-            ['bond_pending_lock', 'active', 'withdrawal_requested', 'released', 'suspended'],
-            env.ANCHOR_BOND_RECONCILE_BATCH_SIZE
-          );
+  const anchors = job.paymentAnchorId
+    ? [await paymentAnchorRepo.getPaymentAnchor(db, job.paymentAnchorId)]
+    : job.adapterId
+      ? [await paymentAnchorRepo.getPaymentAnchorByAdapterId(db, job.adapterId)]
+      : await paymentAnchorRepo.listPaymentAnchorsByStatuses(
+          db,
+          ['bond_pending_lock', 'active', 'withdrawal_requested', 'released', 'suspended'],
+          env.ANCHOR_BOND_RECONCILE_BATCH_SIZE
+        );
 
   let scanned = 0;
   let checked = 0;
@@ -579,16 +579,23 @@ async function runAnchorOnboarding(
   job: AnchorOnboardingJobData
 ): Promise<{ scanned: number; advanced: number; finalStatuses: Record<string, string> }> {
   const reason = job.reason ?? 'manual';
-  const anchors =
-    job.paymentAnchorId
-      ? [await paymentAnchorRepo.getPaymentAnchor(db, job.paymentAnchorId)]
-      : job.adapterId
-        ? [await paymentAnchorRepo.getPaymentAnchorByAdapterId(db, job.adapterId)]
-        : await paymentAnchorRepo.listPaymentAnchorsByStatuses(
-            db,
-            ['draft', 'commercial_defined', 'bond_required', 'bond_pending_lock', 'withdrawal_requested', 'released', 'active'],
-            env.ANCHOR_BOND_RECONCILE_BATCH_SIZE
-          );
+  const anchors = job.paymentAnchorId
+    ? [await paymentAnchorRepo.getPaymentAnchor(db, job.paymentAnchorId)]
+    : job.adapterId
+      ? [await paymentAnchorRepo.getPaymentAnchorByAdapterId(db, job.adapterId)]
+      : await paymentAnchorRepo.listPaymentAnchorsByStatuses(
+          db,
+          [
+            'draft',
+            'commercial_defined',
+            'bond_required',
+            'bond_pending_lock',
+            'withdrawal_requested',
+            'released',
+            'active',
+          ],
+          env.ANCHOR_BOND_RECONCILE_BATCH_SIZE
+        );
 
   let scanned = 0;
   let advanced = 0;
@@ -665,7 +672,11 @@ async function buildAnchorBondHints(
   routePlan: { steps: Array<{ adapterId: string; venueKind?: string }> },
   strictVerifier: ReturnType<typeof createAnchorBondVerifier>
 ): Promise<Record<string, PolicyAnchorBondHint>> {
-  const anchorAdapterIds = [...new Set(routePlan.steps.filter((step) => step.venueKind === 'anchor').map((step) => step.adapterId))];
+  const anchorAdapterIds = [
+    ...new Set(
+      routePlan.steps.filter((step) => step.venueKind === 'anchor').map((step) => step.adapterId)
+    ),
+  ];
   const hints: Record<string, PolicyAnchorBondHint> = {};
 
   for (const adapterId of anchorAdapterIds) {
@@ -760,9 +771,12 @@ async function buildAnchorRoutingProfiles(
     const corridorMatch = resolveAnchorCorridorMatch(anchor, targetCorridorKey);
     const supportsRequestedAssets =
       anchor.supportedAssets.length === 0 ||
-      (anchor.supportedAssets.includes(intent.baseAsset) && anchor.supportedAssets.includes(intent.quoteAsset));
+      (anchor.supportedAssets.includes(intent.baseAsset) &&
+        anchor.supportedAssets.includes(intent.quoteAsset));
     const commercialVolumeFeeBps =
-      typeof anchor.commercialTerms?.volumeFeeBps === 'number' ? anchor.commercialTerms.volumeFeeBps : undefined;
+      typeof anchor.commercialTerms?.volumeFeeBps === 'number'
+        ? anchor.commercialTerms.volumeFeeBps
+        : undefined;
     const operatorPriority = resolveAnchorOperatorPriority(anchor);
     const scoreAdjustments: RouteScoreAdjustment[] = [];
 
@@ -815,9 +829,7 @@ async function buildAnchorRoutingProfiles(
         corridorKey: targetCorridorKey,
         corridorMatch: corridorMatch === 'mismatch' ? undefined : corridorMatch,
         readinessStatus: readiness.status,
-        ...(typeof commercialVolumeFeeBps === 'number'
-          ? { commercialVolumeFeeBps }
-          : {}),
+        ...(typeof commercialVolumeFeeBps === 'number' ? { commercialVolumeFeeBps } : {}),
         ...(operatorPriority !== 0 ? { operatorPriority } : {}),
         ...(typeof adapterMetrics?.successRate === 'number'
           ? { operatorSuccessRate: adapterMetrics.successRate }
@@ -840,9 +852,9 @@ async function buildAnchorRoutingProfiles(
   return { paymentAnchorIds, byAdapterId };
 }
 
-function hydrateRoutePlanKinds<T extends { steps: Array<{ adapterId: string; venueKind?: string }> }>(
-  routePlan: T
-): T {
+function hydrateRoutePlanKinds<
+  T extends { steps: Array<{ adapterId: string; venueKind?: string }> },
+>(routePlan: T): T {
   return {
     ...routePlan,
     steps: routePlan.steps.map((step) => ({
@@ -909,7 +921,10 @@ async function closeWithTimeout(
         if (timer) clearTimeout(timer);
       }),
       new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+        timer = setTimeout(
+          () => reject(new Error(`${label} timed out after ${timeoutMs}ms`)),
+          timeoutMs
+        );
       }),
     ]);
   } catch (error) {
@@ -962,7 +977,9 @@ function walletDefaultPolicyPackId(settings: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined;
 }
 
-function serializeRuntimePolicyPack(row: Awaited<ReturnType<typeof policyRepo.getPolicyPackById>>): PolicyPack | null {
+function serializeRuntimePolicyPack(
+  row: Awaited<ReturnType<typeof policyRepo.getPolicyPackById>>
+): PolicyPack | null {
   if (!row) {
     return null;
   }
@@ -983,14 +1000,18 @@ async function resolveRuntimePolicyPack(
   env: AppEnv
 ): Promise<ResolvedRuntimePolicyPack> {
   const wallet = await walletRepo.getWallet(db, intent.walletId);
-  const strategy = intent.strategyId ? await strategyRepo.getStrategyById(db, intent.strategyId) : null;
-  const globalDefaultPolicyPackId = (await settingsRepo.getDefaultPolicyPackId(db)) ?? env.DEFAULT_POLICY_PACK_ID ?? null;
+  const strategy = intent.strategyId
+    ? await strategyRepo.getStrategyById(db, intent.strategyId)
+    : null;
+  const globalDefaultPolicyPackId =
+    (await settingsRepo.getDefaultPolicyPackId(db)) ?? env.DEFAULT_POLICY_PACK_ID ?? null;
   const resolved = await resolveStoredPolicyPackSelection({
     intent,
     walletDefaultPolicyPackId: walletDefaultPolicyPackId(wallet?.settings),
     strategyPolicyPackId: strategyPolicyPackId(strategy?.config),
     globalDefaultPolicyPackId,
-    loadPolicyPack: async (id) => serializeRuntimePolicyPack(await policyRepo.getPolicyPackById(db, id)),
+    loadPolicyPack: async (id) =>
+      serializeRuntimePolicyPack(await policyRepo.getPolicyPackById(db, id)),
   });
 
   if ('error' in resolved) {
@@ -1062,7 +1083,8 @@ function buildIdentityHints(intent: ExecutionIntent): PolicyIdentityHints {
     agentId: typeof meta.agentId === 'string' ? meta.agentId : undefined,
     clientId: typeof meta.clientId === 'string' ? meta.clientId : undefined,
     hasAttestation:
-      typeof meta.identityAttestation === 'string' && (meta.identityAttestation as string).length > 0,
+      typeof meta.identityAttestation === 'string' &&
+      (meta.identityAttestation as string).length > 0,
     certificateFingerprint:
       typeof meta.identityCertFingerprint === 'string' ? meta.identityCertFingerprint : undefined,
   };
@@ -1142,19 +1164,24 @@ export async function runWorkerApp(options: WorkerAppOptions = {}): Promise<() =
     queuesForMetrics.push(new Queue(n, connection));
   }
 
-async function transitionIntent(db: Database, intentId: string, fromStatus: string, to: IntentPipelineState) {
-  if (!canTransitionIntentStatus(fromStatus, to)) {
-    throw new UnrecoverableError(`Invalid intent transition ${fromStatus} -> ${to}`);
+  async function transitionIntent(
+    db: Database,
+    intentId: string,
+    fromStatus: string,
+    to: IntentPipelineState
+  ) {
+    if (!canTransitionIntentStatus(fromStatus, to)) {
+      throw new UnrecoverableError(`Invalid intent transition ${fromStatus} -> ${to}`);
+    }
+    await intentRepo.updateIntentStatus(db, intentId, to);
   }
-  await intentRepo.updateIntentStatus(db, intentId, to);
-}
 
-async function withDatabaseTransaction<T>(
-  db: Database,
-  fn: (tx: Database) => Promise<T>
-): Promise<T> {
-  return db.transaction(async (tx) => fn(tx as unknown as Database));
-}
+  async function withDatabaseTransaction<T>(
+    db: Database,
+    fn: (tx: Database) => Promise<T>
+  ): Promise<T> {
+    return db.transaction(async (tx) => fn(tx as unknown as Database));
+  }
 
   const quoteWorker = new Worker(
     QUEUE_NAMES.quoteGeneration,
@@ -1164,66 +1191,66 @@ async function withDatabaseTransaction<T>(
         job,
         { intentId: typeof job.data?.intentId === 'string' ? job.data.intentId : undefined },
         async () => {
-      const intentId = job.data.intentId as string;
-      const row = await intentRepo.getIntentById(db, intentId);
-      if (!row) throw new Error('Intent not found');
-      if (!canTransitionIntentStatus(row.status, 'quoted')) {
-        throw new UnrecoverableError(`Cannot quote from status ${row.status}`);
-      }
-      const intent = ExecutionIntentSchema.parse(row.payload);
-      const successfulQuotes: Array<{
-        intentId: string;
-        adapterId: string;
-        payload: Record<string, unknown>;
-      }> = [];
-      for (const adapter of await registry.findAdapters({
-        pair: { base: intent.baseAsset, quote: intent.quoteAsset },
-      })) {
-        const q = await withSpan(
-          'worker.quote.adapter.get',
-          {
-            tracerName: 'keeta-agent-worker',
-            attributes: {
-              adapterId: adapter.id,
-              intentId: intent.id,
-              baseAsset: intent.baseAsset,
-              quoteAsset: intent.quoteAsset,
-            },
-          },
-          () =>
-            adapter.getQuote({
-              adapterId: adapter.id,
-              baseAsset: intent.baseAsset,
-              quoteAsset: intent.quoteAsset,
-              side: intent.side,
-              size: intent.size,
-              intentId: intent.id,
-            })
-        );
-        if (q.success) {
-          successfulQuotes.push({
-            intentId: intent.id,
-            adapterId: adapter.id,
-            payload: q.data as unknown as Record<string, unknown>,
+          const intentId = job.data.intentId as string;
+          const row = await intentRepo.getIntentById(db, intentId);
+          if (!row) throw new Error('Intent not found');
+          if (!canTransitionIntentStatus(row.status, 'quoted')) {
+            throw new UnrecoverableError(`Cannot quote from status ${row.status}`);
+          }
+          const intent = ExecutionIntentSchema.parse(row.payload);
+          const successfulQuotes: Array<{
+            intentId: string;
+            adapterId: string;
+            payload: Record<string, unknown>;
+          }> = [];
+          for (const adapter of await registry.findAdapters({
+            pair: { base: intent.baseAsset, quote: intent.quoteAsset },
+          })) {
+            const q = await withSpan(
+              'worker.quote.adapter.get',
+              {
+                tracerName: 'keeta-agent-worker',
+                attributes: {
+                  adapterId: adapter.id,
+                  intentId: intent.id,
+                  baseAsset: intent.baseAsset,
+                  quoteAsset: intent.quoteAsset,
+                },
+              },
+              () =>
+                adapter.getQuote({
+                  adapterId: adapter.id,
+                  baseAsset: intent.baseAsset,
+                  quoteAsset: intent.quoteAsset,
+                  side: intent.side,
+                  size: intent.size,
+                  intentId: intent.id,
+                })
+            );
+            if (q.success) {
+              successfulQuotes.push({
+                intentId: intent.id,
+                adapterId: adapter.id,
+                payload: q.data as unknown as Record<string, unknown>,
+              });
+            }
+          }
+          await withDatabaseTransaction(db, async (txDb) => {
+            await snapshotRepo.insertIntentSnapshot(txDb, {
+              intentId,
+              payload: row.payload,
+            });
+            for (const quote of successfulQuotes) {
+              await quoteRepo.insertQuote(txDb, quote);
+            }
+            await transitionIntent(txDb, intentId, row.status, 'quoted');
+            await auditRepo.insertAuditEvent(txDb, {
+              intentId,
+              eventType: 'intent.quoted',
+              payload: { intentId },
+              correlationId: job.id,
+            });
           });
-        }
-      }
-      await withDatabaseTransaction(db, async (txDb) => {
-        await snapshotRepo.insertIntentSnapshot(txDb, {
-          intentId,
-          payload: row.payload,
-        });
-        for (const quote of successfulQuotes) {
-          await quoteRepo.insertQuote(txDb, quote);
-        }
-        await transitionIntent(txDb, intentId, row.status, 'quoted');
-        await auditRepo.insertAuditEvent(txDb, {
-          intentId,
-          eventType: 'intent.quoted',
-          payload: { intentId },
-          correlationId: job.id,
-        });
-      });
         }
       ),
     { ...connection, ...getWorkerOptions(QUEUE_NAMES.quoteGeneration) }
@@ -1238,73 +1265,83 @@ async function withDatabaseTransaction<T>(
         job,
         { intentId: typeof job.data?.intentId === 'string' ? job.data.intentId : undefined },
         async () => {
-      const intentId = job.data.intentId as string;
-      const row = await intentRepo.getIntentById(db, intentId);
-      if (!row) throw new Error('Intent not found');
-      if (!canTransitionIntentStatus(row.status, 'routed')) {
-        throw new UnrecoverableError(`Cannot route from status ${row.status}`);
-      }
-      const intent = ExecutionIntentSchema.parse(row.payload);
-      const anchorRoutingProfiles =
-        intent.mode === 'live'
-          ? await buildAnchorRoutingProfiles(db, intent, anchorBondVerifier, operatorMetrics, env)
-          : { paymentAnchorIds: {} as Record<string, string>, byAdapterId: {} as Record<string, AnchorRouteProfile> };
-      const { best } = await withSpan(
-        'worker.route.build',
-        {
-          tracerName: 'keeta-agent-worker',
-          attributes: {
-            intentId: intent.id,
-            baseAsset: intent.baseAsset,
-            quoteAsset: intent.quoteAsset,
-          },
-        },
-        () =>
-          router.buildPlans(intent, {
-            canUseAdapter: (adapter) =>
-              intent.mode !== 'live' ||
-              adapter.kind !== 'anchor' ||
-              anchorRoutingProfiles.byAdapterId[adapter.id]?.allowed === true,
-            describeAdapter: (adapter) => {
-              const profile = anchorRoutingProfiles.byAdapterId[adapter.id];
-              return {
-                ...(anchorRoutingProfiles.paymentAnchorIds[adapter.id]
-                  ? { paymentAnchorId: anchorRoutingProfiles.paymentAnchorIds[adapter.id] }
-                  : {}),
-                ...(profile?.routingContext ? { routingContext: profile.routingContext } : {}),
-              };
+          const intentId = job.data.intentId as string;
+          const row = await intentRepo.getIntentById(db, intentId);
+          if (!row) throw new Error('Intent not found');
+          if (!canTransitionIntentStatus(row.status, 'routed')) {
+            throw new UnrecoverableError(`Cannot route from status ${row.status}`);
+          }
+          const intent = ExecutionIntentSchema.parse(row.payload);
+          const anchorRoutingProfiles =
+            intent.mode === 'live'
+              ? await buildAnchorRoutingProfiles(
+                  db,
+                  intent,
+                  anchorBondVerifier,
+                  operatorMetrics,
+                  env
+                )
+              : {
+                  paymentAnchorIds: {} as Record<string, string>,
+                  byAdapterId: {} as Record<string, AnchorRouteProfile>,
+                };
+          const { best } = await withSpan(
+            'worker.route.build',
+            {
+              tracerName: 'keeta-agent-worker',
+              attributes: {
+                intentId: intent.id,
+                baseAsset: intent.baseAsset,
+                quoteAsset: intent.quoteAsset,
+              },
             },
-            scoreAdapter: (adapter) => anchorRoutingProfiles.byAdapterId[adapter.id]?.scoreAdjustment ?? 0,
-          })
-      );
-      const plan = RoutePlanSchema.parse(best);
-      const steps = plan.steps.map((step) => ({
-        planId: plan.id,
-        stepIndex: step.stepIndex,
-        adapterId: step.adapterId,
-        payload: step as unknown as Record<string, unknown>,
-      }));
-      await withDatabaseTransaction(db, async (txDb) => {
-        await routeRepo.insertRoutePlan(txDb, {
-          id: plan.id,
-          intentId: intent.id,
-          score: plan.score,
-          payload: plan as unknown as Record<string, unknown>,
-        });
-        await routeRepo.insertRouteSteps(txDb, steps);
-        await snapshotRepo.insertRouteSnapshot(txDb, {
-          intentId,
-          routePlanId: plan.id,
-          payload: plan as unknown as Record<string, unknown>,
-        });
-        await transitionIntent(txDb, intentId, row.status, 'routed');
-        await auditRepo.insertAuditEvent(txDb, {
-          intentId,
-          eventType: 'intent.routed',
-          payload: { routePlanId: plan.id },
-          correlationId: job.id,
-        });
-      });
+            () =>
+              router.buildPlans(intent, {
+                canUseAdapter: (adapter) =>
+                  intent.mode !== 'live' ||
+                  adapter.kind !== 'anchor' ||
+                  anchorRoutingProfiles.byAdapterId[adapter.id]?.allowed === true,
+                describeAdapter: (adapter) => {
+                  const profile = anchorRoutingProfiles.byAdapterId[adapter.id];
+                  return {
+                    ...(anchorRoutingProfiles.paymentAnchorIds[adapter.id]
+                      ? { paymentAnchorId: anchorRoutingProfiles.paymentAnchorIds[adapter.id] }
+                      : {}),
+                    ...(profile?.routingContext ? { routingContext: profile.routingContext } : {}),
+                  };
+                },
+                scoreAdapter: (adapter) =>
+                  anchorRoutingProfiles.byAdapterId[adapter.id]?.scoreAdjustment ?? 0,
+              })
+          );
+          const plan = RoutePlanSchema.parse(best);
+          const steps = plan.steps.map((step) => ({
+            planId: plan.id,
+            stepIndex: step.stepIndex,
+            adapterId: step.adapterId,
+            payload: step as unknown as Record<string, unknown>,
+          }));
+          await withDatabaseTransaction(db, async (txDb) => {
+            await routeRepo.insertRoutePlan(txDb, {
+              id: plan.id,
+              intentId: intent.id,
+              score: plan.score,
+              payload: plan as unknown as Record<string, unknown>,
+            });
+            await routeRepo.insertRouteSteps(txDb, steps);
+            await snapshotRepo.insertRouteSnapshot(txDb, {
+              intentId,
+              routePlanId: plan.id,
+              payload: plan as unknown as Record<string, unknown>,
+            });
+            await transitionIntent(txDb, intentId, row.status, 'routed');
+            await auditRepo.insertAuditEvent(txDb, {
+              intentId,
+              eventType: 'intent.routed',
+              payload: { routePlanId: plan.id },
+              correlationId: job.id,
+            });
+          });
         }
       ),
     { ...connection, ...getWorkerOptions(QUEUE_NAMES.routeGeneration) }
@@ -1319,212 +1356,222 @@ async function withDatabaseTransaction<T>(
         job,
         { intentId: typeof job.data?.intentId === 'string' ? job.data.intentId : undefined },
         async () => {
-      const intentId = job.data.intentId as string;
-      const row = await intentRepo.getIntentById(db, intentId);
-      if (!row) throw new Error('Intent not found');
-      if (!canTransitionIntentStatus(row.status, 'policy_checked')) {
-        throw new UnrecoverableError(`Cannot policy-check from status ${row.status}`);
-      }
-      const intent = ExecutionIntentSchema.parse(row.payload);
-      let routeRow = await routeRepo.getRoutePlanForIntent(db, intentId);
-      const override = await routeOverrideRepo.getLatestRouteOverrideForIntent(db, intentId);
-      if (override) {
-        const alt = await routeRepo.getRoutePlanById(db, override.routePlanId);
-        if (alt && alt.intentId === intentId) {
-          routeRow = alt;
-        }
-      }
-      const routePlan = routeRow ? hydrateRoutePlanKinds(RoutePlanSchema.parse(routeRow.payload)) : undefined;
-      const anchorBonds = routePlan ? await buildAnchorBondHints(db, routePlan, anchorBondVerifier) : undefined;
-      let keetaHints: PolicyKeetaHints | undefined;
-      if (policyCfg.keetaPolicyEnabled === true) {
-        const w = await walletRepo.getWallet(db, intent.walletId);
-        if (w) {
-          const am = new AccountManager(env.KEETA_NETWORK);
-          const acct = await am.getAccount(w.address).catch(() => null);
-          const health = await readChainHealth(env.KEETA_NETWORK).catch(() => null);
-          const meta = intent.metadata as Record<string, unknown> | undefined;
-          keetaHints = {
-            network: env.KEETA_NETWORK,
-            accountHeadBlockHeight: acct?.currentHeadBlockHeight ?? null,
-            ledgerBlockCount: health?.ledger?.blockCount,
-            measuredAt: health?.measuredAt,
-          };
-          if (meta && typeof meta.identityCertFingerprint === 'string' && meta.identityCertFingerprint.length > 0) {
-            keetaHints = { ...keetaHints, identity: { certificateFingerprintPresent: true } };
+          const intentId = job.data.intentId as string;
+          const row = await intentRepo.getIntentById(db, intentId);
+          if (!row) throw new Error('Intent not found');
+          if (!canTransitionIntentStatus(row.status, 'policy_checked')) {
+            throw new UnrecoverableError(`Cannot policy-check from status ${row.status}`);
           }
-        }
-      }
-      const identityHints = buildIdentityHints(intent);
-      const start = new Date();
-      start.setUTCHours(0, 0, 0, 0);
-      const portfolioStats: PolicyPortfolioStats = {
-        dailyTradeCount: await executionRepo.countTradesSince(db, start),
-        unsettledExecutions: await executionRepo.countUnsettledExecutions(db),
-        openExposureByAsset: {},
-        openExposureByVenue: {},
-        walletExposure: 0,
-      };
-      const resolvedPolicyPack = await resolveRuntimePolicyPack(db, intent, env);
-      const policyEngine = new PolicyEngine();
-      const policyPackSummary: RuntimePolicyPackSummary | null =
-        'policyPack' in resolvedPolicyPack && resolvedPolicyPack.policyPack
-          ? {
-              id: resolvedPolicyPack.policyPack.id,
-              name: resolvedPolicyPack.policyPack.name,
-              source: resolvedPolicyPack.source,
+          const intent = ExecutionIntentSchema.parse(row.payload);
+          let routeRow = await routeRepo.getRoutePlanForIntent(db, intentId);
+          const override = await routeOverrideRepo.getLatestRouteOverrideForIntent(db, intentId);
+          if (override) {
+            const alt = await routeRepo.getRoutePlanById(db, override.routePlanId);
+            if (alt && alt.intentId === intentId) {
+              routeRow = alt;
             }
-          : null;
-      let policyPackWarnings: string[] | undefined;
-      let decision: PolicyDecision;
-
-      if ('error' in resolvedPolicyPack) {
-        decision = blockedPolicyDecision(intent.id, resolvedPolicyPack.error, {
-          id: resolvedPolicyPack.policyPackId,
-          source: resolvedPolicyPack.source,
-        });
-      } else {
-        let customRuleConfig: Record<string, unknown> | undefined;
-        if (resolvedPolicyPack.policyPack) {
-          const applied = applyPolicyPack(policyEngine, resolvedPolicyPack.policyPack);
-          customRuleConfig = applied.customRuleConfig;
-          if (applied.warnings.length > 0) {
-            policyPackWarnings = applied.warnings;
           }
-        }
-        decision = await withSpan(
-          'worker.policy.evaluate',
-          {
-            tracerName: 'keeta-agent-worker',
-            attributes: {
+          const routePlan = routeRow
+            ? hydrateRoutePlanKinds(RoutePlanSchema.parse(routeRow.payload))
+            : undefined;
+          const anchorBonds = routePlan
+            ? await buildAnchorBondHints(db, routePlan, anchorBondVerifier)
+            : undefined;
+          let keetaHints: PolicyKeetaHints | undefined;
+          if (policyCfg.keetaPolicyEnabled === true) {
+            const w = await walletRepo.getWallet(db, intent.walletId);
+            if (w) {
+              const am = new AccountManager(env.KEETA_NETWORK);
+              const acct = await am.getAccount(w.address).catch(() => null);
+              const health = await readChainHealth(env.KEETA_NETWORK).catch(() => null);
+              const meta = intent.metadata as Record<string, unknown> | undefined;
+              keetaHints = {
+                network: env.KEETA_NETWORK,
+                accountHeadBlockHeight: acct?.currentHeadBlockHeight ?? null,
+                ledgerBlockCount: health?.ledger?.blockCount,
+                measuredAt: health?.measuredAt,
+              };
+              if (
+                meta &&
+                typeof meta.identityCertFingerprint === 'string' &&
+                meta.identityCertFingerprint.length > 0
+              ) {
+                keetaHints = { ...keetaHints, identity: { certificateFingerprintPresent: true } };
+              }
+            }
+          }
+          const identityHints = buildIdentityHints(intent);
+          const start = new Date();
+          start.setUTCHours(0, 0, 0, 0);
+          const portfolioStats: PolicyPortfolioStats = {
+            dailyTradeCount: await executionRepo.countTradesSince(db, start),
+            unsettledExecutions: await executionRepo.countUnsettledExecutions(db),
+            openExposureByAsset: {},
+            openExposureByVenue: {},
+            walletExposure: 0,
+          };
+          const resolvedPolicyPack = await resolveRuntimePolicyPack(db, intent, env);
+          const policyEngine = new PolicyEngine();
+          const policyPackSummary: RuntimePolicyPackSummary | null =
+            'policyPack' in resolvedPolicyPack && resolvedPolicyPack.policyPack
+              ? {
+                  id: resolvedPolicyPack.policyPack.id,
+                  name: resolvedPolicyPack.policyPack.name,
+                  source: resolvedPolicyPack.source,
+                }
+              : null;
+          let policyPackWarnings: string[] | undefined;
+          let decision: PolicyDecision;
+
+          if ('error' in resolvedPolicyPack) {
+            decision = blockedPolicyDecision(intent.id, resolvedPolicyPack.error, {
+              id: resolvedPolicyPack.policyPackId,
+              source: resolvedPolicyPack.source,
+            });
+          } else {
+            let customRuleConfig: Record<string, unknown> | undefined;
+            if (resolvedPolicyPack.policyPack) {
+              const applied = applyPolicyPack(policyEngine, resolvedPolicyPack.policyPack);
+              customRuleConfig = applied.customRuleConfig;
+              if (applied.warnings.length > 0) {
+                policyPackWarnings = applied.warnings;
+              }
+            }
+            decision = await withSpan(
+              'worker.policy.evaluate',
+              {
+                tracerName: 'keeta-agent-worker',
+                attributes: {
+                  intentId: intent.id,
+                  routePlanId: routePlan?.id,
+                  ...(policyPackSummary ? { policyPackId: policyPackSummary.id } : {}),
+                },
+              },
+              () =>
+                Promise.resolve(
+                  policyEngine.evaluate({
+                    intent,
+                    routePlan,
+                    config: policyCfg,
+                    keetaHints,
+                    anchorBonds,
+                    portfolioStats,
+                    identityHints,
+                    customRuleConfig,
+                  })
+                )
+            );
+            if (policyPackSummary) {
+              decision = {
+                ...decision,
+                effectivePolicyPackId: policyPackSummary.id,
+                effectivePolicyPackName: policyPackSummary.name,
+                effectivePolicyPackSource: policyPackSummary.source,
+                policyPack: policyPackSummary,
+              };
+            }
+            if (policyPackWarnings) {
+              decision = {
+                ...decision,
+                policyPackWarnings,
+              };
+            }
+          }
+          const w = await walletRepo.getWallet(db, intent.walletId);
+          await withDatabaseTransaction(db, async (txDb) => {
+            await policyRepo.insertPolicyDecision(txDb, {
               intentId: intent.id,
-              routePlanId: routePlan?.id,
-              ...(policyPackSummary ? { policyPackId: policyPackSummary.id } : {}),
-            },
-          },
-          () =>
-            Promise.resolve(
-              policyEngine.evaluate({
-                intent,
-                routePlan,
-                config: policyCfg,
-                keetaHints,
-                anchorBonds,
-                portfolioStats,
-                identityHints,
-                customRuleConfig,
-              })
-            )
-        );
-        if (policyPackSummary) {
-          decision = {
-            ...decision,
-            effectivePolicyPackId: policyPackSummary.id,
-            effectivePolicyPackName: policyPackSummary.name,
-            effectivePolicyPackSource: policyPackSummary.source,
-            policyPack: policyPackSummary,
-          };
-        }
-        if (policyPackWarnings) {
-          decision = {
-            ...decision,
-            policyPackWarnings,
-          };
-        }
-      }
-      const w = await walletRepo.getWallet(db, intent.walletId);
-      await withDatabaseTransaction(db, async (txDb) => {
-        await policyRepo.insertPolicyDecision(txDb, {
-          intentId: intent.id,
-          payload: decision as unknown as Record<string, unknown>,
-          ruleContributions: decision.contributions as unknown[],
-        });
-        await snapshotRepo.insertPolicySnapshot(txDb, {
-          intentId,
-          policyConfigHash: policyVersionHash(policyCfg, policyPackSummary),
-          payload: {
-            config: policyCfg,
-            evaluatedAt: decision.evaluatedAt,
-            ...(decision.effectivePolicyPackId
-              ? {
-                  effectivePolicyPackId: decision.effectivePolicyPackId,
-                  effectivePolicyPackName: decision.effectivePolicyPackName,
-                  effectivePolicyPackSource: decision.effectivePolicyPackSource,
-                }
-              : {}),
-            ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
-            ...(policyPackWarnings ? { policyPackWarnings } : {}),
-          },
-        });
-        await intentRepo.updateIntentFields(txDb, intentId, {
-          payload: {
-            ...intent,
-            ...(decision.effectivePolicyPackId
-              ? {
-                  effectivePolicyPackId: decision.effectivePolicyPackId,
-                  effectivePolicyPackName: decision.effectivePolicyPackName,
-                  effectivePolicyPackSource: decision.effectivePolicyPackSource,
-                }
-              : {}),
-          } as unknown as Record<string, unknown>,
-        });
-        await transitionIntent(txDb, intentId, row.status, 'policy_checked');
-        if (!decision.allowed) {
-          await metricsRepo.insertMetricSample(txDb, {
-            name: 'metric.policy_rejection',
-            labels: {
+              payload: decision as unknown as Record<string, unknown>,
+              ruleContributions: decision.contributions as unknown[],
+            });
+            await snapshotRepo.insertPolicySnapshot(txDb, {
               intentId,
-              rules: decision.contributions
-                .filter((c) => !c.passed)
-                .map((c) => c.ruleId)
-                .join(','),
-            },
-            value: 1,
+              policyConfigHash: policyVersionHash(policyCfg, policyPackSummary),
+              payload: {
+                config: policyCfg,
+                evaluatedAt: decision.evaluatedAt,
+                ...(decision.effectivePolicyPackId
+                  ? {
+                      effectivePolicyPackId: decision.effectivePolicyPackId,
+                      effectivePolicyPackName: decision.effectivePolicyPackName,
+                      effectivePolicyPackSource: decision.effectivePolicyPackSource,
+                    }
+                  : {}),
+                ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
+                ...(policyPackWarnings ? { policyPackWarnings } : {}),
+              },
+            });
+            await intentRepo.updateIntentFields(txDb, intentId, {
+              payload: {
+                ...intent,
+                ...(decision.effectivePolicyPackId
+                  ? {
+                      effectivePolicyPackId: decision.effectivePolicyPackId,
+                      effectivePolicyPackName: decision.effectivePolicyPackName,
+                      effectivePolicyPackSource: decision.effectivePolicyPackSource,
+                    }
+                  : {}),
+              } as unknown as Record<string, unknown>,
+            });
+            await transitionIntent(txDb, intentId, row.status, 'policy_checked');
+            if (!decision.allowed) {
+              await metricsRepo.insertMetricSample(txDb, {
+                name: 'metric.policy_rejection',
+                labels: {
+                  intentId,
+                  rules: decision.contributions
+                    .filter((c) => !c.passed)
+                    .map((c) => c.ruleId)
+                    .join(','),
+                },
+                value: 1,
+              });
+              await auditRepo.insertAuditEvent(txDb, {
+                intentId,
+                eventType: 'policy.blocked',
+                payload: {
+                  summary: decision.summary,
+                  failedRuleIds: decision.contributions
+                    .filter((c) => !c.passed)
+                    .map((c) => c.ruleId),
+                  ...(decision.effectivePolicyPackId
+                    ? {
+                        effectivePolicyPackId: decision.effectivePolicyPackId,
+                        effectivePolicyPackName: decision.effectivePolicyPackName,
+                        effectivePolicyPackSource: decision.effectivePolicyPackSource,
+                      }
+                    : {}),
+                  ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
+                  ...(policyPackWarnings ? { policyPackWarnings } : {}),
+                },
+                correlationId: job.id,
+              });
+            }
+            if (w) {
+              await portfolioRepo.upsertPortfolioState(txDb, intent.walletId, {
+                lastPolicyAt: decision.evaluatedAt,
+                contributions: decision.contributions,
+              });
+            }
+            await auditRepo.insertAuditEvent(txDb, {
+              intentId,
+              eventType: 'policy.evaluated',
+              payload: {
+                allowed: decision.allowed,
+                summary: decision.summary,
+                ...(decision.effectivePolicyPackId
+                  ? {
+                      effectivePolicyPackId: decision.effectivePolicyPackId,
+                      effectivePolicyPackName: decision.effectivePolicyPackName,
+                      effectivePolicyPackSource: decision.effectivePolicyPackSource,
+                    }
+                  : {}),
+                ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
+                ...(policyPackWarnings ? { policyPackWarnings } : {}),
+              },
+              correlationId: job.id,
+            });
           });
-          await auditRepo.insertAuditEvent(txDb, {
-            intentId,
-            eventType: 'policy.blocked',
-            payload: {
-              summary: decision.summary,
-              failedRuleIds: decision.contributions.filter((c) => !c.passed).map((c) => c.ruleId),
-              ...(decision.effectivePolicyPackId
-                ? {
-                    effectivePolicyPackId: decision.effectivePolicyPackId,
-                    effectivePolicyPackName: decision.effectivePolicyPackName,
-                    effectivePolicyPackSource: decision.effectivePolicyPackSource,
-                  }
-                : {}),
-              ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
-              ...(policyPackWarnings ? { policyPackWarnings } : {}),
-            },
-            correlationId: job.id,
-          });
-        }
-        if (w) {
-          await portfolioRepo.upsertPortfolioState(txDb, intent.walletId, {
-            lastPolicyAt: decision.evaluatedAt,
-            contributions: decision.contributions,
-          });
-        }
-        await auditRepo.insertAuditEvent(txDb, {
-          intentId,
-          eventType: 'policy.evaluated',
-          payload: {
-            allowed: decision.allowed,
-            summary: decision.summary,
-            ...(decision.effectivePolicyPackId
-              ? {
-                  effectivePolicyPackId: decision.effectivePolicyPackId,
-                  effectivePolicyPackName: decision.effectivePolicyPackName,
-                  effectivePolicyPackSource: decision.effectivePolicyPackSource,
-                }
-              : {}),
-            ...(policyPackSummary ? { policyPack: policyPackSummary } : {}),
-            ...(policyPackWarnings ? { policyPackWarnings } : {}),
-          },
-          correlationId: job.id,
-        });
-      });
         }
       ),
     { ...connection, ...getWorkerOptions(QUEUE_NAMES.policyEvaluation) }
@@ -1539,291 +1586,299 @@ async function withDatabaseTransaction<T>(
         job,
         { intentId: typeof job.data?.intentId === 'string' ? job.data.intentId : undefined },
         async () => {
-      const intentId = job.data.intentId as string;
-      if (await killSwitchActive(db, env)) {
-        log.warn({ intentId }, 'Execution blocked by kill switch');
-        throw new UnrecoverableError('Execution kill switch is active');
-      }
-      const row = await intentRepo.getIntentById(db, intentId);
-      if (!row) throw new Error('Intent not found');
-      if (row.status === 'held') {
-        throw new UnrecoverableError('Intent is held');
-      }
-      const intent = ExecutionIntentSchema.parse(row.payload);
-      if (intent.strategyId) {
-        const strat = await strategyRepo.getStrategyById(db, intent.strategyId);
-        if (strat?.paused) {
-          throw new UnrecoverableError('Strategy is paused');
-        }
-      }
-      if (
-        intent.mode === 'live' &&
-        row.requiresApproval &&
-        row.approvalStatus !== 'approved'
-      ) {
-        throw new UnrecoverableError('Live execution requires approval');
-      }
-      if (!canTransitionIntentStatus(row.status, 'executed')) {
-        throw new UnrecoverableError(`Cannot execute from status ${row.status}`);
-      }
-      const latestPolicyDecision = await policyRepo.getLatestPolicyDecisionForIntent(db, intentId);
-      if (!latestPolicyDecision) {
-        throw new UnrecoverableError('Policy decision missing for execution');
-      }
-      const policyDecision = PolicyDecisionSchema.parse(latestPolicyDecision.payload);
-      const executionPolicyPackFields =
-        policyDecision.effectivePolicyPackId
-          ? {
-              effectivePolicyPackId: policyDecision.effectivePolicyPackId,
-              effectivePolicyPackName: policyDecision.effectivePolicyPackName,
-              effectivePolicyPackSource: policyDecision.effectivePolicyPackSource,
+          const intentId = job.data.intentId as string;
+          if (await killSwitchActive(db, env)) {
+            log.warn({ intentId }, 'Execution blocked by kill switch');
+            throw new UnrecoverableError('Execution kill switch is active');
+          }
+          const row = await intentRepo.getIntentById(db, intentId);
+          if (!row) throw new Error('Intent not found');
+          if (row.status === 'held') {
+            throw new UnrecoverableError('Intent is held');
+          }
+          const intent = ExecutionIntentSchema.parse(row.payload);
+          if (intent.strategyId) {
+            const strat = await strategyRepo.getStrategyById(db, intent.strategyId);
+            if (strat?.paused) {
+              throw new UnrecoverableError('Strategy is paused');
             }
-          : {};
-      if (!policyDecision.allowed) {
-        throw new UnrecoverableError(`Policy blocked execution: ${policyDecision.summary}`);
-      }
-      let routeRow = await routeRepo.getRoutePlanForIntent(db, intentId);
-      const override = await routeOverrideRepo.getLatestRouteOverrideForIntent(db, intentId);
-      if (override) {
-        const alt = await routeRepo.getRoutePlanById(db, override.routePlanId);
-        if (alt && alt.intentId === intentId) {
-          routeRow = alt;
-          await auditRepo.insertAuditEvent(db, {
-            intentId,
-            eventType: 'route.override_used',
-            payload: { routePlanId: override.routePlanId },
-            correlationId: job.id,
-          });
-        }
-      }
-      if (!routeRow) throw new Error('Route not found');
-      const plan = RoutePlanSchema.parse(routeRow.payload);
-      if (plan.steps.length === 0) throw new Error('No route steps');
-      const mode = intent.mode;
-      if (mode === 'live' && (await executionRepo.hasBlockingExecutionForIntent(db, intentId))) {
-        await auditRepo.insertAuditEvent(db, {
-          intentId,
-          eventType: 'execution.dedup_skipped',
-          payload: { reason: 'already_submitted_or_confirmed' },
-          correlationId: job.id,
-        });
-        return;
-      }
-      const signing = getSigningUserClient();
-      const extensions: Record<string, unknown> = {};
-      if (mode === 'live' && signing) {
-        extensions[KEETA_USER_CLIENT_EXTENSION] = signing;
-        if (env.KEETA_EXPLORER_TX_URL_TEMPLATE) {
-          extensions.keetaExplorerTxUrlTemplate = env.KEETA_EXPLORER_TX_URL_TEMPLATE;
-        }
-      }
-      const currentIntentStatus = row.status;
-      let lastExecutionId: string | undefined;
-      let lastReceiptRef: string | undefined;
-      for (const step of plan.steps) {
-        const adapter = registry.get(step.adapterId);
-        if (!adapter) {
-          throw new Error(`Adapter missing for step ${step.stepIndex}: ${step.adapterId}`);
-        }
-        const execStartedAt = new Date();
-        const res = await withSpan(
-          'worker.execution.adapter.execute',
-          {
-            tracerName: 'keeta-agent-worker',
-            attributes: {
-              adapterId: adapter.id,
-              intentId: intent.id,
+          }
+          if (intent.mode === 'live' && row.requiresApproval && row.approvalStatus !== 'approved') {
+            throw new UnrecoverableError('Live execution requires approval');
+          }
+          if (!canTransitionIntentStatus(row.status, 'executed')) {
+            throw new UnrecoverableError(`Cannot execute from status ${row.status}`);
+          }
+          const latestPolicyDecision = await policyRepo.getLatestPolicyDecisionForIntent(
+            db,
+            intentId
+          );
+          if (!latestPolicyDecision) {
+            throw new UnrecoverableError('Policy decision missing for execution');
+          }
+          const policyDecision = PolicyDecisionSchema.parse(latestPolicyDecision.payload);
+          const executionPolicyPackFields = policyDecision.effectivePolicyPackId
+            ? {
+                effectivePolicyPackId: policyDecision.effectivePolicyPackId,
+                effectivePolicyPackName: policyDecision.effectivePolicyPackName,
+                effectivePolicyPackSource: policyDecision.effectivePolicyPackSource,
+              }
+            : {};
+          if (!policyDecision.allowed) {
+            throw new UnrecoverableError(`Policy blocked execution: ${policyDecision.summary}`);
+          }
+          let routeRow = await routeRepo.getRoutePlanForIntent(db, intentId);
+          const override = await routeOverrideRepo.getLatestRouteOverrideForIntent(db, intentId);
+          if (override) {
+            const alt = await routeRepo.getRoutePlanById(db, override.routePlanId);
+            if (alt && alt.intentId === intentId) {
+              routeRow = alt;
+              await auditRepo.insertAuditEvent(db, {
+                intentId,
+                eventType: 'route.override_used',
+                payload: { routePlanId: override.routePlanId },
+                correlationId: job.id,
+              });
+            }
+          }
+          if (!routeRow) throw new Error('Route not found');
+          const plan = RoutePlanSchema.parse(routeRow.payload);
+          if (plan.steps.length === 0) throw new Error('No route steps');
+          const mode = intent.mode;
+          if (
+            mode === 'live' &&
+            (await executionRepo.hasBlockingExecutionForIntent(db, intentId))
+          ) {
+            await auditRepo.insertAuditEvent(db, {
+              intentId,
+              eventType: 'execution.dedup_skipped',
+              payload: { reason: 'already_submitted_or_confirmed' },
+              correlationId: job.id,
+            });
+            return;
+          }
+          const signing = getSigningUserClient();
+          const extensions: Record<string, unknown> = {};
+          if (mode === 'live' && signing) {
+            extensions[KEETA_USER_CLIENT_EXTENSION] = signing;
+            if (env.KEETA_EXPLORER_TX_URL_TEMPLATE) {
+              extensions.keetaExplorerTxUrlTemplate = env.KEETA_EXPLORER_TX_URL_TEMPLATE;
+            }
+          }
+          const currentIntentStatus = row.status;
+          let lastExecutionId: string | undefined;
+          let lastReceiptRef: string | undefined;
+          for (const step of plan.steps) {
+            const adapter = registry.get(step.adapterId);
+            if (!adapter) {
+              throw new Error(`Adapter missing for step ${step.stepIndex}: ${step.adapterId}`);
+            }
+            const execStartedAt = new Date();
+            const res = await withSpan(
+              'worker.execution.adapter.execute',
+              {
+                tracerName: 'keeta-agent-worker',
+                attributes: {
+                  adapterId: adapter.id,
+                  intentId: intent.id,
+                  stepIndex: step.stepIndex,
+                  hopCount: plan.hopCount,
+                },
+              },
+              () =>
+                adapter.execute({
+                  intentId: intent.id,
+                  walletId: intent.walletId,
+                  mode,
+                  step,
+                  intentMetadata: intent.metadata as Record<string, unknown> | undefined,
+                  extensions: Object.keys(extensions).length ? extensions : undefined,
+                })
+            );
+            if (!res.success) {
+              const failedExec = await withDatabaseTransaction(db, async (txDb) => {
+                const insertedExecution = await executionRepo.insertExecution(txDb, {
+                  intentId: intent.id,
+                  adapterId: adapter.id,
+                  status: 'failed',
+                  payload: {
+                    ...(res as unknown as Record<string, unknown>),
+                    ...executionPolicyPackFields,
+                    stepIndex: step.stepIndex,
+                    hopCount: plan.hopCount,
+                  },
+                  lifecycleState: 'failed',
+                  startedAt: execStartedAt,
+                  settlementLatencyMs: Date.now() - execStartedAt.getTime(),
+                  lastJobId: job.id,
+                  lastJobError: 'adapter returned failure',
+                });
+                await transitionIntent(txDb, intentId, currentIntentStatus, 'failed');
+                await auditRepo.insertAuditEvent(txDb, {
+                  intentId,
+                  executionId: insertedExecution?.id,
+                  eventType: 'execution.failed',
+                  payload: {
+                    ...(res as unknown as Record<string, unknown>),
+                    adapterId: adapter.id,
+                    ...executionPolicyPackFields,
+                    stepIndex: step.stepIndex,
+                    hopCount: plan.hopCount,
+                  },
+                  correlationId: job.id,
+                });
+                return insertedExecution;
+              });
+              void telemetryRepo
+                .insertTelemetryBatch(db, [
+                  {
+                    name: 'operator.execution_outcome',
+                    payload: {
+                      adapterId: adapter.id,
+                      corridorKey: `${intent.baseAsset}:${intent.quoteAsset}`,
+                      success: false,
+                      stepIndex: step.stepIndex,
+                      hopCount: plan.hopCount,
+                      executionId: failedExec?.id,
+                    },
+                  },
+                ])
+                .catch((e) => log.warn({ err: e }, 'operator outcome telemetry insert failed'));
+              return;
+            }
+            const data = res.data;
+            const settlementLatencyMs = Date.now() - execStartedAt.getTime();
+            const rowInsert = executionToRow(intent.id, adapter.id, {
+              ...data,
+              ...executionPolicyPackFields,
+            });
+            const executionPayload = {
+              ...rowInsert.payload,
               stepIndex: step.stepIndex,
               hopCount: plan.hopCount,
-            },
-          },
-          () =>
-            adapter.execute({
-              intentId: intent.id,
-              walletId: intent.walletId,
-              mode,
-              step,
-              intentMetadata: intent.metadata as Record<string, unknown> | undefined,
-              extensions: Object.keys(extensions).length ? extensions : undefined,
-            })
-        );
-        if (!res.success) {
-          const failedExec = await withDatabaseTransaction(db, async (txDb) => {
-            const insertedExecution = await executionRepo.insertExecution(txDb, {
-              intentId: intent.id,
-              adapterId: adapter.id,
-              status: 'failed',
-              payload: {
-                ...(res as unknown as Record<string, unknown>),
-                ...executionPolicyPackFields,
-                stepIndex: step.stepIndex,
-                hopCount: plan.hopCount,
-              },
-              lifecycleState: 'failed',
-              startedAt: execStartedAt,
-              settlementLatencyMs: Date.now() - execStartedAt.getTime(),
-              lastJobId: job.id,
-              lastJobError: 'adapter returned failure',
-            });
-            await transitionIntent(txDb, intentId, currentIntentStatus, 'failed');
-            await auditRepo.insertAuditEvent(txDb, {
-              intentId,
-              executionId: insertedExecution?.id,
-              eventType: 'execution.failed',
-              payload: {
-                ...(res as unknown as Record<string, unknown>),
-                adapterId: adapter.id,
-                ...executionPolicyPackFields,
-                stepIndex: step.stepIndex,
-                hopCount: plan.hopCount,
-              },
-              correlationId: job.id,
-            });
-            return insertedExecution;
-          });
-          void telemetryRepo
-            .insertTelemetryBatch(db, [
-              {
-                name: 'operator.execution_outcome',
-                payload: {
-                  adapterId: adapter.id,
-                  corridorKey: `${intent.baseAsset}:${intent.quoteAsset}`,
-                  success: false,
-                  stepIndex: step.stepIndex,
-                  hopCount: plan.hopCount,
-                  executionId: failedExec?.id,
-                },
-              },
-            ])
-            .catch((e) => log.warn({ err: e }, 'operator outcome telemetry insert failed'));
-          return;
-        }
-        const data = res.data;
-        const settlementLatencyMs = Date.now() - execStartedAt.getTime();
-        const rowInsert = executionToRow(intent.id, adapter.id, {
-          ...data,
-          ...executionPolicyPackFields,
-        });
-        const executionPayload = {
-          ...rowInsert.payload,
-          stepIndex: step.stepIndex,
-          hopCount: plan.hopCount,
-        };
-        const inserted = await withDatabaseTransaction(db, async (txDb) => {
-          const insertedExecution = await executionRepo.insertExecution(txDb, {
-            ...rowInsert,
-            payload: executionPayload,
-            startedAt: execStartedAt,
-            settlementLatencyMs,
-            lastJobId: job.id,
-          });
-          if (isExecutionFailure(data)) {
-            await transitionIntent(txDb, intentId, currentIntentStatus, 'failed');
-            await auditRepo.insertAuditEvent(txDb, {
-              intentId,
-              executionId: insertedExecution?.id,
-              eventType: 'execution.failed',
-              payload: {
-                executionId: insertedExecution?.id,
-                adapterId: adapter.id,
-                status: data.status,
-                settlementState: data.settlementState,
-                ...executionPolicyPackFields,
-                stepIndex: step.stepIndex,
-                hopCount: plan.hopCount,
-              },
-              correlationId: job.id,
-            });
-          } else {
-            await auditRepo.insertAuditEvent(txDb, {
-              intentId,
-              executionId: insertedExecution?.id,
-              eventType: 'execution.step_completed',
-              payload: {
-                executionId: insertedExecution?.id,
-                adapterId: adapter.id,
-                status: data.status,
-                settlementState: data.settlementState,
-                ...executionPolicyPackFields,
-                stepIndex: step.stepIndex,
-                hopCount: plan.hopCount,
-              },
-              correlationId: job.id,
-            });
-          }
-          return insertedExecution;
-        });
-        lastExecutionId = inserted?.id;
-        lastReceiptRef = inserted?.id ?? data.txId ?? lastReceiptRef;
-        if (isExecutionFailure(data)) {
-          void telemetryRepo
-            .insertTelemetryBatch(db, [
-              {
-                name: 'operator.execution_outcome',
-                payload: {
-                  adapterId: adapter.id,
-                  corridorKey: `${intent.baseAsset}:${intent.quoteAsset}`,
-                  success: false,
-                  settlementLatencyMs,
-                  stepIndex: step.stepIndex,
-                  hopCount: plan.hopCount,
-                  executionId: inserted?.id,
-                },
-              },
-            ])
-            .catch((e) => log.warn({ err: e }, 'operator outcome telemetry insert failed'));
-          return;
-        }
-        const expectedSlippageBps = step.quote?.expectedSlippageBps;
-        void telemetryRepo
-          .insertTelemetryBatch(db, [
-            {
-              name: 'operator.execution_outcome',
-              payload: {
-                adapterId: adapter.id,
-                corridorKey: `${intent.baseAsset}:${intent.quoteAsset}`,
-                success: true,
+            };
+            const inserted = await withDatabaseTransaction(db, async (txDb) => {
+              const insertedExecution = await executionRepo.insertExecution(txDb, {
+                ...rowInsert,
+                payload: executionPayload,
+                startedAt: execStartedAt,
                 settlementLatencyMs,
-                ...(typeof expectedSlippageBps === 'number' ? { expectedSlippageBps } : {}),
-                stepIndex: step.stepIndex,
+                lastJobId: job.id,
+              });
+              if (isExecutionFailure(data)) {
+                await transitionIntent(txDb, intentId, currentIntentStatus, 'failed');
+                await auditRepo.insertAuditEvent(txDb, {
+                  intentId,
+                  executionId: insertedExecution?.id,
+                  eventType: 'execution.failed',
+                  payload: {
+                    executionId: insertedExecution?.id,
+                    adapterId: adapter.id,
+                    status: data.status,
+                    settlementState: data.settlementState,
+                    ...executionPolicyPackFields,
+                    stepIndex: step.stepIndex,
+                    hopCount: plan.hopCount,
+                  },
+                  correlationId: job.id,
+                });
+              } else {
+                await auditRepo.insertAuditEvent(txDb, {
+                  intentId,
+                  executionId: insertedExecution?.id,
+                  eventType: 'execution.step_completed',
+                  payload: {
+                    executionId: insertedExecution?.id,
+                    adapterId: adapter.id,
+                    status: data.status,
+                    settlementState: data.settlementState,
+                    ...executionPolicyPackFields,
+                    stepIndex: step.stepIndex,
+                    hopCount: plan.hopCount,
+                  },
+                  correlationId: job.id,
+                });
+              }
+              return insertedExecution;
+            });
+            lastExecutionId = inserted?.id;
+            lastReceiptRef = inserted?.id ?? data.txId ?? lastReceiptRef;
+            if (isExecutionFailure(data)) {
+              void telemetryRepo
+                .insertTelemetryBatch(db, [
+                  {
+                    name: 'operator.execution_outcome',
+                    payload: {
+                      adapterId: adapter.id,
+                      corridorKey: `${intent.baseAsset}:${intent.quoteAsset}`,
+                      success: false,
+                      settlementLatencyMs,
+                      stepIndex: step.stepIndex,
+                      hopCount: plan.hopCount,
+                      executionId: inserted?.id,
+                    },
+                  },
+                ])
+                .catch((e) => log.warn({ err: e }, 'operator outcome telemetry insert failed'));
+              return;
+            }
+            const expectedSlippageBps = step.quote?.expectedSlippageBps;
+            void telemetryRepo
+              .insertTelemetryBatch(db, [
+                {
+                  name: 'operator.execution_outcome',
+                  payload: {
+                    adapterId: adapter.id,
+                    corridorKey: `${intent.baseAsset}:${intent.quoteAsset}`,
+                    success: true,
+                    settlementLatencyMs,
+                    ...(typeof expectedSlippageBps === 'number' ? { expectedSlippageBps } : {}),
+                    stepIndex: step.stepIndex,
+                    hopCount: plan.hopCount,
+                    executionId: inserted?.id,
+                  },
+                },
+              ])
+              .catch((e) => log.warn({ err: e }, 'operator outcome telemetry insert failed'));
+          }
+          await withDatabaseTransaction(db, async (txDb) => {
+            await transitionIntent(txDb, intentId, currentIntentStatus, 'executed');
+            await auditRepo.insertAuditEvent(txDb, {
+              intentId,
+              executionId: lastExecutionId,
+              eventType: 'execution.completed',
+              payload: {
+                executionId: lastExecutionId,
+                ...executionPolicyPackFields,
                 hopCount: plan.hopCount,
-                executionId: inserted?.id,
+                stepCount: plan.steps.length,
               },
-            },
-            ])
-            .catch((e) => log.warn({ err: e }, 'operator outcome telemetry insert failed'));
-      }
-      await withDatabaseTransaction(db, async (txDb) => {
-        await transitionIntent(txDb, intentId, currentIntentStatus, 'executed');
-        await auditRepo.insertAuditEvent(txDb, {
-          intentId,
-          executionId: lastExecutionId,
-          eventType: 'execution.completed',
-          payload: {
-            executionId: lastExecutionId,
-            ...executionPolicyPackFields,
-            hopCount: plan.hopCount,
-            stepCount: plan.steps.length,
-          },
-          correlationId: job.id,
-        });
-      });
-      try {
-        const intentHash = createHash('sha256')
-          .update(JSON.stringify({ id: intent.id, createdAt: intent.createdAt }))
-          .digest('hex');
-        const latestPolicySnapshot = await snapshotRepo.getLatestPolicySnapshotForIntent(db, intent.id);
-        await journalRepo
-          .createVerifiableExecutionJournal(db, { intentId: intent.id, executionId: lastExecutionId })
-          .appendEntry({
-            intentHash,
-            policyVersion: latestPolicySnapshot?.policyConfigHash ?? policyVersionHash(policyCfg, null),
-            routeId: plan.id,
-            receiptRef: lastReceiptRef ?? 'unknown',
+              correlationId: job.id,
+            });
           });
-      } catch (e) {
-        log.error({ err: e, intentId }, 'execution journal append failed');
-      }
+          try {
+            const intentHash = createHash('sha256')
+              .update(JSON.stringify({ id: intent.id, createdAt: intent.createdAt }))
+              .digest('hex');
+            const latestPolicySnapshot = await snapshotRepo.getLatestPolicySnapshotForIntent(
+              db,
+              intent.id
+            );
+            await journalRepo
+              .createVerifiableExecutionJournal(db, {
+                intentId: intent.id,
+                executionId: lastExecutionId,
+              })
+              .appendEntry({
+                intentHash,
+                policyVersion:
+                  latestPolicySnapshot?.policyConfigHash ?? policyVersionHash(policyCfg, null),
+                routeId: plan.id,
+                receiptRef: lastReceiptRef ?? 'unknown',
+              });
+          } catch (e) {
+            log.error({ err: e, intentId }, 'execution journal append failed');
+          }
         }
       ),
     { ...connection, ...getWorkerOptions(QUEUE_NAMES.executionProcessing) }
@@ -1849,7 +1904,11 @@ async function withDatabaseTransaction<T>(
       const intent = await intentRepo.getIntentById(db, intentId);
       const ex = await executionRepo.getLatestExecutionForIntent(db, intentId);
       await withDatabaseTransaction(db, async (txDb) => {
-        if (intent && intent.status !== 'failed' && canTransitionIntentStatus(intent.status, 'failed')) {
+        if (
+          intent &&
+          intent.status !== 'failed' &&
+          canTransitionIntentStatus(intent.status, 'failed')
+        ) {
           await intentRepo.updateIntentStatus(txDb, intentId, 'failed');
         }
         await auditRepo.insertAuditEvent(txDb, {
@@ -1889,59 +1948,63 @@ async function withDatabaseTransaction<T>(
           routePlanId: typeof job.data?.routePlanId === 'string' ? job.data.routePlanId : undefined,
         },
         async () => {
-      const { intentId, routePlanId, scenario: rawScenario } = job.data as {
-        intentId: string;
-        routePlanId: string;
-        scenario?: Record<string, unknown>;
-      };
-      const intentRow = await intentRepo.getIntentById(db, intentId);
-      if (!intentRow) throw new Error('Intent not found');
-      const intent = ExecutionIntentSchema.parse(intentRow.payload);
-      const routeRow = await routeRepo.getRoutePlanById(db, routePlanId);
-      if (!routeRow) throw new Error('Route plan not found');
-      if (routeRow.intentId !== intentId) {
-        throw new Error('Route plan does not belong to intent');
-      }
-      const plan = RoutePlanSchema.parse(routeRow.payload);
-      const scenario = SimulationScenarioSchema.parse(rawScenario ?? {});
-      const keetaSnapshot = await buildKeetaSimulationSnapshot(env, db, intent, scenario);
-      const run = await simulationRepo.insertSimulationRun(db, {
-        intentId: intent.id,
-        routePlanId: plan.id,
-        status: 'running',
-        scenario: scenario as unknown as Record<string, unknown>,
-      });
-      if (!run) throw new Error('Simulation run insert failed');
-      try {
-        const result = await withSpan(
-          'worker.simulation.run',
-          {
-            tracerName: 'keeta-agent-worker',
-            attributes: {
-              intentId: intent.id,
-              routePlanId: plan.id,
-              fidelityMode: scenario.fidelityMode,
-            },
-          },
-          () => simulate(intent, plan, scenario, keetaSnapshot)
-        );
-        await simulationRepo.updateSimulationRunStatus(db, run.id, 'completed');
-        await simulationRepo.insertSimulationResult(db, {
-          runId: run.id,
-          payload: result as unknown as Record<string, unknown>,
-        });
-      } catch (error) {
-        await simulationRepo.updateSimulationRunStatus(db, run.id, 'failed');
-        await auditRepo.insertAuditEvent(db, {
-          intentId: intent.id,
-          eventType: 'simulation.failed',
-          payload: {
+          const {
+            intentId,
+            routePlanId,
+            scenario: rawScenario,
+          } = job.data as {
+            intentId: string;
+            routePlanId: string;
+            scenario?: Record<string, unknown>;
+          };
+          const intentRow = await intentRepo.getIntentById(db, intentId);
+          if (!intentRow) throw new Error('Intent not found');
+          const intent = ExecutionIntentSchema.parse(intentRow.payload);
+          const routeRow = await routeRepo.getRoutePlanById(db, routePlanId);
+          if (!routeRow) throw new Error('Route plan not found');
+          if (routeRow.intentId !== intentId) {
+            throw new Error('Route plan does not belong to intent');
+          }
+          const plan = RoutePlanSchema.parse(routeRow.payload);
+          const scenario = SimulationScenarioSchema.parse(rawScenario ?? {});
+          const keetaSnapshot = await buildKeetaSimulationSnapshot(env, db, intent, scenario);
+          const run = await simulationRepo.insertSimulationRun(db, {
+            intentId: intent.id,
             routePlanId: plan.id,
-            message: error instanceof Error ? error.message : String(error),
-          },
-          correlationId: job.id,
-        });
-      }
+            status: 'running',
+            scenario: scenario as unknown as Record<string, unknown>,
+          });
+          if (!run) throw new Error('Simulation run insert failed');
+          try {
+            const result = await withSpan(
+              'worker.simulation.run',
+              {
+                tracerName: 'keeta-agent-worker',
+                attributes: {
+                  intentId: intent.id,
+                  routePlanId: plan.id,
+                  fidelityMode: scenario.fidelityMode,
+                },
+              },
+              () => simulate(intent, plan, scenario, keetaSnapshot)
+            );
+            await simulationRepo.updateSimulationRunStatus(db, run.id, 'completed');
+            await simulationRepo.insertSimulationResult(db, {
+              runId: run.id,
+              payload: result as unknown as Record<string, unknown>,
+            });
+          } catch (error) {
+            await simulationRepo.updateSimulationRunStatus(db, run.id, 'failed');
+            await auditRepo.insertAuditEvent(db, {
+              intentId: intent.id,
+              eventType: 'simulation.failed',
+              payload: {
+                routePlanId: plan.id,
+                message: error instanceof Error ? error.message : String(error),
+              },
+              correlationId: job.id,
+            });
+          }
         }
       ),
     { ...connection, ...getWorkerOptions(QUEUE_NAMES.simulationRuns) }
@@ -1985,7 +2048,8 @@ async function withDatabaseTransaction<T>(
           name: 'anchor_bond.reconciliation',
           payload: {
             ...summary,
-            reason: (job.data as AnchorBondReconciliationJobData | undefined)?.reason ?? 'scheduled',
+            reason:
+              (job.data as AnchorBondReconciliationJobData | undefined)?.reason ?? 'scheduled',
           },
         },
       ]);
@@ -2070,7 +2134,11 @@ async function withDatabaseTransaction<T>(
       const ageMs = Number(job.data?.ageMs ?? env.STUCK_JOB_AGE_MS);
       const threshold = Date.now() - ageMs;
       for (const q of queuesForMetrics) {
-        const batches = await Promise.all([q.getWaiting(0, 50), q.getActive(0, 50), q.getDelayed(0, 50)]);
+        const batches = await Promise.all([
+          q.getWaiting(0, 50),
+          q.getActive(0, 50),
+          q.getDelayed(0, 50),
+        ]);
         const flat = batches.flat();
         for (const j of flat) {
           const ts = j.timestamp ?? 0;
@@ -2141,7 +2209,10 @@ async function withDatabaseTransaction<T>(
         samplesWritten++;
       }
 
-      log.info({ adaptersProcessed: uniqueAdapters.size, samplesWritten }, 'operator metrics aggregated');
+      log.info(
+        { adaptersProcessed: uniqueAdapters.size, samplesWritten },
+        'operator metrics aggregated'
+      );
       // Invalidate Redis cache so the next routing decision picks up fresh data
       await Promise.all(
         [...uniqueAdapters].map((adapterId) =>
@@ -2157,174 +2228,185 @@ async function withDatabaseTransaction<T>(
     QUEUE_NAMES.webhookEventDelivery,
     async (job) =>
       withQueueJobSpan(QUEUE_NAMES.webhookEventDelivery, job, {}, async () => {
-      const batchSize = env.WEBHOOK_DELIVERY_BATCH_SIZE;
-      const cursorSetting = await settingsRepo.getSetting(db, WEBHOOK_EVENT_CURSOR_KEY);
-      const afterCreatedAt =
-        typeof cursorSetting?.value?.afterCreatedAt === 'string' ? cursorSetting.value.afterCreatedAt : undefined;
-      const since = afterCreatedAt ? new Date(afterCreatedAt) : new Date(0);
-      const [freshAuditRows, freshAnchorRows] = await Promise.all([
-        auditRepo.listAuditEventsSince(db, since, batchSize),
-        paymentAnchorRepo.listAnchorEventsSince(db, since, batchSize),
-      ]);
-      const freshEvents = sortWebhookEvents([
-        ...freshAuditRows.map((row) => ({
-          id: row.id,
-          source: 'audit' as const,
-          eventType: row.eventType,
-          intentId: row.intentId,
-          executionId: row.executionId ?? undefined,
-          payload: row.payload,
-          correlationId: row.correlationId ?? undefined,
-          createdAt: row.createdAt,
-        })),
-        ...freshAnchorRows.map((row) => ({
-          id: row.id,
-          source: 'anchor' as const,
-          eventType: row.eventType,
-          paymentAnchorId: row.paymentAnchorId,
-          payload: row.payload,
-          createdAt: row.createdAt,
-        })),
-      ]).slice(0, batchSize);
-      const subscriptions = await webhookRepo.listActiveWebhookSubscriptions(db);
-      let newestCreatedAt: Date | undefined;
+        const batchSize = env.WEBHOOK_DELIVERY_BATCH_SIZE;
+        const cursorSetting = await settingsRepo.getSetting(db, WEBHOOK_EVENT_CURSOR_KEY);
+        const afterCreatedAt =
+          typeof cursorSetting?.value?.afterCreatedAt === 'string'
+            ? cursorSetting.value.afterCreatedAt
+            : undefined;
+        const since = afterCreatedAt ? new Date(afterCreatedAt) : new Date(0);
+        const [freshAuditRows, freshAnchorRows] = await Promise.all([
+          auditRepo.listAuditEventsSince(db, since, batchSize),
+          paymentAnchorRepo.listAnchorEventsSince(db, since, batchSize),
+        ]);
+        const freshEvents = sortWebhookEvents([
+          ...freshAuditRows.map((row) => ({
+            id: row.id,
+            source: 'audit' as const,
+            eventType: row.eventType,
+            intentId: row.intentId,
+            executionId: row.executionId ?? undefined,
+            payload: row.payload,
+            correlationId: row.correlationId ?? undefined,
+            createdAt: row.createdAt,
+          })),
+          ...freshAnchorRows.map((row) => ({
+            id: row.id,
+            source: 'anchor' as const,
+            eventType: row.eventType,
+            paymentAnchorId: row.paymentAnchorId,
+            payload: row.payload,
+            createdAt: row.createdAt,
+          })),
+        ]).slice(0, batchSize);
+        const subscriptions = await webhookRepo.listActiveWebhookSubscriptions(db);
+        let newestCreatedAt: Date | undefined;
 
-      for (const event of freshEvents) {
-        newestCreatedAt = event.createdAt;
-        for (const subscription of subscriptions) {
-          if (!matchesWebhookEventType(subscription.eventTypes, event.eventType)) continue;
-          await webhookRepo.insertWebhookDelivery(db, {
-            subscriptionId: subscription.id,
-            auditEventId: event.id,
-            eventSource: event.source,
-            status: 'pending',
-            attemptCount: 0,
-            nextAttemptAt: new Date(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          });
-        }
-      }
-
-      if (newestCreatedAt) {
-        await settingsRepo.upsertSetting(db, WEBHOOK_EVENT_CURSOR_KEY, {
-          afterCreatedAt: newestCreatedAt.toISOString(),
-        });
-      }
-
-      const dueDeliveries = await webhookRepo.listDueWebhookDeliveries(db, batchSize);
-      for (const delivery of dueDeliveries) {
-        const subscription = await webhookRepo.getWebhookSubscriptionById(db, delivery.subscriptionId);
-        const eventSource = normalizeWebhookEventSource(delivery.eventSource);
-        const event =
-          eventSource === 'anchor'
-            ? await paymentAnchorRepo.getAnchorEventById(db, delivery.auditEventId)
-            : await auditRepo.getAuditEventById(db, delivery.auditEventId);
-        if (!subscription || !event) {
-          await webhookRepo.markWebhookDeliveryFailed(db, delivery.id, {
-            attemptCount: delivery.attemptCount + 1,
-            lastError: 'Webhook subscription or event missing',
-            nextAttemptAt: null,
-          });
-          continue;
-        }
-        if (subscription.status !== 'active') {
-          await webhookRepo.markWebhookDeliveryFailed(db, delivery.id, {
-            attemptCount: delivery.attemptCount + 1,
-            lastError: 'Webhook subscription is not active',
-            nextAttemptAt: null,
-          });
-          continue;
+        for (const event of freshEvents) {
+          newestCreatedAt = event.createdAt;
+          for (const subscription of subscriptions) {
+            if (!matchesWebhookEventType(subscription.eventTypes, event.eventType)) continue;
+            await webhookRepo.insertWebhookDelivery(db, {
+              subscriptionId: subscription.id,
+              auditEventId: event.id,
+              eventSource: event.source,
+              status: 'pending',
+              attemptCount: 0,
+              nextAttemptAt: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+          }
         }
 
-        const body = JSON.stringify(
-          serializeWebhookEventPayload({
+        if (newestCreatedAt) {
+          await settingsRepo.upsertSetting(db, WEBHOOK_EVENT_CURSOR_KEY, {
+            afterCreatedAt: newestCreatedAt.toISOString(),
+          });
+        }
+
+        const dueDeliveries = await webhookRepo.listDueWebhookDeliveries(db, batchSize);
+        for (const delivery of dueDeliveries) {
+          const subscription = await webhookRepo.getWebhookSubscriptionById(
+            db,
+            delivery.subscriptionId
+          );
+          const eventSource = normalizeWebhookEventSource(delivery.eventSource);
+          const event =
+            eventSource === 'anchor'
+              ? await paymentAnchorRepo.getAnchorEventById(db, delivery.auditEventId)
+              : await auditRepo.getAuditEventById(db, delivery.auditEventId);
+          if (!subscription || !event) {
+            await webhookRepo.markWebhookDeliveryFailed(db, delivery.id, {
+              attemptCount: delivery.attemptCount + 1,
+              lastError: 'Webhook subscription or event missing',
+              nextAttemptAt: null,
+            });
+            continue;
+          }
+          if (subscription.status !== 'active') {
+            await webhookRepo.markWebhookDeliveryFailed(db, delivery.id, {
+              attemptCount: delivery.attemptCount + 1,
+              lastError: 'Webhook subscription is not active',
+              nextAttemptAt: null,
+            });
+            continue;
+          }
+
+          const body = JSON.stringify(
+            serializeWebhookEventPayload({
+              id: event.id,
+              source: eventSource,
+              eventType: event.eventType,
+              intentId: 'intentId' in event && event.intentId ? event.intentId : undefined,
+              paymentAnchorId:
+                'paymentAnchorId' in event && event.paymentAnchorId
+                  ? event.paymentAnchorId
+                  : undefined,
+              executionId:
+                'executionId' in event && event.executionId ? event.executionId : undefined,
+              payload: event.payload,
+              correlationId:
+                'correlationId' in event ? optionalString(event.correlationId) : undefined,
+              createdAt: event.createdAt,
+            })
+          );
+          const payload = serializeWebhookEventPayload({
             id: event.id,
             source: eventSource,
             eventType: event.eventType,
-            intentId:
-              'intentId' in event && event.intentId ? event.intentId : undefined,
+            intentId: 'intentId' in event && event.intentId ? event.intentId : undefined,
             paymentAnchorId:
-              'paymentAnchorId' in event && event.paymentAnchorId ? event.paymentAnchorId : undefined,
+              'paymentAnchorId' in event && event.paymentAnchorId
+                ? event.paymentAnchorId
+                : undefined,
             executionId:
               'executionId' in event && event.executionId ? event.executionId : undefined,
             payload: event.payload,
-            correlationId: 'correlationId' in event ? optionalString(event.correlationId) : undefined,
+            correlationId:
+              'correlationId' in event ? optionalString(event.correlationId) : undefined,
             createdAt: event.createdAt,
-          })
-        );
-        const payload = serializeWebhookEventPayload({
-          id: event.id,
-          source: eventSource,
-          eventType: event.eventType,
-          intentId:
-            'intentId' in event && event.intentId ? event.intentId : undefined,
-          paymentAnchorId:
-            'paymentAnchorId' in event && event.paymentAnchorId ? event.paymentAnchorId : undefined,
-          executionId:
-            'executionId' in event && event.executionId ? event.executionId : undefined,
-          payload: event.payload,
-          correlationId: 'correlationId' in event ? optionalString(event.correlationId) : undefined,
-          createdAt: event.createdAt,
-        });
-        const headers: Record<string, string> = {
-          'content-type': 'application/json',
-          'user-agent': 'keeta-agent-stack/webhook-delivery',
-          'x-keeta-event-type': payload.eventType,
-          'x-keeta-delivery-id': delivery.id,
-        };
-        if (subscription.secret) {
-          headers['x-keeta-signature'] = createHmac('sha256', subscription.secret).update(body).digest('hex');
-        }
+          });
+          const headers: Record<string, string> = {
+            'content-type': 'application/json',
+            'user-agent': 'keeta-agent-stack/webhook-delivery',
+            'x-keeta-event-type': payload.eventType,
+            'x-keeta-delivery-id': delivery.id,
+          };
+          if (subscription.secret) {
+            headers['x-keeta-signature'] = createHmac('sha256', subscription.secret)
+              .update(body)
+              .digest('hex');
+          }
 
-        try {
-          const response = await withSpan(
-            'worker.webhook.delivery',
-            {
-              tracerName: 'keeta-agent-worker',
-              kind: 'client',
-              attributes: {
-                subscriptionId: subscription.id,
-                deliveryId: delivery.id,
-                eventType: payload.eventType,
-                eventSource,
-                targetUrl: subscription.targetUrl,
+          try {
+            const response = await withSpan(
+              'worker.webhook.delivery',
+              {
+                tracerName: 'keeta-agent-worker',
+                kind: 'client',
+                attributes: {
+                  subscriptionId: subscription.id,
+                  deliveryId: delivery.id,
+                  eventType: payload.eventType,
+                  eventSource,
+                  targetUrl: subscription.targetUrl,
+                },
               },
-            },
-            () =>
-              fetch(subscription.targetUrl, {
-                method: 'POST',
-                headers,
-                body,
-                signal: AbortSignal.timeout(10_000),
-              })
-          );
-          const responseBody = await response.text().catch(() => '');
-          const attemptCount = delivery.attemptCount + 1;
-          if (response.ok) {
-            await webhookRepo.markWebhookDeliveryDelivered(db, delivery.id, {
-              attemptCount,
-              responseStatus: response.status,
-              responseBody: responseBody.slice(0, 2_000),
-            });
-          } else {
-            await webhookRepo.markWebhookDeliveryFailed(db, delivery.id, {
-              ...webhookRetryFailure(attemptCount, env.WEBHOOK_DELIVERY_MAX_ATTEMPTS, {
+              () =>
+                fetch(subscription.targetUrl, {
+                  method: 'POST',
+                  headers,
+                  body,
+                  signal: AbortSignal.timeout(10_000),
+                })
+            );
+            const responseBody = await response.text().catch(() => '');
+            const attemptCount = delivery.attemptCount + 1;
+            if (response.ok) {
+              await webhookRepo.markWebhookDeliveryDelivered(db, delivery.id, {
+                attemptCount,
                 responseStatus: response.status,
                 responseBody: responseBody.slice(0, 2_000),
-                lastError: `Webhook returned ${response.status}`,
+              });
+            } else {
+              await webhookRepo.markWebhookDeliveryFailed(db, delivery.id, {
+                ...webhookRetryFailure(attemptCount, env.WEBHOOK_DELIVERY_MAX_ATTEMPTS, {
+                  responseStatus: response.status,
+                  responseBody: responseBody.slice(0, 2_000),
+                  lastError: `Webhook returned ${response.status}`,
+                }),
+              });
+            }
+          } catch (error) {
+            const attemptCount = delivery.attemptCount + 1;
+            await webhookRepo.markWebhookDeliveryFailed(db, delivery.id, {
+              ...webhookRetryFailure(attemptCount, env.WEBHOOK_DELIVERY_MAX_ATTEMPTS, {
+                lastError: errorMessage(error),
               }),
             });
           }
-        } catch (error) {
-          const attemptCount = delivery.attemptCount + 1;
-          await webhookRepo.markWebhookDeliveryFailed(db, delivery.id, {
-            ...webhookRetryFailure(attemptCount, env.WEBHOOK_DELIVERY_MAX_ATTEMPTS, {
-              lastError: errorMessage(error),
-            }),
-          });
         }
-      }
       }),
     { ...connection, ...getWorkerOptions(QUEUE_NAMES.webhookEventDelivery) }
   );
@@ -2397,14 +2479,24 @@ async function withDatabaseTransaction<T>(
     for (const q of queuesForMetrics) {
       await closeWithTimeout(`queue:${q.name}`, timeoutMs, () => q.close());
     }
-    await closeWithTimeout(`queue:${anchorOnboardingQueue.name}`, timeoutMs, () => anchorOnboardingQueue.close());
-    await closeWithTimeout(`queue:${anchorBondReconcileQueue.name}`, timeoutMs, () => anchorBondReconcileQueue.close());
+    await closeWithTimeout(`queue:${anchorOnboardingQueue.name}`, timeoutMs, () =>
+      anchorOnboardingQueue.close()
+    );
+    await closeWithTimeout(`queue:${anchorBondReconcileQueue.name}`, timeoutMs, () =>
+      anchorBondReconcileQueue.close()
+    );
     await closeWithTimeout(`queue:${reconcileQueue.name}`, timeoutMs, () => reconcileQueue.close());
     await closeWithTimeout(`queue:${metricsQueue.name}`, timeoutMs, () => metricsQueue.close());
     await closeWithTimeout(`queue:${stuckQueue.name}`, timeoutMs, () => stuckQueue.close());
-    await closeWithTimeout(`queue:${operatorMetricsQueue.name}`, timeoutMs, () => operatorMetricsQueue.close());
-    await closeWithTimeout(`queue:${webhookEventQueue.name}`, timeoutMs, () => webhookEventQueue.close());
-    await closeWithTimeout(`queue:${deadLetterQueue.name}`, timeoutMs, () => deadLetterQueue.close());
+    await closeWithTimeout(`queue:${operatorMetricsQueue.name}`, timeoutMs, () =>
+      operatorMetricsQueue.close()
+    );
+    await closeWithTimeout(`queue:${webhookEventQueue.name}`, timeoutMs, () =>
+      webhookEventQueue.close()
+    );
+    await closeWithTimeout(`queue:${deadLetterQueue.name}`, timeoutMs, () =>
+      deadLetterQueue.close()
+    );
     signingUserClient?.destroy?.();
     await closeWithTimeout('redis', timeoutMs, () => redis.quit());
     await closeWithTimeout('database', timeoutMs, () => db.pool.end());

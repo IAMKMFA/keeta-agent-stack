@@ -10,7 +10,10 @@ import { Queue } from 'bullmq';
 import { Redis } from 'ioredis';
 import { loadEnv, QUEUE_NAMES, getDefaultJobOptions, type AppEnv } from '@keeta-agent-stack/config';
 import { createDb } from '@keeta-agent-stack/storage';
-import { createDefaultDevRegistry, type AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import {
+  createDefaultDevRegistry,
+  type AdapterRegistry,
+} from '@keeta-agent-stack/adapter-registry';
 import { initTracing, shutdownTracing, TelemetryEmitter } from '@keeta-agent-stack/telemetry';
 import { contextPlugin } from './plugins/context.js';
 import { healthRoutes } from './routes/health.js';
@@ -90,7 +93,8 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
       : env.NODE_ENV === 'production'
         ? false
         : true;
-  const swaggerTryItOutEnabled = env.API_SWAGGER_TRY_IT_OUT_ENABLED ?? env.NODE_ENV !== 'production';
+  const swaggerTryItOutEnabled =
+    env.API_SWAGGER_TRY_IT_OUT_ENABLED ?? env.NODE_ENV !== 'production';
 
   await app.register(cors, { origin: corsOrigin });
   await app.register(rateLimit, {
@@ -175,7 +179,9 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
   await app.register(swagger, {
     // The generated document is valid at runtime, but @fastify/swagger's type
     // surface is narrower than our hand-built OpenAPI 3.1 helper.
-    openapi: buildOpenApiDocument({ serverUrl: env.API_URL ?? `http://localhost:${env.API_PORT}` }) as never,
+    openapi: buildOpenApiDocument({
+      serverUrl: env.API_URL ?? `http://localhost:${env.API_PORT}`,
+    }) as never,
   });
   await app.register(swaggerUi, {
     routePrefix: '/docs',
@@ -203,12 +209,18 @@ export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<Fas
   }
 
   app.setErrorHandler((err, req, reply) => {
-    const statusCode = err && typeof err === 'object' && 'error' in err && err.error && typeof err.error === 'object'
-      && 'code' in err.error && err.error.code === 'RATE_LIMITED'
+    const statusCode =
+      err &&
+      typeof err === 'object' &&
+      'error' in err &&
+      err.error &&
+      typeof err.error === 'object' &&
+      'code' in err.error &&
+      err.error.code === 'RATE_LIMITED'
         ? 429
         : typeof (err as { statusCode?: unknown }).statusCode === 'number'
-        ? (err as { statusCode: number }).statusCode
-        : 500;
+          ? (err as { statusCode: number }).statusCode
+          : 500;
 
     if (statusCode >= 500) {
       app.log.error(err);

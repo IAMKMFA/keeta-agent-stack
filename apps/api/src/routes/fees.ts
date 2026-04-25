@@ -11,7 +11,11 @@ const aggregateQuerySchema = z.object({
   windowDays: z.coerce.number().min(1).max(180).default(30),
 });
 
-function readFee(row: { payload?: Record<string, unknown> | null; receipt?: Record<string, unknown> | null; normalizedReceipt?: Record<string, unknown> | null }): {
+function readFee(row: {
+  payload?: Record<string, unknown> | null;
+  receipt?: Record<string, unknown> | null;
+  normalizedReceipt?: Record<string, unknown> | null;
+}): {
   amount: number | null;
   asset: string | null;
 } {
@@ -113,8 +117,8 @@ export const feesRoutes: FastifyPluginAsync = async (app) => {
           : groupBy === 'adapter'
             ? row.adapterId
             : groupBy === 'status'
-              ? row.status ?? 'unknown'
-              : asset ?? 'unknown';
+              ? (row.status ?? 'unknown')
+              : (asset ?? 'unknown');
       const key = `${bucketKey(bucket, row.createdAt)}|${group}`;
       const entry = map.get(key);
       if (entry) {

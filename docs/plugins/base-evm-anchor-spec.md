@@ -42,7 +42,7 @@
 
 Before Phase 0 kicks off, these facts about the real repo are confirmed and non-negotiable. Cursor must not contradict them.
 
-- **`getCurrentTax()` returns a percentage (0–100), not bps.** Tax math is `amount * tax / 100`. All adapter code reads percent; `transferTaxBps` is a *derived* field (`percent * 100`).
+- **`getCurrentTax()` returns a percentage (0–100), not bps.** Tax math is `amount * tax / 100`. All adapter code reads percent; `transferTaxBps` is a _derived_ field (`percent * 100`).
 - **`NormalizedReceiptSchema`** currently has `railKind ∈ { native_kt, cctp_usdc, fiat, swift, other }` and `settlementState ∈ { submitted, confirmed, failed, unknown }`. No `raw` or `extensions` field. Until a core schema change is approved, EVM receipt details live in plugin-local schemas (`EvmReceiptExtensionSchema`) stored in plugin Drizzle tables, and normalized receipts use `railKind: 'other'`, `network: 'base'`, and existing fields like `txHash` and `blockHash`.
 - **`VenueKindSchema`** is `'dex' | 'anchor' | 'transfer'`. No EVM-specific kinds. Adapter IDs and capability features carry EVM context.
 - **`pnpm-workspace.yaml`** currently lists `apps/*`, `packages/*`, `examples/*`. Phase 1 adds `plugins/*`. `turbo.json` currently curates `globalEnv`; Base-related env vars get appended there if any pipeline task reads them.
@@ -61,20 +61,20 @@ Tax is reconciled end-to-end: read at quote time, re-read at simulation, verifie
 
 ## 2. What This Plugin Has Access To
 
-| Resource | Access | How |
-| --- | --- | --- |
-| Base JSON-RPC (reads) | Required | Alchemy / Coinbase Node / private RPC. Public RPC rejected in prod. |
-| Base JSON-RPC (writes) | Required when `mode='live'` | AWS KMS signer in worker |
-| KTA ERC-20 contract | Read + write via worker | `viem` |
-| Aerodrome Router + Factory | Read + write via worker | Pinned ABI, fee-on-transfer-safe entry points for KTA legs |
-| AWS KMS | Sign only | `@aws-sdk/client-kms`, worker only |
-| Keeta explorer APIs | Read-only | `explorer.keeta.com`, `keescan.org`, `kee.tools`, BaseScan |
-| Keeta anchor library | Compose | `github.com/KeetaNetwork/anchor` |
-| Policy engine | Register rules | Existing `packages/policy` extension |
-| MCP surface | Read + intent-creation only | `evm.*`, `anchor.base.*` |
-| Dashboard API | Read-only | `/api/plugins/base-evm-anchor/*` |
-| Dashboard UI | Register feature-flagged views | Via `apps/dashboard` plugin extension point |
-| User seeds / Keeta L1 keys | **No access** | Workspace import-lint enforces |
+| Resource                   | Access                         | How                                                                 |
+| -------------------------- | ------------------------------ | ------------------------------------------------------------------- |
+| Base JSON-RPC (reads)      | Required                       | Alchemy / Coinbase Node / private RPC. Public RPC rejected in prod. |
+| Base JSON-RPC (writes)     | Required when `mode='live'`    | AWS KMS signer in worker                                            |
+| KTA ERC-20 contract        | Read + write via worker        | `viem`                                                              |
+| Aerodrome Router + Factory | Read + write via worker        | Pinned ABI, fee-on-transfer-safe entry points for KTA legs          |
+| AWS KMS                    | Sign only                      | `@aws-sdk/client-kms`, worker only                                  |
+| Keeta explorer APIs        | Read-only                      | `explorer.keeta.com`, `keescan.org`, `kee.tools`, BaseScan          |
+| Keeta anchor library       | Compose                        | `github.com/KeetaNetwork/anchor`                                    |
+| Policy engine              | Register rules                 | Existing `packages/policy` extension                                |
+| MCP surface                | Read + intent-creation only    | `evm.*`, `anchor.base.*`                                            |
+| Dashboard API              | Read-only                      | `/api/plugins/base-evm-anchor/*`                                    |
+| Dashboard UI               | Register feature-flagged views | Via `apps/dashboard` plugin extension point                         |
+| User seeds / Keeta L1 keys | **No access**                  | Workspace import-lint enforces                                      |
 
 ## 3. What This Plugin Does NOT Do
 
@@ -99,7 +99,7 @@ registerBaseEvmAnchorPlugin(registry, {
   chainId: 8453,
   aerodrome: {
     enabled: true,
-    useFeeOnTransferSafeSwaps: true,   // default true for any KTA leg
+    useFeeOnTransferSafeSwaps: true, // default true for any KTA leg
   },
   signer: {
     backend: 'aws-kms',
@@ -108,7 +108,9 @@ registerBaseEvmAnchorPlugin(registry, {
   },
   anchor: {
     officialLibrary: true,
-    explorerBaseUrls: { /* … */ },
+    explorerBaseUrls: {
+      /* … */
+    },
   },
   dashboard: {
     enabled: process.env.DASHBOARD_BASE_EVM_ENABLED === 'true',
@@ -285,8 +287,13 @@ export const UnsignedEvmTxSchema = z.object({
     adapter: z.string(),
     version: z.string(),
     purpose: z.enum([
-      'transfer', 'swap', 'approve', 'approve-zero',
-      'permit-relay', 'anchor-lock', 'anchor-release',
+      'transfer',
+      'swap',
+      'approve',
+      'approve-zero',
+      'permit-relay',
+      'anchor-lock',
+      'anchor-release',
     ]),
   }),
 });
@@ -307,10 +314,10 @@ export const EvmQuoteExtensionSchema = z.object({
   maxPriorityFeePerGas: z.string().regex(/^\d+$/),
 
   // Tax-aware delivery (percent-sourced, bps-derived)
-  transferTaxPercent: z.number().int().min(0).max(100),       // raw from contract
-  transferTaxBps: z.number().int().min(0).max(10_000),        // derived = percent * 100
+  transferTaxPercent: z.number().int().min(0).max(100), // raw from contract
+  transferTaxBps: z.number().int().min(0).max(10_000), // derived = percent * 100
   expectedInputAmount: z.string().regex(/^\d+$/),
-  expectedRecipientAmount: z.string().regex(/^\d+$/),         // input minus tax
+  expectedRecipientAmount: z.string().regex(/^\d+$/), // input minus tax
   expectedTaxAmount: z.string().regex(/^\d+$/),
 
   // Freshness (new in v3.2)
@@ -354,17 +361,17 @@ Stored in a new Drizzle table `plugin_base_evm_receipts` with a foreign key to t
 
 ```ts
 export const EvmReceiptExtensionSchema = z.object({
-  intentId: z.string().uuid(),                 // FK to core
-  normalizedReceiptRef: z.string(),             // whatever the core key is
+  intentId: z.string().uuid(), // FK to core
+  normalizedReceiptRef: z.string(), // whatever the core key is
   chainId: BaseChainIdSchema,
   tokenAddress: EvmAddressSchema,
   txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/),
   blockNumber: z.number().int().nonnegative(),
   from: EvmAddressSchema,
   to: EvmAddressSchema,
-  amountRaw: z.string().regex(/^\d+$/),                 // what was sent
+  amountRaw: z.string().regex(/^\d+$/), // what was sent
   amountHuman: z.string(),
-  amountDeliveredRaw: z.string().regex(/^\d+$/),        // from Transfer log WHERE to == recipient
+  amountDeliveredRaw: z.string().regex(/^\d+$/), // from Transfer log WHERE to == recipient
   amountDeliveredHuman: z.string(),
   transferTaxPercent: z.number().int().min(0).max(100), // tax at execution time
   transferTaxBps: z.number().int().min(0).max(10_000),
@@ -373,7 +380,7 @@ export const EvmReceiptExtensionSchema = z.object({
   effectiveGasPrice: z.string().regex(/^\d+$/),
   gasCostWei: z.string().regex(/^\d+$/),
   logs: z.array(z.unknown()),
-  underDelivered: z.boolean(),                          // amountDelivered < minReceived
+  underDelivered: z.boolean(), // amountDelivered < minReceived
 });
 ```
 
@@ -443,16 +450,21 @@ File: `packages/adapter-base-evm/src/tax.ts`
 import type { PublicClient } from 'viem';
 
 const KTA_ABI_TAX = [
-  { type: 'function', name: 'getCurrentTax', stateMutability: 'view', inputs: [],
-    outputs: [{ type: 'uint8' }] },
+  {
+    type: 'function',
+    name: 'getCurrentTax',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint8' }],
+  },
 ] as const;
 
 export async function readCurrentTaxPercent(
   client: PublicClient,
   tokenAddress: `0x${string}`,
-  blockNumber?: bigint,
+  blockNumber?: bigint
 ): Promise<{ taxPercent: number; atBlock: number }> {
-  const block = blockNumber ?? await client.getBlockNumber();
+  const block = blockNumber ?? (await client.getBlockNumber());
   let taxRaw: number | bigint;
   try {
     taxRaw = await client.readContract({
@@ -478,7 +490,7 @@ export function taxPercentToBps(taxPercent: number): number {
 
 export function computeExpectedDelivered(
   amountInRaw: bigint,
-  taxPercent: number,
+  taxPercent: number
 ): { deliveredRaw: bigint; taxAmountRaw: bigint; taxBps: number } {
   // Mirrors the contract's math: amount * tax / 100
   const taxAmountRaw = (amountInRaw * BigInt(taxPercent)) / 100n;
@@ -508,17 +520,15 @@ The KTA contract's taxed transfer emits **multiple `Transfer` events** — one t
 export function findTransferToRecipient(
   logs: readonly Log[],
   tokenAddress: `0x${string}`,
-  expectedRecipient: `0x${string}`,
+  expectedRecipient: `0x${string}`
 ): { amountRaw: bigint } | null {
   const transfers = logs
-    .filter(l => l.address.toLowerCase() === tokenAddress.toLowerCase())
-    .map(l => decodeTransferEvent(l))
+    .filter((l) => l.address.toLowerCase() === tokenAddress.toLowerCase())
+    .map((l) => decodeTransferEvent(l))
     .filter((t): t is DecodedTransfer => t !== null);
 
   // Match on recipient address (normalized lowercase)
-  const match = transfers.find(
-    t => t.to.toLowerCase() === expectedRecipient.toLowerCase(),
-  );
+  const match = transfers.find((t) => t.to.toLowerCase() === expectedRecipient.toLowerCase());
   return match ? { amountRaw: match.value } : null;
 }
 ```
@@ -533,7 +543,11 @@ Tests MUST cover:
 ### 11.4 Freshness enforcement
 
 ```ts
-export function isQuoteFresh(ext: EvmQuoteExtension, nowMs: number, currentBlock: number): {
+export function isQuoteFresh(
+  ext: EvmQuoteExtension,
+  nowMs: number,
+  currentBlock: number
+): {
   fresh: boolean;
   reason?: 'expired' | 'block-drift';
 } {
@@ -589,17 +603,17 @@ Unchanged from v3.
 
 From v3, plus:
 
-| Rule | Purpose | Default |
-| --- | --- | --- |
-| `requirePermitOverApprove` | Prefer EIP-2612 | `true` |
-| `requireZeroFirstApprove` | Enforce zero-before-nonzero if raw approve used | `true` |
-| `maxAllowedTransferTaxBps` | Block high-tax states (bps, derived from percent) | `100` |
-| `blockOnUnknownTax` | Fail-closed on tax read failure | `true` |
-| `reverifyTaxOnExecute` | Re-read tax at execute block | `true` |
-| `maxQuoteAgeSeconds` | Reject stale quotes | `30` |
-| `maxBlockDriftBetweenQuoteAndExecute` | Reject stale quotes (block-based) | `5` |
-| `requireFeeOnTransferSafeSwaps` | Aerodrome swaps with KTA leg must use FoT-safe variant | `true` |
-| `enforceDeliveredAmount` | Compare Transfer-log delivered vs minReceived | `true` |
+| Rule                                  | Purpose                                                | Default |
+| ------------------------------------- | ------------------------------------------------------ | ------- |
+| `requirePermitOverApprove`            | Prefer EIP-2612                                        | `true`  |
+| `requireZeroFirstApprove`             | Enforce zero-before-nonzero if raw approve used        | `true`  |
+| `maxAllowedTransferTaxBps`            | Block high-tax states (bps, derived from percent)      | `100`   |
+| `blockOnUnknownTax`                   | Fail-closed on tax read failure                        | `true`  |
+| `reverifyTaxOnExecute`                | Re-read tax at execute block                           | `true`  |
+| `maxQuoteAgeSeconds`                  | Reject stale quotes                                    | `30`    |
+| `maxBlockDriftBetweenQuoteAndExecute` | Reject stale quotes (block-based)                      | `5`     |
+| `requireFeeOnTransferSafeSwaps`       | Aerodrome swaps with KTA leg must use FoT-safe variant | `true`  |
+| `enforceDeliveredAmount`              | Compare Transfer-log delivered vs minReceived          | `true`  |
 
 All other rules from v3 Section 13 unchanged.
 
@@ -697,19 +711,19 @@ From v3.1, plus:
 
 ## 21. Execution Order
 
-| Phase | Name | Signing? | Core change? | Dashboard? |
-| --- | --- | --- | --- | --- |
-| 0 | Inventory | N/A | N/A | N/A |
-| 1 | Read-only foundation + workspace wiring (`plugins/*`, turbo globalEnv) | None | Yes (workspace only) | None |
-| 2 | Schemas (EVM quote ext + freshness + plugin-local receipt) | None | No | None |
-| 3 | **Signer registry core refactor** + KMS signer + raw-key dev + live Base transfers | KMS | **Yes (apps/worker/src/signers/)** | None |
-| 4 | Aerodrome quote-only with FoT-safe function selection | None | No | None |
-| 5 | Policy pack + Aerodrome live (FoT-safe, zero-first approve, freshness enforcement) | KMS | No | None |
-| 5.5 | Anchor reads + drift | None | No | None |
-| 5.6 | Anchor lock/release | KMS | No | None |
-| 5.7 | Dashboard package (views, components, API routes) — may overlap 5.5/5.6 if extension point exists | None | Maybe (dashboard extension point if absent) | Full |
-| 6 | MCP tools (read + intent-creation only) | None | No | None |
-| 7 | Prod docs, IAM runbook, mainnet configs, Playwright + Storybook CI | KMS | No | Full |
+| Phase | Name                                                                                              | Signing? | Core change?                                | Dashboard? |
+| ----- | ------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------- | ---------- |
+| 0     | Inventory                                                                                         | N/A      | N/A                                         | N/A        |
+| 1     | Read-only foundation + workspace wiring (`plugins/*`, turbo globalEnv)                            | None     | Yes (workspace only)                        | None       |
+| 2     | Schemas (EVM quote ext + freshness + plugin-local receipt)                                        | None     | No                                          | None       |
+| 3     | **Signer registry core refactor** + KMS signer + raw-key dev + live Base transfers                | KMS      | **Yes (apps/worker/src/signers/)**          | None       |
+| 4     | Aerodrome quote-only with FoT-safe function selection                                             | None     | No                                          | None       |
+| 5     | Policy pack + Aerodrome live (FoT-safe, zero-first approve, freshness enforcement)                | KMS      | No                                          | None       |
+| 5.5   | Anchor reads + drift                                                                              | None     | No                                          | None       |
+| 5.6   | Anchor lock/release                                                                               | KMS      | No                                          | None       |
+| 5.7   | Dashboard package (views, components, API routes) — may overlap 5.5/5.6 if extension point exists | None     | Maybe (dashboard extension point if absent) | Full       |
+| 6     | MCP tools (read + intent-creation only)                                                           | None     | No                                          | None       |
+| 7     | Prod docs, IAM runbook, mainnet configs, Playwright + Storybook CI                                | KMS      | No                                          | Full       |
 
 ---
 

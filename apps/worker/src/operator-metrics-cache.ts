@@ -5,13 +5,13 @@ import type { AppEnv } from '@keeta-agent-stack/config';
 import type { RouteScoreAdjustment } from '@keeta-agent-stack/types';
 
 export interface OperatorMetrics {
-  successRate?: number;       // 0–100 (rolling 24h)
+  successRate?: number; // 0–100 (rolling 24h)
   p50LatencyMs?: number;
   p95LatencyMs?: number;
   unsettledVolume?: number;
   bondAgeDays?: number;
   bondVerified?: boolean;
-  sampledAt: number;          // Date.now() when this entry was cached
+  sampledAt: number; // Date.now() when this entry was cached
 }
 
 /** Thin Redis-backed TTL cache for per-adapter operator metrics used at routing time. */
@@ -159,7 +159,10 @@ export function buildDynamicScoreAdjustments(
   }
 
   // --- Corridor capacity (unsettled volume) ---
-  if (typeof metrics.unsettledVolume === 'number' && metrics.unsettledVolume > UNSETTLED_HIGH_WATER) {
+  if (
+    typeof metrics.unsettledVolume === 'number' &&
+    metrics.unsettledVolume > UNSETTLED_HIGH_WATER
+  ) {
     const overage = metrics.unsettledVolume - UNSETTLED_HIGH_WATER;
     const penalty = -Math.min(6, Math.round(overage / 5));
     adjustments.push({ source: 'anchor_operator_capacity_penalty', value: penalty });

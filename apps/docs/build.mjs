@@ -1,14 +1,19 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? process.env.API_URL ?? 'http://localhost:3001').replace(/\/$/, '');
+const apiUrl = (
+  process.env.NEXT_PUBLIC_API_URL ??
+  process.env.API_URL ??
+  'http://localhost:3001'
+).replace(/\/$/, '');
 const docsRoot = resolve('dist');
 const guidesRoot = resolve('dist/guides');
 
 const endpointGroups = [
   {
     name: 'Execution Pipeline',
-    description: 'Intent creation, route generation, policy evaluation, simulation, and execution orchestration.',
+    description:
+      'Intent creation, route generation, policy evaluation, simulation, and execution orchestration.',
     endpoints: [
       'GET /intents',
       'POST /intents',
@@ -23,7 +28,8 @@ const endpointGroups = [
   },
   {
     name: 'Anchors',
-    description: 'Anchor records, bond updates, reconciliation, onboarding, and readiness inspection.',
+    description:
+      'Anchor records, bond updates, reconciliation, onboarding, and readiness inspection.',
     endpoints: [
       'GET /anchors',
       'POST /anchors',
@@ -37,7 +43,8 @@ const endpointGroups = [
   },
   {
     name: 'Events and Webhooks',
-    description: 'Pull or subscribe to pipeline and anchor lifecycle events, then fan them out to agents.',
+    description:
+      'Pull or subscribe to pipeline and anchor lifecycle events, then fan them out to agents.',
     endpoints: [
       'GET /events',
       'GET /events/stream',
@@ -49,7 +56,8 @@ const endpointGroups = [
   },
   {
     name: 'Policy and Oracle',
-    description: 'Preview policy with custom rule config and call oracle-backed payment intelligence endpoints.',
+    description:
+      'Preview policy with custom rule config and call oracle-backed payment intelligence endpoints.',
     endpoints: [
       'GET /policy/rules',
       'POST /policy/evaluate',
@@ -67,12 +75,12 @@ const guides = [
   {
     slug: 'getting-started',
     title: 'Getting Started',
-    summary: 'Boot the stack locally, create an intent, and drive the full quote -> route -> policy -> execute path.',
+    summary:
+      'Boot the stack locally, create an intent, and drive the full quote -> route -> policy -> execute path.',
     sections: [
       {
         title: 'Run the stack',
-        body:
-          'The monorepo ships a single local control plane: Fastify API, BullMQ worker, Postgres, Redis, dashboard, and examples. The fastest path is to bring up infrastructure first, then run the workspace scripts.',
+        body: 'The monorepo ships a single local control plane: Fastify API, BullMQ worker, Postgres, Redis, dashboard, and examples. The fastest path is to bring up infrastructure first, then run the workspace scripts.',
         code: `pnpm install
 docker compose up -d
 pnpm db:migrate
@@ -80,8 +88,7 @@ pnpm dev:all`,
       },
       {
         title: 'Create a wallet and intent',
-        body:
-          'The API surface is intentionally small. Create a wallet, register an execution intent, then advance it stage by stage or let your agent orchestrator call the same endpoints.',
+        body: 'The API surface is intentionally small. Create a wallet, register an execution intent, then advance it stage by stage or let your agent orchestrator call the same endpoints.',
         code: `curl -X POST "${apiUrl}/wallets/import" \\
   -H "content-type: application/json" \\
   -d '{"label":"Treasury","address":"keeta_demo_wallet"}'
@@ -100,8 +107,7 @@ curl -X POST "${apiUrl}/intents" \\
       },
       {
         title: 'Drive the pipeline',
-        body:
-          'The worker consumes queue jobs asynchronously, but the API preserves deterministic control over each stage. That makes the SDK usable for both orchestrated agents and operator-driven testing.',
+        body: 'The worker consumes queue jobs asynchronously, but the API preserves deterministic control over each stage. That makes the SDK usable for both orchestrated agents and operator-driven testing.',
         code: `curl -X POST "${apiUrl}/intents/<intent-id>/quote"
 curl -X POST "${apiUrl}/intents/<intent-id>/route"
 curl -X POST "${apiUrl}/intents/<intent-id>/policy"
@@ -112,12 +118,12 @@ curl -X POST "${apiUrl}/intents/<intent-id>/execute"`,
   {
     slug: 'adapter-development',
     title: 'Adapter Development',
-    summary: 'Implement a new venue adapter, register it in the registry, and let the router discover it.',
+    summary:
+      'Implement a new venue adapter, register it in the registry, and let the router discover it.',
     sections: [
       {
         title: 'Implement the contract',
-        body:
-          'Adapters expose a narrow execution surface: pair support, quote generation, and execution. The registry and conformance tests do the rest, so new venues can slot into the runtime without worker rewrites.',
+        body: 'Adapters expose a narrow execution surface: pair support, quote generation, and execution. The registry and conformance tests do the rest, so new venues can slot into the runtime without worker rewrites.',
         code: `import { BaseDexAdapter } from '@keeta-agent-stack/adapter-base';
 
 export class RegionalDexAdapter extends BaseDexAdapter {
@@ -139,8 +145,7 @@ export class RegionalDexAdapter extends BaseDexAdapter {
       },
       {
         title: 'Register adapters',
-        body:
-          'The default dev registry is useful for demos, but integration tests and production stacks can inject their own registry instances. That makes venue combinations deterministic and testable.',
+        body: 'The default dev registry is useful for demos, but integration tests and production stacks can inject their own registry instances. That makes venue combinations deterministic and testable.',
         code: `import { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
 
 const registry = new AdapterRegistry();
@@ -148,8 +153,7 @@ registry.register(new RegionalDexAdapter());`,
       },
       {
         title: 'Verify behavior',
-        body:
-          'Use contract tests first, then integration tests with a custom registry. The router already supports multi-hop pathfinding, so a single well-formed adapter can participate in direct or intermediate routes immediately.',
+        body: 'Use contract tests first, then integration tests with a custom registry. The router already supports multi-hop pathfinding, so a single well-formed adapter can participate in direct or intermediate routes immediately.',
         code: `pnpm --filter @keeta-agent-stack/adapter-base test
 pnpm test:integration`,
       },
@@ -158,12 +162,12 @@ pnpm test:integration`,
   {
     slug: 'policy-composition',
     title: 'Policy Composition',
-    summary: 'Register custom rules, enable or disable them, and compose corridor policy with allOf / anyOf / not.',
+    summary:
+      'Register custom rules, enable or disable them, and compose corridor policy with allOf / anyOf / not.',
     sections: [
       {
         title: 'Register a typed custom rule',
-        body:
-          'Rules accept optional Zod-backed config and run against the full policy context. The engine validates config before evaluation, so admin UIs can safely expose rule settings.',
+        body: 'Rules accept optional Zod-backed config and run against the full policy context. The engine validates config before evaluation, so admin UIs can safely expose rule settings.',
         code: `import { definePolicyRule, PolicyEngine } from '@keeta-agent-stack/policy';
 import { z } from 'zod';
 
@@ -184,8 +188,7 @@ engine.register(
       },
       {
         title: 'Compose rules',
-        body:
-          'The engine now supports composition definitions and per-entry toggles. That lets you express corridor bundles without unregistering the underlying rule set.',
+        body: 'The engine now supports composition definitions and per-entry toggles. That lets you express corridor bundles without unregistering the underlying rule set.',
         code: `import { definePolicyComposition } from '@keeta-agent-stack/policy';
 
 engine.registerComposition(
@@ -202,8 +205,7 @@ engine.disable('org.acme.max-notional');`,
       },
       {
         title: 'Discover metadata',
-        body:
-          'Discovery surfaces can now distinguish plain rules from compositions, show whether an entry is enabled, and expose child relationships for admin panels or audit tooling.',
+        body: 'Discovery surfaces can now distinguish plain rules from compositions, show whether an entry is enabled, and expose child relationships for admin panels or audit tooling.',
         code: `const metadata = engine.listRuleMetadata();
 // -> [{ ruleId, kind, enabled, operator, children, description, ... }]`,
       },
@@ -212,27 +214,25 @@ engine.disable('org.acme.max-notional');`,
   {
     slug: 'operations',
     title: 'Operations',
-    summary: 'Run the system with integration tests, event subscriptions, tracing, and request correlation.',
+    summary:
+      'Run the system with integration tests, event subscriptions, tracing, and request correlation.',
     sections: [
       {
         title: 'Run integration tests',
-        body:
-          'The integration harness boots isolated Postgres databases, flushes Redis, starts the API and worker in-process, and verifies webhook delivery. It is designed to run both locally and in CI.',
+        body: 'The integration harness boots isolated Postgres databases, flushes Redis, starts the API and worker in-process, and verifies webhook delivery. It is designed to run both locally and in CI.',
         code: `docker compose up -d
 pnpm test:integration`,
       },
       {
         title: 'Enable tracing',
-        body:
-          'Tracing is opt-in. Set an OTLP endpoint or turn on the console exporter, then the API and worker will emit connected spans across queue boundaries for the main execution path.',
+        body: 'Tracing is opt-in. Set an OTLP endpoint or turn on the console exporter, then the API and worker will emit connected spans across queue boundaries for the main execution path.',
         code: `export OTEL_ENABLED=true
 export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
 export OTEL_SERVICE_NAME=keeta-agent-stack`,
       },
       {
         title: 'Subscribe to events',
-        body:
-          'You can consume the same state changes in two ways: long-lived SSE for dashboards and HMAC-signed webhooks for durable downstream systems.',
+        body: 'You can consume the same state changes in two ways: long-lived SSE for dashboards and HMAC-signed webhooks for durable downstream systems.',
         code: `curl -N -H "x-ops-key: $OPS_API_KEY" "${apiUrl}/events/stream?limit=100"
 
 curl -X POST "${apiUrl}/ops/webhooks" \\
@@ -242,8 +242,7 @@ curl -X POST "${apiUrl}/ops/webhooks" \\
       },
       {
         title: 'Expose the API intentionally',
-        body:
-          'Production boot refuses the development signer, disables browser cross-origin access unless you set an allowlist, and keeps Swagger Try-It-Out off unless you explicitly opt in.',
+        body: 'Production boot refuses the development signer, disables browser cross-origin access unless you set an allowlist, and keeps Swagger Try-It-Out off unless you explicitly opt in.',
         code: `export NODE_ENV=production
 export ALLOW_DEV_SIGNER=false
 export API_CORS_ORIGINS=https://dashboard.example
@@ -442,7 +441,10 @@ function renderGuide(guide) {
     aside: `<h3>Guide Set</h3>
 <ul>
   ${guides
-    .map((item) => `<li><a href="./${item.slug}.html">${escapeHtml(item.title)}</a> — ${escapeHtml(item.summary)}</li>`)
+    .map(
+      (item) =>
+        `<li><a href="./${item.slug}.html">${escapeHtml(item.title)}</a> — ${escapeHtml(item.summary)}</li>`
+    )
     .join('')}
 </ul>`,
   });
@@ -473,8 +475,7 @@ function renderHome() {
     current: './index.html',
     title: 'Build Keeta-native agents with a durable execution fabric.',
     eyebrow: 'Keeta Agent Stack',
-    lead:
-      'This docs bundle covers the SDK, the control plane API, the worker pipeline, and the operator workflows that make the stack production-oriented without hiding the moving parts.',
+    lead: 'This docs bundle covers the SDK, the control plane API, the worker pipeline, and the operator workflows that make the stack production-oriented without hiding the moving parts.',
     body: `<section class="section">
   <h2>What ships today</h2>
   <p>The repo includes a typed SDK client, a route-aware execution pipeline, multi-hop routing, an extensible policy engine, webhook and SSE event delivery, a Next.js dashboard, and integration tests that run the real API and worker together.</p>
@@ -507,23 +508,19 @@ function renderArchitecture() {
     body: renderSections([
       {
         title: 'Control plane',
-        body:
-          'The Fastify API accepts intents, simulations, anchor operations, and webhook administration. It validates inputs with shared Zod schemas, writes durable records, and enqueues work in BullMQ instead of executing synchronously.',
+        body: 'The Fastify API accepts intents, simulations, anchor operations, and webhook administration. It validates inputs with shared Zod schemas, writes durable records, and enqueues work in BullMQ instead of executing synchronously.',
       },
       {
         title: 'Execution worker',
-        body:
-          'The worker owns quote generation, routing, policy evaluation, execution, simulation, reconciliation, metrics sampling, and webhook delivery. The main control loop is durable because each stage persists output before the next one runs.',
+        body: 'The worker owns quote generation, routing, policy evaluation, execution, simulation, reconciliation, metrics sampling, and webhook delivery. The main control loop is durable because each stage persists output before the next one runs.',
       },
       {
         title: 'Shared packages',
-        body:
-          'Packages provide the typed contracts and pluggable behaviors: adapters, registry, routing, policy, simulator, telemetry, events, Keeta chain helpers, and storage repositories. That keeps the API and worker thin and makes integration tests representative.',
+        body: 'Packages provide the typed contracts and pluggable behaviors: adapters, registry, routing, policy, simulator, telemetry, events, Keeta chain helpers, and storage repositories. That keeps the API and worker thin and makes integration tests representative.',
       },
       {
         title: 'Operational visibility',
-        body:
-          'Audit events, metric samples, webhook delivery rows, and route scoring adjustments all persist to Postgres. Tracing and request correlation now extend visibility from the API enqueue edge into worker execution and downstream webhook calls.',
+        body: 'Audit events, metric samples, webhook delivery rows, and route scoring adjustments all persist to Postgres. Tracing and request correlation now extend visibility from the API enqueue edge into worker execution and downstream webhook calls.',
       },
     ]),
     aside: `<h3>Packages to Know</h3>

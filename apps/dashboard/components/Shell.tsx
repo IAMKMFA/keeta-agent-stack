@@ -83,7 +83,12 @@ export function Shell({ viewer, nav, children }: ShellProps) {
     <div className="min-h-screen pb-8 pt-4 sm:pt-6">
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
         <div className="hub-panel overflow-hidden">
-          <div className={clsx('lg:grid', collapsed ? 'lg:grid-cols-[92px_minmax(0,1fr)]' : 'lg:grid-cols-[280px_minmax(0,1fr)]')}>
+          <div
+            className={clsx(
+              'lg:grid',
+              collapsed ? 'lg:grid-cols-[92px_minmax(0,1fr)]' : 'lg:grid-cols-[280px_minmax(0,1fr)]'
+            )}
+          >
             <aside className="hidden border-r border-[var(--keeta-line)] bg-[linear-gradient(180deg,#ffffff,rgba(250,250,250,0.9))] p-5 lg:flex lg:flex-col">
               <div className={clsx('space-y-2', collapsed && 'text-center')}>
                 <div className="hub-kicker">Keeta</div>
@@ -191,7 +196,7 @@ export function Shell({ viewer, nav, children }: ShellProps) {
                 ) : null}
                 {!collapsed ? (
                   <div className="rounded-xl border border-[var(--keeta-line)] bg-[#fafafa] px-3 py-2 text-[11px] text-[var(--keeta-muted)]">
-                  <div className="font-mono">Keeta network</div>
+                    <div className="font-mono">Keeta network</div>
                   </div>
                 ) : null}
               </div>
@@ -202,7 +207,9 @@ export function Shell({ viewer, nav, children }: ShellProps) {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="hub-kicker">Execution Fabric</div>
-                    <div className="hub-heading text-xl font-semibold lg:hidden">Keeta Agent Hub</div>
+                    <div className="hub-heading text-xl font-semibold lg:hidden">
+                      Keeta Agent Hub
+                    </div>
                   </div>
                   <div className="hidden min-w-[240px] max-w-sm flex-1 sm:block">
                     <input
@@ -214,9 +221,7 @@ export function Shell({ viewer, nav, children }: ShellProps) {
                   </div>
                   <div className="flex items-center gap-3">
                     <LiveOpsRail />
-                    <div className="hub-pill px-3 py-1.5">
-                      {ROLE_LABEL[viewer.role]}
-                    </div>
+                    <div className="hub-pill px-3 py-1.5">{ROLE_LABEL[viewer.role]}</div>
                   </div>
                 </div>
                 {searchResults.length > 0 ? (

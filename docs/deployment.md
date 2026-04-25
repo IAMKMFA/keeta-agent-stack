@@ -34,25 +34,25 @@ flowchart LR
   Dashboard --> Api
 ```
 
-| Component         | Process                 | State                | Scale dim                |
-| ----------------- | ----------------------- | -------------------- | ------------------------ |
-| API               | `pnpm --filter @keeta-agent-stack/api start`     | stateless            | replicas behind LB        |
-| Worker            | `pnpm --filter @keeta-agent-stack/worker start`  | stateless (Redis lease) | concurrency + replicas |
-| Dashboard         | `pnpm --filter @keeta-agent-stack/dashboard start` | stateless           | replicas behind LB        |
-| MCP (optional)    | `pnpm --filter @keeta-agent-stack/mcp start`     | stateless            | per-LLM tenant            |
-| Postgres          | `postgres:16-alpine`    | durable              | vertical, then read replicas |
-| Redis             | `redis:7-alpine`        | ephemeral (queues)   | vertical, then cluster   |
+| Component      | Process                                            | State                   | Scale dim                    |
+| -------------- | -------------------------------------------------- | ----------------------- | ---------------------------- |
+| API            | `pnpm --filter @keeta-agent-stack/api start`       | stateless               | replicas behind LB           |
+| Worker         | `pnpm --filter @keeta-agent-stack/worker start`    | stateless (Redis lease) | concurrency + replicas       |
+| Dashboard      | `pnpm --filter @keeta-agent-stack/dashboard start` | stateless               | replicas behind LB           |
+| MCP (optional) | `pnpm --filter @keeta-agent-stack/mcp start`       | stateless               | per-LLM tenant               |
+| Postgres       | `postgres:16-alpine`                               | durable                 | vertical, then read replicas |
+| Redis          | `redis:7-alpine`                                   | ephemeral (queues)      | vertical, then cluster       |
 
 ## Compose vs Kubernetes vs Swarm
 
-| Need                                       | Compose | Kubernetes | Swarm  |
-| ------------------------------------------ | :-----: | :--------: | :----: |
-| Single VM / small ops team                 |   Yes   | Overkill   |  Yes   |
-| Per-service rolling updates                | Manual  |    Yes     |  Yes   |
-| Horizontal autoscaling                     |   No    |    Yes     | Limited |
-| Secrets manager integration (KMS, Vault)   | Manual  |    Yes     | Manual |
-| Multi-region failover                      |   No    |    Yes     |  No    |
-| Already running BullMQ in cluster mode     |  Manual | First-class | Limited |
+| Need                                     | Compose | Kubernetes  |  Swarm  |
+| ---------------------------------------- | :-----: | :---------: | :-----: |
+| Single VM / small ops team               |   Yes   |  Overkill   |   Yes   |
+| Per-service rolling updates              | Manual  |     Yes     |   Yes   |
+| Horizontal autoscaling                   |   No    |     Yes     | Limited |
+| Secrets manager integration (KMS, Vault) | Manual  |     Yes     | Manual  |
+| Multi-region failover                    |   No    |     Yes     |   No    |
+| Already running BullMQ in cluster mode   | Manual  | First-class | Limited |
 
 Pick **Compose** for staging/POC, **Kubernetes** for any live-money deployment.
 
@@ -61,28 +61,28 @@ Pick **Compose** for staging/POC, **Kubernetes** for any live-money deployment.
 Mirror [`.env.example`](../.env.example) and override the values below.
 Highlighted variables are **required** in production:
 
-| Variable                                | Why it matters                                                 |
-| --------------------------------------- | -------------------------------------------------------------- |
-| `NODE_ENV=production`                   | Disables dev-only auth shortcuts                              |
-| `DATABASE_URL`                          | Use TLS + pooled connections (see Postgres tuning)             |
-| `REDIS_URL`                             | Use TLS; keep DB for queues isolated from app caches           |
-| `LIVE_MODE_ENABLED=true`                | Required to leave simulate-only mode                           |
-| `EXECUTION_KILL_SWITCH=false`           | Flip to `true` to halt all live executes immediately           |
-| `OPS_API_KEY`                           | Server-side only; never exposed to the browser                 |
-| `AUTH_JWT_*` (one of secret/JWKS/OIDC)  | Replaces dev-mode bypass auth                                  |
-| `AUTH_ALLOW_LEGACY_OPS_API_KEY=false`   | Forces JWT for operators in production                         |
-| `AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION=false` | Disables `ADMIN_BYPASS_TOKEN` unless audited and intentional |
-| `ALLOW_DEV_SIGNER=false`                | Required; production boot refuses the dev signer               |
-| `API_CORS_ORIGINS`                         | Comma-separated browser origin allowlist; leave empty only for non-browser/private API access |
-| `API_SWAGGER_TRY_IT_OUT_ENABLED=false`     | Keeps Swagger UI from becoming an interactive production console |
-| `MCP_ALLOW_INLINE_SEEDS=false`          | Forces the worker-held seed; keeps signing material out of MCP |
-| `KEETA_SIGNING_SEED`                    | Worker-only; load from KMS / sealed secret                     |
-| `KEETA_NETWORK=main`                    | Pin the Keeta network                                          |
-| `LOG_LEVEL=info`                        | Plus `LOG_REDACT_EXTRA` for any custom secret keys             |
-| `METRICS_ENABLED=true` + `METRICS_REQUIRE_AUTH=true` | Prometheus scrape behind auth                       |
-| `OTEL_ENABLED=true` + `OTEL_EXPORTER_OTLP_ENDPOINT` | Tracing into your collector                          |
-| `KEETA_POLICY_ENABLED=true` + `IDENTITY_POLICY_ENABLED=true` (when applicable) | Hardened policy preflight |
-| `ANCHOR_BOND_STRICT=true`               | Reject live anchor steps without bond proofs                   |
+| Variable                                                                       | Why it matters                                                                                |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `NODE_ENV=production`                                                          | Disables dev-only auth shortcuts                                                              |
+| `DATABASE_URL`                                                                 | Use TLS + pooled connections (see Postgres tuning)                                            |
+| `REDIS_URL`                                                                    | Use TLS; keep DB for queues isolated from app caches                                          |
+| `LIVE_MODE_ENABLED=true`                                                       | Required to leave simulate-only mode                                                          |
+| `EXECUTION_KILL_SWITCH=false`                                                  | Flip to `true` to halt all live executes immediately                                          |
+| `OPS_API_KEY`                                                                  | Server-side only; never exposed to the browser                                                |
+| `AUTH_JWT_*` (one of secret/JWKS/OIDC)                                         | Replaces dev-mode bypass auth                                                                 |
+| `AUTH_ALLOW_LEGACY_OPS_API_KEY=false`                                          | Forces JWT for operators in production                                                        |
+| `AUTH_ALLOW_ADMIN_BYPASS_IN_PRODUCTION=false`                                  | Disables `ADMIN_BYPASS_TOKEN` unless audited and intentional                                  |
+| `ALLOW_DEV_SIGNER=false`                                                       | Required; production boot refuses the dev signer                                              |
+| `API_CORS_ORIGINS`                                                             | Comma-separated browser origin allowlist; leave empty only for non-browser/private API access |
+| `API_SWAGGER_TRY_IT_OUT_ENABLED=false`                                         | Keeps Swagger UI from becoming an interactive production console                              |
+| `MCP_ALLOW_INLINE_SEEDS=false`                                                 | Forces the worker-held seed; keeps signing material out of MCP                                |
+| `KEETA_SIGNING_SEED`                                                           | Worker-only; load from KMS / sealed secret                                                    |
+| `KEETA_NETWORK=main`                                                           | Pin the Keeta network                                                                         |
+| `LOG_LEVEL=info`                                                               | Plus `LOG_REDACT_EXTRA` for any custom secret keys                                            |
+| `METRICS_ENABLED=true` + `METRICS_REQUIRE_AUTH=true`                           | Prometheus scrape behind auth                                                                 |
+| `OTEL_ENABLED=true` + `OTEL_EXPORTER_OTLP_ENDPOINT`                            | Tracing into your collector                                                                   |
+| `KEETA_POLICY_ENABLED=true` + `IDENTITY_POLICY_ENABLED=true` (when applicable) | Hardened policy preflight                                                                     |
+| `ANCHOR_BOND_STRICT=true`                                                      | Reject live anchor steps without bond proofs                                                  |
 
 Full env reference (including BullMQ timeouts, operator metrics knobs, and
 policy caps) lives in [`.env.example`](../.env.example).
@@ -365,17 +365,17 @@ env:
   MCP_ALLOW_INLINE_SEEDS: 'false'
 
 secrets:
-  databaseUrl: ''           # set via Helm --set or external secret
+  databaseUrl: '' # set via Helm --set or external secret
   redisUrl: ''
   opsApiKey: ''
-  keetaSigningSeed: ''      # worker-only mount
+  keetaSigningSeed: '' # worker-only mount
   authJwtSecret: ''
   otelExporterOtlpEndpoint: ''
 
 postgres:
-  enabled: false            # use a managed instance in production
+  enabled: false # use a managed instance in production
 redis:
-  enabled: false            # use a managed instance in production
+  enabled: false # use a managed instance in production
 
 probes:
   api:

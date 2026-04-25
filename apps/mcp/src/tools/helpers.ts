@@ -26,9 +26,8 @@ function isObjectLike(value: unknown): value is PropertyTarget {
   return (typeof value === 'object' && value !== null) || typeof value === 'function';
 }
 
-export const DPO: (input: unknown) => JSONSerializable = KeetaNet.lib.Utils.Helper.debugPrintableObject.bind(
-  KeetaNet.lib.Utils.Helper
-);
+export const DPO: (input: unknown) => JSONSerializable =
+  KeetaNet.lib.Utils.Helper.debugPrintableObject.bind(KeetaNet.lib.Utils.Helper);
 
 const VALID_NETWORKS = ['main', 'test'] as const;
 
@@ -44,7 +43,10 @@ export function createClient(network: NetworkAlias) {
 }
 
 export function createUserClient(network: NetworkAlias, account: unknown) {
-  return KeetaNet.UserClient.fromNetwork(network, account as Parameters<typeof KeetaNet.UserClient.fromNetwork>[1]);
+  return KeetaNet.UserClient.fromNetwork(
+    network,
+    account as Parameters<typeof KeetaNet.UserClient.fromNetwork>[1]
+  );
 }
 
 export function accountFromSeed(seed: string, index: number, algorithm?: string) {
@@ -77,7 +79,9 @@ export function resolveKeyAlgorithm(algorithm?: string): AccountKeyAlgorithm {
   const upper = algorithm.toUpperCase();
   const resolved = mapping[upper];
   if (resolved === undefined) {
-    throw new Error(`Unknown key algorithm "${algorithm}". Valid: ${Object.keys(mapping).join(', ')}`);
+    throw new Error(
+      `Unknown key algorithm "${algorithm}". Valid: ${Object.keys(mapping).join(', ')}`
+    );
   }
   return resolved;
 }
@@ -105,7 +109,9 @@ export function getRequiredMethod(target: unknown, name: string, owner: string):
 }
 
 export function getOwnMethodNames(target: PropertyTarget): string[] {
-  return Object.getOwnPropertyNames(target).filter((name) => typeof getProperty(target, name) === 'function');
+  return Object.getOwnPropertyNames(target).filter(
+    (name) => typeof getProperty(target, name) === 'function'
+  );
 }
 
 export function getPrototypeMethodNames(target: unknown): string[] {
@@ -149,7 +155,8 @@ export function getUserClientTools(client: unknown): UserClientTools {
 
   return {
     client: {
-      getBalance: async (address: string, token: unknown) => getBalance.call(getBalanceOwner, address, token),
+      getBalance: async (address: string, token: unknown) =>
+        getBalance.call(getBalanceOwner, address, token),
     },
     baseToken,
     networkAddress,
@@ -173,7 +180,9 @@ export function resolveArg(value: unknown): unknown {
     if (value.startsWith('ALGO:')) return resolveKeyAlgorithm(value.slice(5));
     if (value.startsWith('PERM:')) {
       const flags = value.slice(5).split(',');
-      return new KeetaNet.lib.Permissions(flags as ConstructorParameters<typeof KeetaNet.lib.Permissions>[0]);
+      return new KeetaNet.lib.Permissions(
+        flags as ConstructorParameters<typeof KeetaNet.lib.Permissions>[0]
+      );
     }
     if (value.startsWith('BIGINT:')) return BigInt(value.slice(7));
     if (value.startsWith('BUFFER_B64:')) return Buffer.from(value.slice(11), 'base64');
@@ -275,7 +284,14 @@ export function formatResult(data: unknown): string {
 export function discoverAnchorServices(): Record<string, unknown> {
   const services: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(KeetaAnchor)) {
-    if (key === 'lib' || key === 'KeetaNet' || key === 'default' || typeof value !== 'object' || value === null) continue;
+    if (
+      key === 'lib' ||
+      key === 'KeetaNet' ||
+      key === 'default' ||
+      typeof value !== 'object' ||
+      value === null
+    )
+      continue;
     const clientCtor = getProperty(value, 'Client');
     if (isConstructable(clientCtor)) {
       services[key] = clientCtor;
@@ -297,7 +313,11 @@ export function discoverAnchorLibModules(): Record<string, unknown> {
   return modules;
 }
 
-export function createAnchorServiceClient(serviceName: string, userClient: unknown, config: Record<string, unknown> = {}): unknown {
+export function createAnchorServiceClient(
+  serviceName: string,
+  userClient: unknown,
+  config: Record<string, unknown> = {}
+): unknown {
   const services = discoverAnchorServices();
   const ClientClass = services[serviceName];
   if (!isConstructable(ClientClass)) {

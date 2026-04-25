@@ -23,15 +23,30 @@ import { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
 import { MockDexAdapter } from '@keeta-agent-stack/adapter-mock-dex';
 
 const registry = new AdapterRegistry();
-registry.register(new MockDexAdapter({ id: 'mock-dex', spreadBps: 10, feeBps: 5, maxSlippageBps: 4, failureRate: 0 }));
+registry.register(
+  new MockDexAdapter({
+    id: 'mock-dex',
+    spreadBps: 10,
+    feeBps: 5,
+    maxSlippageBps: 4,
+    failureRate: 0,
+  })
+);
 
 const agent = createKeetaAgent({
   name: 'paper-trader',
   registry,
-  policy: { maxOrderSize: 1_000_000, maxSlippageBps: 500, venueAllowlist: [], assetAllowlist: [], liveModeEnabled: true },
+  policy: {
+    maxOrderSize: 1_000_000,
+    maxSlippageBps: 500,
+    venueAllowlist: [],
+    assetAllowlist: [],
+    liveModeEnabled: true,
+  },
   hooks: {
     afterRoute: (ctx) => console.log('best route', ctx.routes?.best.id),
-    afterSimulation: (ctx) => console.log('slippage bps', ctx.simulationResult?.simulatedSlippageBps),
+    afterSimulation: (ctx) =>
+      console.log('slippage bps', ctx.simulationResult?.simulatedSlippageBps),
   },
 });
 ```

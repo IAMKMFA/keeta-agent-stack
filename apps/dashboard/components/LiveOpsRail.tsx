@@ -78,7 +78,13 @@ export function LiveOpsRail() {
                 : 'bg-[var(--hub-danger)]',
           ].join(' ')}
         />
-        <span>{status === 'connected' ? 'Live stream connected' : status === 'connecting' ? 'Connecting stream' : 'Stream reconnecting'}</span>
+        <span>
+          {status === 'connected'
+            ? 'Live stream connected'
+            : status === 'connecting'
+              ? 'Connecting stream'
+              : 'Stream reconnecting'}
+        </span>
       </div>
       <div className="mt-1 text-[11px] text-[var(--hub-muted)]">{labelForEvent(lastEvent)}</div>
     </div>

@@ -102,11 +102,13 @@ server.resource(
             playbooks: [
               {
                 tool: 'keeta_agent_payment_playbook',
-                purpose: 'Plan an end-to-end payment using rates, rails, execution instructions, compliance, and SDK snippet.',
+                purpose:
+                  'Plan an end-to-end payment using rates, rails, execution instructions, compliance, and SDK snippet.',
               },
               {
                 tool: 'keeta_anchor_commercial_model',
-                purpose: 'Describe the three-pillar anchor model: setup fee, KTA bond, and volume fee.',
+                purpose:
+                  'Describe the three-pillar anchor model: setup fee, KTA bond, and volume fee.',
               },
               {
                 tool: 'keeta_run_payment_anchor_onboarding',

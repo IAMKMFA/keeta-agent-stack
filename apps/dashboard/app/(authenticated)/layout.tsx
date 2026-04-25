@@ -1,10 +1,6 @@
 import { requireViewer } from '../../lib/auth';
 
-export default async function AuthenticatedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   await requireViewer();
   return <>{children}</>;
 }

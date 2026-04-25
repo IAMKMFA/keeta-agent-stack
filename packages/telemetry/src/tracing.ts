@@ -1,8 +1,20 @@
-import { context, propagation, trace, SpanKind, SpanStatusCode, type Context, type Span } from '@opentelemetry/api';
+import {
+  context,
+  propagation,
+  trace,
+  SpanKind,
+  SpanStatusCode,
+  type Context,
+  type Span,
+} from '@opentelemetry/api';
 import { W3CTraceContextPropagator } from '@opentelemetry/core';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { Resource } from '@opentelemetry/resources';
-import { BatchSpanProcessor, ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import {
+  BatchSpanProcessor,
+  ConsoleSpanExporter,
+  SimpleSpanProcessor,
+} from '@opentelemetry/sdk-trace-base';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
@@ -51,7 +63,9 @@ function toSpanKind(kind: SpanOptions['kind']): SpanKind {
   }
 }
 
-function cleanAttributes(attributes: TelemetryAttributes | undefined): Record<string, string | number | boolean> | undefined {
+function cleanAttributes(
+  attributes: TelemetryAttributes | undefined
+): Record<string, string | number | boolean> | undefined {
   if (!attributes) return undefined;
   const cleaned = Object.fromEntries(
     Object.entries(attributes).filter(([, value]) => value !== undefined)
@@ -135,7 +149,7 @@ export async function withSpan<T>(
   const tracer = trace.getTracer(options.tracerName ?? 'keeta-agent-stack');
   const parentContext = options.parentTraceparent
     ? extractTraceContext(options.parentTraceparent)
-    : options.parentContext ?? context.active();
+    : (options.parentContext ?? context.active());
 
   return context.with(parentContext, async () => {
     const span = tracer.startSpan(name, {

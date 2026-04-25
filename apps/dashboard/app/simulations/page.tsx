@@ -42,11 +42,7 @@ export default async function Page() {
     status: (
       <StatusPill
         tone={
-          row.status === 'completed'
-            ? 'success'
-            : row.status === 'failed'
-              ? 'danger'
-              : 'warning'
+          row.status === 'completed' ? 'success' : row.status === 'failed' ? 'danger' : 'warning'
         }
         dot={false}
       >
@@ -69,12 +65,7 @@ export default async function Page() {
 
       <KpiGrid columns={4}>
         <Kpi label="Total runs" value={formatNumber(rows.length)} hint="Simulation jobs" />
-        <Kpi
-          label="Completed"
-          value={formatNumber(completed)}
-          hint="Finished runs"
-          trend="up"
-        />
+        <Kpi label="Completed" value={formatNumber(completed)} hint="Finished runs" trend="up" />
         <Kpi
           label="Pending"
           value={formatNumber(pending)}

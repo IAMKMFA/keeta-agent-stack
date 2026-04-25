@@ -60,21 +60,20 @@ export default async function CommandCenterPage() {
   requireV2Enabled();
   const viewer = await requireScope('ops:read');
 
-  const [modes, intents, executions, routes, chain, adapterHealth, decisions] =
-    await Promise.all([
-      fetchJson<Modes>('/config/modes', {
-        liveMode: false,
-        keetaNetwork: 'test',
-        mockAdapters: true,
-        executionKillSwitch: false,
-      }),
-      fetchJson<IntentRow[]>('/intents', []),
-      fetchJson<ExecutionRow[]>('/executions', []),
-      fetchJson<RouteRow[]>('/routes', []),
-      fetchJson<ChainHealth | null>('/chain/health', null),
-      fetchJson<AdapterHealth[]>('/adapters/health', []),
-      fetchJson<PolicyDecision[]>('/policy/decisions?limit=200', []),
-    ]);
+  const [modes, intents, executions, routes, chain, adapterHealth, decisions] = await Promise.all([
+    fetchJson<Modes>('/config/modes', {
+      liveMode: false,
+      keetaNetwork: 'test',
+      mockAdapters: true,
+      executionKillSwitch: false,
+    }),
+    fetchJson<IntentRow[]>('/intents', []),
+    fetchJson<ExecutionRow[]>('/executions', []),
+    fetchJson<RouteRow[]>('/routes', []),
+    fetchJson<ChainHealth | null>('/chain/health', null),
+    fetchJson<AdapterHealth[]>('/adapters/health', []),
+    fetchJson<PolicyDecision[]>('/policy/decisions?limit=200', []),
+  ]);
 
   const intents24h = windowCount(intents, 24);
   const executions24h = windowCount(executions, 24);
@@ -95,8 +94,7 @@ export default async function CommandCenterPage() {
     .filter((n): n is number => Number.isFinite(n));
   const medianLatency = median(settlementLatencies);
   const blocked = decisions.filter((d) => d.outcome === 'blocked' || d.outcome === 'deny').length;
-  const blockRate =
-    decisions.length > 0 ? Math.round((blocked / decisions.length) * 1000) / 10 : 0;
+  const blockRate = decisions.length > 0 ? Math.round((blocked / decisions.length) * 1000) / 10 : 0;
   const unsettled = executions.filter((e) =>
     ['pending', 'submitted', 'queued'].includes(e.status)
   ).length;
@@ -132,8 +130,16 @@ export default async function CommandCenterPage() {
       />
 
       <KpiGrid columns={4}>
-        <Kpi label="Intents / 24h" value={formatNumber(intents24h)} hint={`${formatNumber(intents.length)} all-time`} />
-        <Kpi label="Executions / 24h" value={formatNumber(executions24h)} hint={`${formatNumber(unsettled)} unsettled`} />
+        <Kpi
+          label="Intents / 24h"
+          value={formatNumber(intents24h)}
+          hint={`${formatNumber(intents.length)} all-time`}
+        />
+        <Kpi
+          label="Executions / 24h"
+          value={formatNumber(executions24h)}
+          hint={`${formatNumber(unsettled)} unsettled`}
+        />
         <Kpi
           label="Success rate"
           value={`${successRate}`}
@@ -162,7 +168,9 @@ export default async function CommandCenterPage() {
         />
         <Kpi
           label="Adapter health"
-          value={adapterFailures === 0 ? 'All healthy' : `${formatNumber(adapterFailures)} degraded`}
+          value={
+            adapterFailures === 0 ? 'All healthy' : `${formatNumber(adapterFailures)} degraded`
+          }
           hint={`${formatNumber(adapterHealth.length)} adapters monitored`}
           trend={adapterFailures === 0 ? 'up' : 'down'}
         />

@@ -49,7 +49,8 @@ async function* walk(root: string, skip: RegExp[] = []): AsyncGenerator<string> 
     const abs = path.join(root, entry.name);
     if (skip.some((re) => re.test(abs))) continue;
     if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git') continue;
+      if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === '.git')
+        continue;
       yield* walk(abs, skip);
     } else if (entry.isFile()) {
       yield abs;
@@ -101,7 +102,8 @@ async function check3(): Promise<Violation[]> {
       candidates.push(path.join(REPO_ROOT, entry.name));
     }
   }
-  const dangerousRe = /^\s*(NEXT_PUBLIC_[A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=/i;
+  const dangerousRe =
+    /^\s*(NEXT_PUBLIC_[A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=/i;
   for (const file of candidates) {
     const content = await fs.readFile(file, 'utf8');
     const lines = content.split('\n');

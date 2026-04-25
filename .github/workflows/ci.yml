@@ -8,8 +8,11 @@ on:
       - master
   workflow_dispatch:
 
+# GitHub is deprecating the Node 20 runtime for Actions; some actions still embed an older
+# Node. This forces the JS action shim to Node 24 until those actions ship native 22+ support.
+# Warnings in logs are expected; Node for build/test is pinned via `actions/setup-node` below.
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   quality:
@@ -33,6 +36,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Check formatting (Prettier)
+        run: pnpm format:check
 
       - name: Lint
         run: pnpm lint
@@ -176,7 +182,7 @@ jobs:
 
       - name: Run integration tests
         env:
-          RUN_INTEGRATION_TESTS: "true"
+          RUN_INTEGRATION_TESTS: 'true'
           INTEGRATION_DATABASE_URL: postgresql://keeta:keeta@localhost:5432/keeta_agent
           INTEGRATION_REDIS_URL: redis://localhost:6379/15
           OPS_API_KEY: integration-ops-key

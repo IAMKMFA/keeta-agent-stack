@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ANONYMOUS_VIEWER,
-  hasRole,
-  hasScope,
-  roleHome,
-  type Viewer,
-} from '../lib/permissions';
+import { ANONYMOUS_VIEWER, hasRole, hasScope, roleHome, type Viewer } from '../lib/permissions';
 
 const operator: Viewer = {
   role: 'operator',

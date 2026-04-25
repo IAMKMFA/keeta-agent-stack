@@ -1,0 +1,26 @@
+# Dependencies and caches
+node_modules
+.pnp
+.pnp.cjs
+.turbo
+
+# Build outputs
+dist
+.next
+out
+storybook-static
+apps/docs/dist
+
+# Large machine-generated or lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Generated / vendor
+coverage
+*.min.js
+*.min.css
+
+# Optional local env
+.env
+.env.*

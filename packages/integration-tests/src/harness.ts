@@ -25,9 +25,13 @@ import {
 
 type JsonRecord = Record<string, unknown>;
 type IntentRow = NonNullable<Awaited<ReturnType<typeof intentRepo.getIntentById>>>;
-type LatestExecutionRow = NonNullable<Awaited<ReturnType<typeof executionRepo.getLatestExecutionForIntent>>>;
+type LatestExecutionRow = NonNullable<
+  Awaited<ReturnType<typeof executionRepo.getLatestExecutionForIntent>>
+>;
 type SimulationRunRow = Awaited<ReturnType<typeof simulationRepo.listSimulationRuns>>[number];
-type SimulationResultRow = NonNullable<Awaited<ReturnType<typeof simulationRepo.getSimulationResultByRun>>>;
+type SimulationResultRow = NonNullable<
+  Awaited<ReturnType<typeof simulationRepo.getSimulationResultByRun>>
+>;
 type AuditEventRow = NonNullable<Awaited<ReturnType<typeof auditRepo.getAuditEventById>>>;
 type WebhookDeliveryRow = Awaited<ReturnType<typeof webhookRepo.listWebhookDeliveries>>[number];
 
@@ -125,7 +129,11 @@ export async function createIntegrationTestRuntime(
   receivedWebhooks: ReceivedWebhook[];
   queueWebhookResponse: (plan: WebhookResponsePlan) => void;
   resetWebhookReceiver: () => void;
-  createWebhook: (input?: { eventTypes?: string[]; secret?: string; targetUrl?: string }) => Promise<{
+  createWebhook: (input?: {
+    eventTypes?: string[];
+    secret?: string;
+    targetUrl?: string;
+  }) => Promise<{
     id: string;
     targetUrl: string;
     eventTypes: string[];
@@ -133,9 +141,15 @@ export async function createIntegrationTestRuntime(
   }>;
   pauseWebhook: (id: string) => Promise<void>;
   createWallet: (input?: CreateWalletInput) => Promise<{ id: string }>;
-  createStrategy: (input?: { name?: string; config?: Record<string, unknown> }) => Promise<{ id: string }>;
+  createStrategy: (input?: {
+    name?: string;
+    config?: Record<string, unknown>;
+  }) => Promise<{ id: string }>;
   createIntent: (input: CreateIntentInput) => Promise<ExecutionIntent>;
-  queueIntentStep: (intentId: string, step: 'quote' | 'route' | 'policy' | 'execute') => Promise<void>;
+  queueIntentStep: (
+    intentId: string,
+    step: 'quote' | 'route' | 'policy' | 'execute'
+  ) => Promise<void>;
   driveIntentPipeline: (
     intentId: string,
     options?: { quote?: boolean; route?: boolean; policy?: boolean; execute?: boolean }
@@ -158,16 +172,22 @@ export async function createIntegrationTestRuntime(
     predicate?: (row: WebhookDeliveryRow) => boolean,
     timeoutMs?: number
   ) => Promise<WebhookDeliveryRow>;
-  runSimulation: (
-    input: { intentId: string; routePlanId: string; scenario?: SimulationScenarioInput }
-  ) => Promise<{ jobId: string; queue: string }>;
+  runSimulation: (input: {
+    intentId: string;
+    routePlanId: string;
+    scenario?: SimulationScenarioInput;
+  }) => Promise<{ jobId: string; queue: string }>;
   close: () => Promise<void>;
 }> {
   const runtime = getIntegrationRuntimeConfig();
   const isolatedDatabase = await createIsolatedDatabase(runtime);
   const cleanupRedis = await prepareRedis(runtime.redisUrl);
   const adminToken = 'integration-admin-token';
-  const jwtSecret = resolveOverride(options.envOverrides, 'AUTH_JWT_SECRET', process.env.AUTH_JWT_SECRET);
+  const jwtSecret = resolveOverride(
+    options.envOverrides,
+    'AUTH_JWT_SECRET',
+    process.env.AUTH_JWT_SECRET
+  );
   const opsApiKey = resolveOverride(options.envOverrides, 'OPS_API_KEY', runtime.opsApiKey);
   const restoreEnv = applyIntegrationEnv({
     NODE_ENV: 'test',
@@ -280,9 +300,9 @@ export async function createIntegrationTestRuntime(
         },
       });
       assertStatus(response.statusCode, 201, response.body);
-      return parseJson<{ webhook: { id: string; targetUrl: string; eventTypes: string[]; secretPresent: boolean } }>(
-        response.body
-      ).webhook;
+      return parseJson<{
+        webhook: { id: string; targetUrl: string; eventTypes: string[]; secretPresent: boolean };
+      }>(response.body).webhook;
     },
     pauseWebhook: async (id) => {
       const response = await app.inject({
@@ -334,7 +354,9 @@ export async function createIntegrationTestRuntime(
           ...(input.policyPackId ? { policyPackId: input.policyPackId } : {}),
           ...(input.venueAllowlist ? { venueAllowlist: input.venueAllowlist } : {}),
           ...(input.metadata ? { metadata: input.metadata } : {}),
-          ...(input.requiresApproval !== undefined ? { requiresApproval: input.requiresApproval } : {}),
+          ...(input.requiresApproval !== undefined
+            ? { requiresApproval: input.requiresApproval }
+            : {}),
         },
       });
       assertStatus(response.statusCode, 201, response.body);
@@ -424,7 +446,9 @@ export async function createIntegrationTestRuntime(
     waitForSimulationRun: async (intentId, routePlanId, predicate = () => true) =>
       waitFor(`simulation run for intent ${intentId}`, async () => {
         const rows = await simulationRepo.listSimulationRuns(db, 50);
-        const row = rows.find((candidate) => candidate.intentId === intentId && candidate.routePlanId === routePlanId);
+        const row = rows.find(
+          (candidate) => candidate.intentId === intentId && candidate.routePlanId === routePlanId
+        );
         return row && predicate(row) ? row : null;
       }),
     waitForSimulationResult: async (runId) =>
@@ -465,7 +489,9 @@ export async function createIntegrationTestRuntime(
       await workerShutdown();
       await app.close();
       await db.pool.end();
-      await new Promise<void>((resolve, reject) => webhookServer.close((error) => (error ? reject(error) : resolve())));
+      await new Promise<void>((resolve, reject) =>
+        webhookServer.close((error) => (error ? reject(error) : resolve()))
+      );
       await cleanupRedis();
       await isolatedDatabase.cleanup();
       restoreEnv();

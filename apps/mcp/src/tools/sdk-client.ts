@@ -5,7 +5,10 @@ const DEFAULT_API_URL = 'http://localhost:3001';
 export type ControlPlaneSdkClient = ReturnType<typeof createClient>;
 
 export function getApiUrl(): string {
-  return (process.env.API_URL ?? process.env.KEETA_AGENT_API_URL ?? DEFAULT_API_URL).replace(/\/$/, '');
+  return (process.env.API_URL ?? process.env.KEETA_AGENT_API_URL ?? DEFAULT_API_URL).replace(
+    /\/$/,
+    ''
+  );
 }
 
 export function hasOpsApiKey(): boolean {

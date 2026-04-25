@@ -1,9 +1,6 @@
 type JsonSchema = Record<string, unknown>;
 
-function objectSchema(
-  properties: Record<string, JsonSchema>,
-  required: string[] = []
-): JsonSchema {
+function objectSchema(properties: Record<string, JsonSchema>, required: string[] = []): JsonSchema {
   return {
     type: 'object',
     properties,
@@ -162,7 +159,10 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
                 },
               },
             },
-            '503': { description: 'Service unavailable', content: { 'application/json': { schema: errorSchema } } },
+            '503': {
+              description: 'Service unavailable',
+              content: { 'application/json': { schema: errorSchema } },
+            },
           },
         },
       },
@@ -174,7 +174,9 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           responses: {
             '200': {
               description: 'Chain health snapshot',
-              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
             },
           },
         },
@@ -187,7 +189,9 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           responses: {
             '200': {
               description: 'Runtime mode flags',
-              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
             },
           },
         },
@@ -200,7 +204,11 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           responses: {
             '200': {
               description: 'Strategy template rows',
-              content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } },
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
             },
           },
         },
@@ -212,7 +220,11 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           responses: {
             '200': {
               description: 'Adapter list',
-              content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } },
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
             },
           },
         },
@@ -224,7 +236,11 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           responses: {
             '200': {
               description: 'Adapter health view',
-              content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } },
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
             },
           },
         },
@@ -233,15 +249,20 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
         post: {
           tags: ['Wallets'],
           summary: 'Create and register a wallet',
-          description: 'Generates new key material server-side, derives an address, registers it, and optionally returns the seed once.',
+          description:
+            'Generates new key material server-side, derives an address, registers it, and optionally returns the seed once.',
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
             '201': {
               description: 'Wallet created',
-              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
             },
           },
         },
@@ -251,7 +272,11 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           responses: {
             '200': {
               description: 'Wallet summaries',
-              content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } },
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
             },
           },
         },
@@ -262,12 +287,16 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Import a wallet',
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
             '201': {
               description: 'Wallet imported',
-              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
             },
           },
         },
@@ -276,15 +305,20 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
         post: {
           tags: ['Wallets'],
           summary: 'Import an existing wallet or create and register a new wallet',
-          description: 'Discriminated union endpoint with mode=import|create to unify wallet registration flows.',
+          description:
+            'Discriminated union endpoint with mode=import|create to unify wallet registration flows.',
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
             '201': {
               description: 'Wallet imported or created',
-              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
             },
           },
         },
@@ -295,7 +329,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Read balances for a wallet',
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           responses: {
-            '200': { description: 'Balance snapshot', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Balance snapshot',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -304,7 +343,14 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Intents'],
           summary: 'List intents',
           responses: {
-            '200': { description: 'Intent records', content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } } },
+            '200': {
+              description: 'Intent records',
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
+            },
           },
         },
         post: {
@@ -312,10 +358,17 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Create an intent',
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
-            '201': { description: 'Intent created', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '201': {
+              description: 'Intent created',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -325,8 +378,16 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Get an intent',
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           responses: {
-            '200': { description: 'Intent detail', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
-            '404': { description: 'Not found', content: { 'application/json': { schema: errorSchema } } },
+            '200': {
+              description: 'Intent detail',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
+            '404': {
+              description: 'Not found',
+              content: { 'application/json': { schema: errorSchema } },
+            },
           },
         },
       },
@@ -335,7 +396,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Intents'],
           summary: 'Queue quote generation',
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
-          responses: { '202': { description: 'Quote job queued', content: { 'application/json': { schema: acceptedJobSchema } } } },
+          responses: {
+            '202': {
+              description: 'Quote job queued',
+              content: { 'application/json': { schema: acceptedJobSchema } },
+            },
+          },
         },
       },
       '/intents/{id}/route': {
@@ -343,7 +409,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Intents'],
           summary: 'Queue route generation',
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
-          responses: { '202': { description: 'Route job queued', content: { 'application/json': { schema: acceptedJobSchema } } } },
+          responses: {
+            '202': {
+              description: 'Route job queued',
+              content: { 'application/json': { schema: acceptedJobSchema } },
+            },
+          },
         },
       },
       '/intents/{id}/policy': {
@@ -351,7 +422,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Intents'],
           summary: 'Queue policy evaluation',
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
-          responses: { '202': { description: 'Policy job queued', content: { 'application/json': { schema: acceptedJobSchema } } } },
+          responses: {
+            '202': {
+              description: 'Policy job queued',
+              content: { 'application/json': { schema: acceptedJobSchema } },
+            },
+          },
         },
       },
       '/intents/{id}/execute': {
@@ -359,7 +435,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Intents'],
           summary: 'Queue execution',
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
-          responses: { '202': { description: 'Execution job queued', content: { 'application/json': { schema: acceptedJobSchema } } } },
+          responses: {
+            '202': {
+              description: 'Execution job queued',
+              content: { 'application/json': { schema: acceptedJobSchema } },
+            },
+          },
         },
       },
       '/routes': {
@@ -367,7 +448,14 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Routes'],
           summary: 'List route plans',
           responses: {
-            '200': { description: 'Route plans', content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } } },
+            '200': {
+              description: 'Route plans',
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
+            },
           },
         },
       },
@@ -376,7 +464,14 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Executions'],
           summary: 'List executions',
           responses: {
-            '200': { description: 'Execution records', content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } } },
+            '200': {
+              description: 'Execution records',
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
+            },
           },
         },
       },
@@ -385,7 +480,14 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Simulations'],
           summary: 'List simulations',
           responses: {
-            '200': { description: 'Simulation records', content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } } },
+            '200': {
+              description: 'Simulation records',
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
+            },
           },
         },
       },
@@ -395,9 +497,16 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Queue a simulation run',
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
-          responses: { '202': { description: 'Simulation job queued', content: { 'application/json': { schema: acceptedJobSchema } } } },
+          responses: {
+            '202': {
+              description: 'Simulation job queued',
+              content: { 'application/json': { schema: acceptedJobSchema } },
+            },
+          },
         },
       },
       '/simulations/{id}': {
@@ -406,7 +515,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Get a simulation result',
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           responses: {
-            '200': { description: 'Simulation result', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Simulation result',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -416,7 +530,22 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'List active policy rules',
           security,
           responses: {
-            '200': { description: 'Registered rules', content: { 'application/json': { schema: objectSchema({ rules: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } }, ['rules']) } } },
+            '200': {
+              description: 'Registered rules',
+              content: {
+                'application/json': {
+                  schema: objectSchema(
+                    {
+                      rules: {
+                        type: 'array',
+                        items: { $ref: '#/components/schemas/GenericObject' },
+                      },
+                    },
+                    ['rules']
+                  ),
+                },
+              },
+            },
           },
         },
       },
@@ -427,10 +556,17 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           security,
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
-            '200': { description: 'Policy decision preview', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Policy decision preview',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -442,7 +578,11 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           responses: {
             '200': {
               description: 'Persisted policy packs',
-              content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } },
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
             },
           },
         },
@@ -452,12 +592,16 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           security,
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
             '201': {
               description: 'Created policy pack',
-              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
             },
           },
         },
@@ -470,12 +614,16 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
             '200': {
               description: 'Updated policy pack',
-              content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
             },
           },
         },
@@ -494,7 +642,14 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Anchors'],
           summary: 'List payment anchors',
           responses: {
-            '200': { description: 'Anchor summaries', content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } } } } },
+            '200': {
+              description: 'Anchor summaries',
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/GenericObject' } },
+                },
+              },
+            },
           },
         },
         post: {
@@ -502,10 +657,17 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Create a payment anchor',
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
-            '201': { description: 'Anchor created', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '201': {
+              description: 'Anchor created',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -515,7 +677,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Get anchor detail',
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           responses: {
-            '200': { description: 'Anchor detail with bonds and events', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Anchor detail with bonds and events',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
         patch: {
@@ -524,10 +691,17 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
-            '200': { description: 'Anchor updated', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Anchor updated',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -538,10 +712,19 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: objectSchema({ status: { type: 'string' } }, ['status']) } },
+            content: {
+              'application/json': {
+                schema: objectSchema({ status: { type: 'string' } }, ['status']),
+              },
+            },
           },
           responses: {
-            '200': { description: 'Anchor summary', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Anchor summary',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -552,10 +735,17 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
-            '200': { description: 'Anchor summary with updated bond', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Anchor summary with updated bond',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -564,9 +754,16 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Anchors'],
           summary: 'Queue anchor bond reconciliation',
           requestBody: {
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
-          responses: { '202': { description: 'Reconciliation job queued', content: { 'application/json': { schema: acceptedJobSchema } } } },
+          responses: {
+            '202': {
+              description: 'Reconciliation job queued',
+              content: { 'application/json': { schema: acceptedJobSchema } },
+            },
+          },
         },
       },
       '/anchors/onboarding/run': {
@@ -574,9 +771,16 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           tags: ['Anchors'],
           summary: 'Queue anchor onboarding evaluation',
           requestBody: {
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
-          responses: { '202': { description: 'Onboarding job queued', content: { 'application/json': { schema: acceptedJobSchema } } } },
+          responses: {
+            '202': {
+              description: 'Onboarding job queued',
+              content: { 'application/json': { schema: acceptedJobSchema } },
+            },
+          },
         },
       },
       '/events': {
@@ -589,14 +793,27 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
             { name: 'eventType', in: 'query', required: false, schema: { type: 'string' } },
             { name: 'intentId', in: 'query', required: false, schema: uuidSchema },
             { name: 'paymentAnchorId', in: 'query', required: false, schema: uuidSchema },
-            { name: 'limit', in: 'query', required: false, schema: { type: 'integer', minimum: 1, maximum: 500 } },
+            {
+              name: 'limit',
+              in: 'query',
+              required: false,
+              schema: { type: 'integer', minimum: 1, maximum: 500 },
+            },
           ],
           responses: {
             '200': {
               description: 'Event list',
               content: {
                 'application/json': {
-                  schema: objectSchema({ events: { type: 'array', items: { $ref: '#/components/schemas/EventStreamEvent' } } }, ['events']),
+                  schema: objectSchema(
+                    {
+                      events: {
+                        type: 'array',
+                        items: { $ref: '#/components/schemas/EventStreamEvent' },
+                      },
+                    },
+                    ['events']
+                  ),
                 },
               },
             },
@@ -613,7 +830,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
             { name: 'eventType', in: 'query', required: false, schema: { type: 'string' } },
             { name: 'intentId', in: 'query', required: false, schema: uuidSchema },
             { name: 'paymentAnchorId', in: 'query', required: false, schema: uuidSchema },
-            { name: 'limit', in: 'query', required: false, schema: { type: 'integer', minimum: 1, maximum: 500 } },
+            {
+              name: 'limit',
+              in: 'query',
+              required: false,
+              schema: { type: 'integer', minimum: 1, maximum: 500 },
+            },
           ],
           responses: {
             '200': {
@@ -633,7 +855,15 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
               description: 'Webhook subscriptions',
               content: {
                 'application/json': {
-                  schema: objectSchema({ webhooks: { type: 'array', items: { $ref: '#/components/schemas/WebhookSubscription' } } }, ['webhooks']),
+                  schema: objectSchema(
+                    {
+                      webhooks: {
+                        type: 'array',
+                        items: { $ref: '#/components/schemas/WebhookSubscription' },
+                      },
+                    },
+                    ['webhooks']
+                  ),
                 },
               },
             },
@@ -645,12 +875,31 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           security,
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: objectSchema({ targetUrl: { type: 'string', format: 'uri' }, eventTypes: { type: 'array', items: { type: 'string' } }, secret: { type: 'string' }, status: { type: 'string', enum: ['active', 'paused'] } }, ['targetUrl', 'eventTypes']) } },
+            content: {
+              'application/json': {
+                schema: objectSchema(
+                  {
+                    targetUrl: { type: 'string', format: 'uri' },
+                    eventTypes: { type: 'array', items: { type: 'string' } },
+                    secret: { type: 'string' },
+                    status: { type: 'string', enum: ['active', 'paused'] },
+                  },
+                  ['targetUrl', 'eventTypes']
+                ),
+              },
+            },
           },
           responses: {
             '201': {
               description: 'Webhook subscription created',
-              content: { 'application/json': { schema: objectSchema({ webhook: { $ref: '#/components/schemas/WebhookSubscription' } }, ['webhook']) } },
+              content: {
+                'application/json': {
+                  schema: objectSchema(
+                    { webhook: { $ref: '#/components/schemas/WebhookSubscription' } },
+                    ['webhook']
+                  ),
+                },
+              },
             },
           },
         },
@@ -663,12 +912,21 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
           responses: {
             '200': {
               description: 'Updated subscription',
-              content: { 'application/json': { schema: objectSchema({ webhook: { $ref: '#/components/schemas/WebhookSubscription' } }, ['webhook']) } },
+              content: {
+                'application/json': {
+                  schema: objectSchema(
+                    { webhook: { $ref: '#/components/schemas/WebhookSubscription' } },
+                    ['webhook']
+                  ),
+                },
+              },
             },
           },
         },
@@ -680,14 +938,27 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           security,
           parameters: [
             { name: 'subscriptionId', in: 'query', required: false, schema: uuidSchema },
-            { name: 'limit', in: 'query', required: false, schema: { type: 'integer', minimum: 1, maximum: 500 } },
+            {
+              name: 'limit',
+              in: 'query',
+              required: false,
+              schema: { type: 'integer', minimum: 1, maximum: 500 },
+            },
           ],
           responses: {
             '200': {
               description: 'Delivery records',
               content: {
                 'application/json': {
-                  schema: objectSchema({ deliveries: { type: 'array', items: { $ref: '#/components/schemas/WebhookDelivery' } } }, ['deliveries']),
+                  schema: objectSchema(
+                    {
+                      deliveries: {
+                        type: 'array',
+                        items: { $ref: '#/components/schemas/WebhookDelivery' },
+                      },
+                    },
+                    ['deliveries']
+                  ),
                 },
               },
             },
@@ -700,7 +971,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Read operational metrics',
           security,
           responses: {
-            '200': { description: 'Metrics snapshot', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Metrics snapshot',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -711,7 +987,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           security,
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           responses: {
-            '200': { description: 'Strategy policy-pack assignment', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Strategy policy-pack assignment',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
         put: {
@@ -721,10 +1002,19 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: objectSchema({ policyPackId: uuidSchema }, ['policyPackId']) } },
+            content: {
+              'application/json': {
+                schema: objectSchema({ policyPackId: uuidSchema }, ['policyPackId']),
+              },
+            },
           },
           responses: {
-            '200': { description: 'Updated strategy policy-pack assignment', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Updated strategy policy-pack assignment',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
         delete: {
@@ -733,7 +1023,12 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           security,
           parameters: [{ name: 'id', in: 'path', required: true, schema: uuidSchema }],
           responses: {
-            '200': { description: 'Cleared strategy policy-pack assignment', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } },
+            '200': {
+              description: 'Cleared strategy policy-pack assignment',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
           },
         },
       },
@@ -741,14 +1036,28 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
         get: {
           tags: ['Oracle'],
           summary: 'Read oracle availability',
-          responses: { '200': { description: 'Oracle status', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } } },
+          responses: {
+            '200': {
+              description: 'Oracle status',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
+          },
         },
       },
       '/oracle/tools': {
         get: {
           tags: ['Oracle'],
           summary: 'List oracle helper tools',
-          responses: { '200': { description: 'Oracle tools', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } } },
+          responses: {
+            '200': {
+              description: 'Oracle tools',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
+          },
         },
       },
       '/oracle/rate': {
@@ -759,7 +1068,14 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
             { name: 'currency', in: 'query', required: true, schema: { type: 'string' } },
             { name: 'walletAddress', in: 'query', required: false, schema: { type: 'string' } },
           ],
-          responses: { '200': { description: 'Rate quote', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } } },
+          responses: {
+            '200': {
+              description: 'Rate quote',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
+          },
         },
       },
       '/oracle/compare': {
@@ -771,14 +1087,28 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
             { name: 'amount', in: 'query', required: false, schema: { type: 'number' } },
             { name: 'currency', in: 'query', required: false, schema: { type: 'string' } },
           ],
-          responses: { '200': { description: 'Comparison payload', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } } },
+          responses: {
+            '200': {
+              description: 'Comparison payload',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
+          },
         },
       },
       '/oracle/mcp/tools': {
         get: {
           tags: ['Oracle'],
           summary: 'List Oracle MCP tools',
-          responses: { '200': { description: 'Oracle MCP tools', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } } },
+          responses: {
+            '200': {
+              description: 'Oracle MCP tools',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
+          },
         },
       },
       '/oracle/mcp/tools/{name}': {
@@ -788,9 +1118,18 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           parameters: [{ name: 'name', in: 'path', required: true, schema: { type: 'string' } }],
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
-          responses: { '200': { description: 'Oracle MCP result', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } } },
+          responses: {
+            '200': {
+              description: 'Oracle MCP result',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
+          },
         },
       },
       '/oracle/autopilot/payment-plan': {
@@ -799,9 +1138,18 @@ export function buildOpenApiDocument(options: { serverUrl?: string } = {}) {
           summary: 'Generate an oracle-assisted payment plan',
           requestBody: {
             required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } },
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+            },
           },
-          responses: { '200': { description: 'Payment plan', content: { 'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } } } } },
+          responses: {
+            '200': {
+              description: 'Payment plan',
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/GenericObject' } },
+              },
+            },
+          },
         },
       },
     },

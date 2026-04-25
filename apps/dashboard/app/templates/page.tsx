@@ -39,11 +39,7 @@ export default async function Page() {
           value={formatNumber(rows.length)}
           hint="Total rows in registry"
         />
-        <Kpi
-          label="Documented"
-          value={formatNumber(withDescriptions)}
-          hint="With descriptions"
-        />
+        <Kpi label="Documented" value={formatNumber(withDescriptions)} hint="With descriptions" />
       </KpiGrid>
 
       {rows.length === 0 ? (

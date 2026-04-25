@@ -141,28 +141,33 @@ When I come back after making changes and ask you to rescore:
 ## HOW TO USE THIS TEMPLATE
 
 ### First Review
+
 1. Open a conversation with your AI assistant that has access to your codebase
 2. Paste the prompt above
 3. Let it run the full 4-phase review
 4. You'll get: scorecard, gap analysis, prioritized recommendations
 
 ### After Making Changes
+
 1. In the same conversation (or a new one with codebase access), say:
    "Please rescore after the latest updates. Here's what changed: [brief summary]"
 2. The rescore protocol (Phase 5) kicks in automatically
 3. You get a delta comparison, not a full re-review
 
 ### Across Multiple Projects
+
 1. Drop the same prompt into each project's conversation
 2. Compare scorecards across projects to identify systemic patterns
 3. The 12 dimensions are stable across codebases — you can track portfolio health
 
 ### Customizing for Your Domain
+
 - Rename "Domain Integration" to match your platform (e.g., "Stripe Integration", "AWS Native", "Keeta Chain Depth")
 - Add domain-specific sub-criteria under any dimension
 - Keep all 12 dimensions — removing one creates blind spots
 
 ### Tips for Best Results
+
 - **Give context first**: Before pasting the prompt, tell the assistant what the project IS and what it's SUPPOSED to do. "This is an agent SDK for the Keeta network" gives better results than just the prompt alone.
 - **Share your intent**: "I want this to be production-ready for external developers" vs "This is an internal tool" changes what matters.
 - **Be honest about stubs**: If you know something is placeholder, say so. It saves exploration time and gets you better recommendations.

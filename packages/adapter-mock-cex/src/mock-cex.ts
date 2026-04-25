@@ -70,9 +70,7 @@ export class MockCexAdapter implements DexVenueAdapter {
     this.feeBps = cfg.feeBps ?? 10;
     this.latencyMs = cfg.latencyMs ?? 2;
     this.latencyJitterMs = cfg.latencyJitterMs ?? 3;
-    const bookEntries = Object.entries(
-      cfg.books ?? { 'KTA/USDC': { mid: '1', spreadBps: 8 } }
-    );
+    const bookEntries = Object.entries(cfg.books ?? { 'KTA/USDC': { mid: '1', spreadBps: 8 } });
     this.books = new Map(bookEntries);
     this.balances = new Map(Object.entries(cfg.balances ?? { USDC: 1_000_000, KTA: 1_000_000 }));
   }

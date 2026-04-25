@@ -25,6 +25,10 @@ export async function upsertPortfolioState(
 }
 
 export async function getPortfolioState(db: Database, walletId: string) {
-  const rows = await db.select().from(portfolioState).where(eq(portfolioState.walletId, walletId)).limit(1);
+  const rows = await db
+    .select()
+    .from(portfolioState)
+    .where(eq(portfolioState.walletId, walletId))
+    .limit(1);
   return rows[0];
 }

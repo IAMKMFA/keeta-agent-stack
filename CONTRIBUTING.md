@@ -32,8 +32,8 @@ Be kind, focus on the work, and assume good intent.
 
 ## Project Layout
 
-| Path                     | Purpose                                                         |
-| ------------------------ | --------------------------------------------------------------- |
+| Path                     | Purpose                                                          |
+| ------------------------ | ---------------------------------------------------------------- |
 | `apps/api`               | Fastify control plane (HTTP API, OpenAPI, Swagger UI at `/docs`) |
 | `apps/worker`            | BullMQ-driven execution / policy / simulation worker             |
 | `apps/dashboard`         | Next.js dashboard with role-aware navigation                     |

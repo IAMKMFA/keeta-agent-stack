@@ -32,7 +32,10 @@ export function DataTable({
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-[var(--hub-muted)]">
+              <td
+                colSpan={columns.length}
+                className="px-4 py-8 text-center text-sm text-[var(--hub-muted)]"
+              >
                 {emptyMessage}
               </td>
             </tr>

@@ -126,7 +126,9 @@ export async function listOperatorMetricSince(
   adapterId: string,
   since: Date,
   limit = 100
-): Promise<Array<{ name: string; labels: Record<string, unknown>; value: number; capturedAt: Date }>> {
+): Promise<
+  Array<{ name: string; labels: Record<string, unknown>; value: number; capturedAt: Date }>
+> {
   return db
     .select({
       name: metricSamples.name,

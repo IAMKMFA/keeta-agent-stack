@@ -99,11 +99,15 @@ export class SolanaStubAdapter implements DexVenueAdapter {
 
   async getQuote(req: QuoteRequest) {
     if (!this.supportsPair(req.baseAsset, req.quoteAsset)) {
-      return err('UNSUPPORTED_PAIR', `Solana stub does not list ${req.baseAsset}/${req.quoteAsset}`);
+      return err(
+        'UNSUPPORTED_PAIR',
+        `Solana stub does not list ${req.baseAsset}/${req.quoteAsset}`
+      );
     }
     const sizeIn = Number(req.size);
     const price = req.side === 'buy' ? 1.001 : 0.999;
-    const sizeOut = (req.side === 'buy' ? sizeIn / price : sizeIn * price) * (1 - this.feeBps / 10_000);
+    const sizeOut =
+      (req.side === 'buy' ? sizeIn / price : sizeIn * price) * (1 - this.feeBps / 10_000);
     const q: QuoteResponse = {
       adapterId: this.id,
       baseAsset: req.baseAsset,

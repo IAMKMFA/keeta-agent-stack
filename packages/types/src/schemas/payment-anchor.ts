@@ -171,7 +171,8 @@ export function canTransitionPaymentAnchorStatus(
 }
 
 export function evaluatePaymentAnchorReadiness(
-  anchor: Pick<PaymentAnchor, 'status' | 'commercialTerms'> & Pick<PaymentAnchorWithBond, 'currentBond'>,
+  anchor: Pick<PaymentAnchor, 'status' | 'commercialTerms'> &
+    Pick<PaymentAnchorWithBond, 'currentBond'>,
   options: { strictBondVerification?: boolean } = {}
 ): PaymentAnchorReadiness {
   const issues: PaymentAnchorReadinessIssue[] = [];
@@ -238,10 +239,7 @@ export function evaluatePaymentAnchorReadiness(
   }
 
   const canActivate =
-    hasVolumeFee &&
-    bond !== undefined &&
-    bondActive &&
-    (!strictBondVerification || bondVerified);
+    hasVolumeFee && bond !== undefined && bondActive && (!strictBondVerification || bondVerified);
   const canServeLiveTraffic = anchor.status === 'active' && canActivate;
   const hasBlockingIssues = issues.some((issue) => issue.severity === 'blocking');
 
@@ -268,7 +266,8 @@ export function evaluatePaymentAnchorReadiness(
 }
 
 export function evaluatePaymentAnchorOnboarding(
-  anchor: Pick<PaymentAnchor, 'status' | 'commercialTerms'> & Pick<PaymentAnchorWithBond, 'currentBond'>,
+  anchor: Pick<PaymentAnchor, 'status' | 'commercialTerms'> &
+    Pick<PaymentAnchorWithBond, 'currentBond'>,
   options: { strictBondVerification?: boolean } = {}
 ): PaymentAnchorOnboarding {
   const readiness = evaluatePaymentAnchorReadiness(anchor, options);
@@ -345,12 +344,17 @@ export function evaluatePaymentAnchorOnboarding(
           reason: 'The bond is active and verified enough for live activation.',
         };
       }
-      if (!anchor.currentBond || bondStatus === 'released' || bondStatus === 'failed_verification') {
+      if (
+        !anchor.currentBond ||
+        bondStatus === 'released' ||
+        bondStatus === 'failed_verification'
+      ) {
         return {
           status: 'advance',
           currentStatus: anchor.status,
           nextStatus: 'bond_required',
-          reason: 'The current bond is no longer usable, so onboarding returns to bond requirement.',
+          reason:
+            'The current bond is no longer usable, so onboarding returns to bond requirement.',
         };
       }
       return {
@@ -365,7 +369,8 @@ export function evaluatePaymentAnchorOnboarding(
           status: 'advance',
           currentStatus: anchor.status,
           nextStatus: 'withdrawal_requested',
-          reason: 'The bond has entered withdrawal delay, so the anchor should move into exit posture.',
+          reason:
+            'The bond has entered withdrawal delay, so the anchor should move into exit posture.',
         };
       }
       return {
@@ -412,10 +417,15 @@ export function evaluatePaymentAnchorOnboarding(
           status: 'advance',
           currentStatus: anchor.status,
           nextStatus: 'commercial_defined',
-          reason: 'Commercial metadata exists but volume fee is incomplete, so resume commercial setup.',
+          reason:
+            'Commercial metadata exists but volume fee is incomplete, so resume commercial setup.',
         };
       }
-      if (!anchor.currentBond || bondStatus === 'released' || bondStatus === 'failed_verification') {
+      if (
+        !anchor.currentBond ||
+        bondStatus === 'released' ||
+        bondStatus === 'failed_verification'
+      ) {
         return {
           status: 'advance',
           currentStatus: anchor.status,

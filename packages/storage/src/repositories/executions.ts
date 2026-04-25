@@ -2,10 +2,7 @@ import { and, desc, eq, gte, inArray, lt, or, sql } from 'drizzle-orm';
 import type { Database } from '../db';
 import { executions } from '../schema/executions';
 
-export async function insertExecution(
-  db: Database,
-  row: typeof executions.$inferInsert
-) {
+export async function insertExecution(db: Database, row: typeof executions.$inferInsert) {
   const [r] = await db.insert(executions).values(row).returning();
   return r;
 }
@@ -19,11 +16,7 @@ export async function listExecutions(db: Database, limit = 100) {
  * Cost & Fees aggregate endpoint. Capped at `limit` rows to protect the
  * API; callers must page via timestamp windows for larger ranges.
  */
-export async function listExecutionsSince(
-  db: Database,
-  since: Date,
-  limit = 5000
-) {
+export async function listExecutionsSince(db: Database, since: Date, limit = 5000) {
   const safeLimit = Math.max(1, Math.min(10000, limit));
   return db
     .select()
@@ -111,7 +104,9 @@ export async function getExecutionLatencySnapshot(
 export async function patchExecutionJobMeta(
   db: Database,
   id: string,
-  fields: Partial<Pick<typeof executions.$inferInsert, 'lastJobError' | 'lastJobId' | 'lifecycleState'>>
+  fields: Partial<
+    Pick<typeof executions.$inferInsert, 'lastJobError' | 'lastJobId' | 'lifecycleState'>
+  >
 ) {
   await db.update(executions).set(fields).where(eq(executions.id, id));
 }
@@ -125,7 +120,9 @@ export async function patchExecutionLatency(
 }
 
 /** Count unsettled executions per adapterId for capacity scoring. */
-export async function countUnsettledByAdapter(db: Database): Promise<Array<{ adapterId: string; count: number }>> {
+export async function countUnsettledByAdapter(
+  db: Database
+): Promise<Array<{ adapterId: string; count: number }>> {
   const rows = await db
     .select({
       adapterId: executions.adapterId,
@@ -145,7 +142,11 @@ export async function countUnsettledByAdapter(db: Database): Promise<Array<{ ada
   return rows.map((r) => ({ adapterId: r.adapterId, count: r.count ?? 0 }));
 }
 
-export async function listExecutionsForReconciliation(db: Database, olderThanMs: number, limit = 50) {
+export async function listExecutionsForReconciliation(
+  db: Database,
+  olderThanMs: number,
+  limit = 50
+) {
   const cutoff = new Date(Date.now() - olderThanMs);
   return db
     .select()

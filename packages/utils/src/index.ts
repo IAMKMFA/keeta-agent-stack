@@ -1,8 +1,4 @@
-export {
-  RetryableError,
-  NonRetryableError,
-  isRetryableError,
-} from './errors.js';
+export { RetryableError, NonRetryableError, isRetryableError } from './errors.js';
 
 export function assertNever(x: never, msg?: string): never {
   throw new Error(msg ?? `Unexpected value: ${String(x)}`);

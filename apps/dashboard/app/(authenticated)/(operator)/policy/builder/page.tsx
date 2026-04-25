@@ -2,7 +2,14 @@ import Link from 'next/link';
 import { requireScope } from '../../../../../lib/auth';
 import { requireV2Enabled } from '../../../../../lib/flags';
 import { fetchJson } from '../../../../../lib/api';
-import { Card, EmptyState, Kpi, KpiGrid, PageHeader, StatusPill } from '../../../../../components/ui';
+import {
+  Card,
+  EmptyState,
+  Kpi,
+  KpiGrid,
+  PageHeader,
+  StatusPill,
+} from '../../../../../components/ui';
 import { formatNumber } from '../../../../../lib/format';
 
 interface PolicyRuleMetadata {
@@ -36,7 +43,9 @@ export default async function PolicyBuilderPage() {
       ? packsResponse.packs
       : [];
   const rules = rulesResponse.rules;
-  const linkedRuleIds = new Set(packs.flatMap((pack) => pack.rules?.map((rule) => rule.ruleId).filter(Boolean) ?? []));
+  const linkedRuleIds = new Set(
+    packs.flatMap((pack) => pack.rules?.map((rule) => rule.ruleId).filter(Boolean) ?? [])
+  );
 
   return (
     <div className="space-y-8">
@@ -74,17 +83,27 @@ export default async function PolicyBuilderPage() {
           description="Each card maps to a real rule metadata entry exposed by the API."
         >
           {rules.length === 0 ? (
-            <EmptyState title="No rule metadata" description="The policy engine did not return rule metadata." />
+            <EmptyState
+              title="No rule metadata"
+              description="The policy engine did not return rule metadata."
+            />
           ) : (
             <div className="space-y-2">
               {rules.map((rule) => (
-                <div key={rule.ruleId} className="rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3">
-                  <div className="font-mono text-xs font-semibold text-[var(--keeta-ink)]">{rule.ruleId}</div>
+                <div
+                  key={rule.ruleId}
+                  className="rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3"
+                >
+                  <div className="font-mono text-xs font-semibold text-[var(--keeta-ink)]">
+                    {rule.ruleId}
+                  </div>
                   <div className="mt-1 text-xs text-[var(--keeta-muted)]">
                     {rule.configKey ? `configKey: ${rule.configKey}` : 'No config key'}
                   </div>
                   {rule.description ? (
-                    <p className="mt-2 text-sm text-[var(--keeta-ink-subtle)]">{rule.description}</p>
+                    <p className="mt-2 text-sm text-[var(--keeta-ink-subtle)]">
+                      {rule.description}
+                    </p>
                   ) : null}
                 </div>
               ))}
@@ -99,11 +118,17 @@ export default async function PolicyBuilderPage() {
           description="This is the exact storage-backed shape the future visual graph will read from and write to."
         >
           {packs.length === 0 ? (
-            <EmptyState title="No policy packs" description="Create a policy pack through the API to start building." />
+            <EmptyState
+              title="No policy packs"
+              description="Create a policy pack through the API to start building."
+            />
           ) : (
             <div className="space-y-4">
               {packs.map((pack) => (
-                <div key={pack.id} className="rounded-2xl border border-[var(--keeta-line)] bg-white/70 p-4">
+                <div
+                  key={pack.id}
+                  className="rounded-2xl border border-[var(--keeta-line)] bg-white/70 p-4"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <div className="font-medium text-[var(--keeta-ink)]">{pack.name}</div>
@@ -116,7 +141,11 @@ export default async function PolicyBuilderPage() {
                     </StatusPill>
                   </div>
                   <pre className="mt-3 max-h-64 overflow-auto rounded-xl border border-[var(--keeta-line)] bg-[#111313] p-3 text-xs text-[#dbe4e4]">
-                    {JSON.stringify({ rules: pack.rules ?? [], compositions: pack.compositions ?? [] }, null, 2)}
+                    {JSON.stringify(
+                      { rules: pack.rules ?? [], compositions: pack.compositions ?? [] },
+                      null,
+                      2
+                    )}
                   </pre>
                 </div>
               ))}

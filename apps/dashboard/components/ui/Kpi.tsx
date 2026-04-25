@@ -55,9 +55,7 @@ export function Kpi({
         >
           {value}
         </div>
-        {unit ? (
-          <div className="text-sm text-[var(--keeta-muted)]">{unit}</div>
-        ) : null}
+        {unit ? <div className="text-sm text-[var(--keeta-muted)]">{unit}</div> : null}
         {trend && delta ? (
           <div
             className={clsx(
@@ -69,9 +67,7 @@ export function Kpi({
           </div>
         ) : null}
       </div>
-      {hint ? (
-        <div className="text-xs text-[var(--keeta-muted)]">{hint}</div>
-      ) : null}
+      {hint ? <div className="text-xs text-[var(--keeta-muted)]">{hint}</div> : null}
     </div>
   );
 }
@@ -93,8 +89,6 @@ export function KpiGrid({
     6: 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6',
   };
   return (
-    <div className={clsx('grid grid-cols-1 gap-3', colMap[columns], className)}>
-      {children}
-    </div>
+    <div className={clsx('grid grid-cols-1 gap-3', colMap[columns], className)}>{children}</div>
   );
 }

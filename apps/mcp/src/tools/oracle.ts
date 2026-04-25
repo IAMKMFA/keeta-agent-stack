@@ -81,7 +81,11 @@ function toErrorPayload(error: unknown): unknown {
   };
 }
 
-function buildFieldSchema(field: { type: string; enum?: string[]; description?: string }): z.ZodTypeAny {
+function buildFieldSchema(field: {
+  type: string;
+  enum?: string[];
+  description?: string;
+}): z.ZodTypeAny {
   let schema: z.ZodTypeAny;
   if (field.type === 'number') {
     schema = z.number();
@@ -118,18 +122,23 @@ function cleanArgs(args: Record<string, unknown>): Record<string, unknown> {
 
 export function registerOracleTools(server: McpServer): void {
   for (const def of ORACLE_MIRRORED_TOOLS) {
-    server.tool(def.name, `${def.description} (mirrored from KTA-Oracle).`, buildInputShape(def), async (args) => {
-      try {
-        const data = await getOracleClient().callMcpTool(def.name, cleanArgs(args));
-        return renderResponse({
-          tool: def.name,
-          source: 'kta-oracle',
-          data: normalizeMcpToolPayload(data),
-        });
-      } catch (error) {
-        return renderResponse(toErrorPayload(error));
+    server.tool(
+      def.name,
+      `${def.description} (mirrored from KTA-Oracle).`,
+      buildInputShape(def),
+      async (args) => {
+        try {
+          const data = await getOracleClient().callMcpTool(def.name, cleanArgs(args));
+          return renderResponse({
+            tool: def.name,
+            source: 'kta-oracle',
+            data: normalizeMcpToolPayload(data),
+          });
+        } catch (error) {
+          return renderResponse(toErrorPayload(error));
+        }
       }
-    });
+    );
   }
 
   server.tool(
@@ -181,19 +190,14 @@ export function registerOracleTools(server: McpServer): void {
     }
   );
 
-  server.tool(
-    'keeta_oracle_get_status',
-    'Fetch KTA-Oracle service status.',
-    {},
-    async () => {
-      try {
-        const data = await getOracleClient().getStatus();
-        return renderResponse(data);
-      } catch (error) {
-        return renderResponse(toErrorPayload(error));
-      }
+  server.tool('keeta_oracle_get_status', 'Fetch KTA-Oracle service status.', {}, async () => {
+    try {
+      const data = await getOracleClient().getStatus();
+      return renderResponse(data);
+    } catch (error) {
+      return renderResponse(toErrorPayload(error));
     }
-  );
+  });
 
   server.tool(
     'keeta_oracle_list_tools',
@@ -214,7 +218,10 @@ export function registerOracleTools(server: McpServer): void {
     'Fetch live KTA exchange rate from KTA-Oracle for one currency.',
     {
       currency: z.string().min(1).describe('Currency code like USD, EUR, SEK, JPY'),
-      walletAddress: z.string().optional().describe('Optional keeta_ wallet for tier-aware responses'),
+      walletAddress: z
+        .string()
+        .optional()
+        .describe('Optional keeta_ wallet for tier-aware responses'),
     },
     async ({ currency, walletAddress }) => {
       try {

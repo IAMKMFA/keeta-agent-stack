@@ -17,35 +17,47 @@ import {
   type PolicyPack,
   resolvePolicyPackSelection as resolveStoredPolicyPackSelection,
 } from '@keeta-agent-stack/policy';
-import { intentRepo, routeRepo, auditRepo, policyRepo, settingsRepo, strategyRepo, walletRepo } from '@keeta-agent-stack/storage';
+import {
+  intentRepo,
+  routeRepo,
+  auditRepo,
+  policyRepo,
+  settingsRepo,
+  strategyRepo,
+  walletRepo,
+} from '@keeta-agent-stack/storage';
 import { requireAdminAccess, requireOperatorAccess } from '../lib/auth.js';
 
-const policyConfigOverrideSchema = z.object({
-  maxOrderSize: z.number().finite().positive(),
-  maxSlippageBps: z.number().finite().nonnegative(),
-  venueAllowlist: z.array(z.string()),
-  assetAllowlist: z.array(z.string()),
-  liveModeEnabled: z.boolean(),
-  keetaPolicyEnabled: z.boolean(),
-  identityPolicyEnabled: z.boolean(),
-  anchorBondVerificationRequired: z.boolean(),
-  maxExposurePerAsset: z.number().finite().positive(),
-  maxExposurePerWallet: z.number().finite().positive(),
-  maxExposurePerVenue: z.number().finite().positive(),
-  maxNotionalPerStrategy: z.number().finite().positive(),
-  maxDailyTrades: z.number().finite().positive(),
-  maxUnsettledExecutions: z.number().finite().positive(),
-  maxDrawdownBps: z.number().finite().positive(),
-}).partial();
+const policyConfigOverrideSchema = z
+  .object({
+    maxOrderSize: z.number().finite().positive(),
+    maxSlippageBps: z.number().finite().nonnegative(),
+    venueAllowlist: z.array(z.string()),
+    assetAllowlist: z.array(z.string()),
+    liveModeEnabled: z.boolean(),
+    keetaPolicyEnabled: z.boolean(),
+    identityPolicyEnabled: z.boolean(),
+    anchorBondVerificationRequired: z.boolean(),
+    maxExposurePerAsset: z.number().finite().positive(),
+    maxExposurePerWallet: z.number().finite().positive(),
+    maxExposurePerVenue: z.number().finite().positive(),
+    maxNotionalPerStrategy: z.number().finite().positive(),
+    maxDailyTrades: z.number().finite().positive(),
+    maxUnsettledExecutions: z.number().finite().positive(),
+    maxDrawdownBps: z.number().finite().positive(),
+  })
+  .partial();
 
 const policyKeetaHintsSchema = z.object({
   network: z.string(),
   accountHeadBlockHeight: z.string().nullable().optional(),
   ledgerBlockCount: z.number().finite().optional(),
   measuredAt: z.string().optional(),
-  identity: z.object({
-    certificateFingerprintPresent: z.boolean().optional(),
-  }).optional(),
+  identity: z
+    .object({
+      certificateFingerprintPresent: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 const policyIdentityHintsSchema = z.object({
@@ -77,29 +89,33 @@ const policyAnchorBondHintSchema = z.object({
   verificationSource: z.enum(['database', 'keeta', 'strict-missing']).optional(),
 });
 
-const evaluateBodySchema = z.object({
-  intentId: z.string().uuid().optional(),
-  intent: ExecutionIntentSchema.optional(),
-  routePlan: RoutePlanSchema.optional(),
-  reason: z.string().min(1),
-  policyPackId: z.string().uuid().optional(),
-  configOverrides: policyConfigOverrideSchema.optional(),
-  contextOverrides: z.object({
-    keetaHints: policyKeetaHintsSchema.optional(),
-    identityHints: policyIdentityHintsSchema.optional(),
-    portfolioStats: policyPortfolioStatsSchema.optional(),
-    anchorBonds: z.record(policyAnchorBondHintSchema).optional(),
-    customRuleConfig: z.record(z.unknown()).optional(),
-  }).optional(),
-}).superRefine((value, ctx) => {
-  if (!value.intentId && !value.intent) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['intentId'],
-      message: 'Provide either intentId or intent',
-    });
-  }
-});
+const evaluateBodySchema = z
+  .object({
+    intentId: z.string().uuid().optional(),
+    intent: ExecutionIntentSchema.optional(),
+    routePlan: RoutePlanSchema.optional(),
+    reason: z.string().min(1),
+    policyPackId: z.string().uuid().optional(),
+    configOverrides: policyConfigOverrideSchema.optional(),
+    contextOverrides: z
+      .object({
+        keetaHints: policyKeetaHintsSchema.optional(),
+        identityHints: policyIdentityHintsSchema.optional(),
+        portfolioStats: policyPortfolioStatsSchema.optional(),
+        anchorBonds: z.record(policyAnchorBondHintSchema).optional(),
+        customRuleConfig: z.record(z.unknown()).optional(),
+      })
+      .optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (!value.intentId && !value.intent) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['intentId'],
+        message: 'Provide either intentId or intent',
+      });
+    }
+  });
 
 function defaultPolicyConfig(env: AppEnv): PolicyConfig {
   return defaultPolicyConfigFromEnv(env);
@@ -133,7 +149,13 @@ function redactedEffectiveConfig(config: PolicyConfig): Record<string, unknown> 
 type AppliedPolicyPackResponse = {
   id: string;
   name: string;
-  source: 'request' | 'intent' | 'intent_metadata' | 'wallet_default' | 'strategy_config' | 'global_default';
+  source:
+    | 'request'
+    | 'intent'
+    | 'intent_metadata'
+    | 'wallet_default'
+    | 'strategy_config'
+    | 'global_default';
 };
 
 type ResolvedPolicyPackSelection =
@@ -144,7 +166,7 @@ type ResolvedPolicyPackSelection =
         code: 'NOT_FOUND';
         message: string;
       };
-}
+    };
 
 function strategyConfigPolicyPackId(config: unknown): string | undefined {
   if (!config || typeof config !== 'object') {
@@ -186,8 +208,11 @@ async function resolvePolicyPackSelection(
   explicitPolicyPackId?: string
 ): Promise<ResolvedPolicyPackSelection> {
   const wallet = await walletRepo.getWallet(db, intent.walletId);
-  const strategy = intent.strategyId ? await strategyRepo.getStrategyById(db, intent.strategyId) : null;
-  const globalDefaultPolicyPackId = (await settingsRepo.getDefaultPolicyPackId(db)) ?? env.DEFAULT_POLICY_PACK_ID ?? null;
+  const strategy = intent.strategyId
+    ? await strategyRepo.getStrategyById(db, intent.strategyId)
+    : null;
+  const globalDefaultPolicyPackId =
+    (await settingsRepo.getDefaultPolicyPackId(db)) ?? env.DEFAULT_POLICY_PACK_ID ?? null;
   const resolved = await resolveStoredPolicyPackSelection({
     intent,
     explicitPolicyPackId,
@@ -262,26 +287,44 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = evaluateBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
-    const { intentId, reason, configOverrides, contextOverrides, routePlan: routePlanOverride, policyPackId } = parsed.data;
+    const {
+      intentId,
+      reason,
+      configOverrides,
+      contextOverrides,
+      routePlan: routePlanOverride,
+      policyPackId,
+    } = parsed.data;
     let intent = parsed.data.intent;
     let routePlan = routePlanOverride;
     if (!intent && intentId) {
       const row = await intentRepo.getIntentById(app.db, intentId);
       if (!row) {
-        return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Intent not found' } });
+        return reply
+          .status(404)
+          .send({ error: { code: 'NOT_FOUND', message: 'Intent not found' } });
       }
       intent = ExecutionIntentSchema.parse(row.payload);
     }
     if (!intent) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', message: 'Intent payload required' } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', message: 'Intent payload required' } });
     }
     if (!routePlan && intentId) {
       const routeRow = await routeRepo.getRoutePlanForIntent(app.db, intentId);
       routePlan = routeRow ? RoutePlanSchema.parse(routeRow.payload) : undefined;
     }
-    const resolvedPolicyPack = await resolvePolicyPackSelection(app.db, intent, app.env, policyPackId);
+    const resolvedPolicyPack = await resolvePolicyPackSelection(
+      app.db,
+      intent,
+      app.env,
+      policyPackId
+    );
     if ('error' in resolvedPolicyPack) {
       return reply.status(404).send({ error: resolvedPolicyPack.error });
     }
@@ -390,7 +433,9 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = CreatePolicyPackSchema.safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const created = await policyRepo.createPolicyPack(app.db, {
       name: parsed.data.name,
@@ -408,19 +453,27 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
     const { id } = req.params as { id: string };
     const parsed = UpdatePolicyPackSchema.safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const existing = await policyRepo.getPolicyPackById(app.db, id);
     if (!existing) {
-      return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Policy pack not found' } });
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Policy pack not found' } });
     }
     const updated = await policyRepo.updatePolicyPack(app.db, id, {
       ...(parsed.data.name !== undefined ? { name: parsed.data.name } : {}),
-      ...(parsed.data.description !== undefined ? { description: parsed.data.description ?? null } : {}),
+      ...(parsed.data.description !== undefined
+        ? { description: parsed.data.description ?? null }
+        : {}),
       ...(parsed.data.rules !== undefined ? { rules: parsed.data.rules } : {}),
       ...(parsed.data.compositions !== undefined ? { compositions: parsed.data.compositions } : {}),
     });
-    return serializePolicyPack(updated) ?? reply.status(500).send({ error: { code: 'UPDATE_FAILED' } });
+    return (
+      serializePolicyPack(updated) ?? reply.status(500).send({ error: { code: 'UPDATE_FAILED' } })
+    );
   });
 
   app.delete('/policy/packs/:id', async (req, reply) => {
@@ -430,7 +483,9 @@ export const policyAdminRoutes: FastifyPluginAsync = async (app) => {
     const { id } = req.params as { id: string };
     const deleted = await policyRepo.deletePolicyPack(app.db, id);
     if (!deleted) {
-      return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Policy pack not found' } });
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Policy pack not found' } });
     }
     return reply.status(204).send();
   });

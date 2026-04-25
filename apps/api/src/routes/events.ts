@@ -23,10 +23,7 @@ type StreamableAuditEvent = {
   createdAt: Date;
 };
 
-function filterEvents(
-  rows: StreamableAuditEvent[],
-  query: z.infer<typeof querySchema>
-) {
+function filterEvents(rows: StreamableAuditEvent[], query: z.infer<typeof querySchema>) {
   return rows.filter((row) => {
     if (query.eventType && row.eventType !== query.eventType) return false;
     if (query.intentId && row.intentId !== query.intentId) return false;
@@ -132,7 +129,9 @@ export const eventsRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = querySchema.safeParse(req.query);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const query = parsed.data;
     const rows = await loadEvents(app, query);
@@ -157,7 +156,9 @@ export const eventsRoutes: FastifyPluginAsync = async (app) => {
     }
     const parsed = querySchema.safeParse(req.query);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const query = parsed.data;
     reply.hijack();

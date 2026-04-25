@@ -39,7 +39,7 @@ const results = await Promise.all(
   targets.map(async ({ name, dir, pkg }) => {
     const { messages } = await publint({ pkgDir: dir });
     return { name, dir, pkg, messages };
-  }),
+  })
 );
 
 for (const { name, pkg, messages } of results) {
@@ -50,7 +50,9 @@ for (const { name, pkg, messages } of results) {
   const errors = messages.filter((m) => m.type === 'error');
   const warnings = messages.filter((m) => m.type === 'warning');
   const suggestions = messages.filter((m) => m.type === 'suggestion');
-  console.log(`\n${name}: ${errors.length} error(s), ${warnings.length} warning(s), ${suggestions.length} suggestion(s)`);
+  console.log(
+    `\n${name}: ${errors.length} error(s), ${warnings.length} warning(s), ${suggestions.length} suggestion(s)`
+  );
   for (const msg of messages) {
     console.log(`  [${msg.type}] ${formatMessage(msg, pkg)}`);
   }

@@ -149,12 +149,11 @@ let cachedPem: string | undefined;
 let cachedKey: KeyLike | Uint8Array | undefined;
 const remoteJwkSetCache = new Map<string, JWTVerifyGetKey>();
 
-async function buildVerifier(
-  env: Record<string, unknown>
-): Promise<JwtVerifierConfig | null> {
+async function buildVerifier(env: Record<string, unknown>): Promise<JwtVerifierConfig | null> {
   const secret = typeof env.AUTH_JWT_SECRET === 'string' ? env.AUTH_JWT_SECRET : undefined;
   const issuer = typeof env.AUTH_JWT_ISSUER === 'string' ? env.AUTH_JWT_ISSUER : undefined;
-  const pem = typeof env.AUTH_JWT_PUBLIC_KEY_PEM === 'string' ? env.AUTH_JWT_PUBLIC_KEY_PEM : undefined;
+  const pem =
+    typeof env.AUTH_JWT_PUBLIC_KEY_PEM === 'string' ? env.AUTH_JWT_PUBLIC_KEY_PEM : undefined;
   const jwksUrl = typeof env.AUTH_JWT_JWKS_URL === 'string' ? env.AUTH_JWT_JWKS_URL : undefined;
   if (secret) {
     return { key: new TextEncoder().encode(secret), issuer };
@@ -204,7 +203,11 @@ export const meRoutes: FastifyPluginAsync = async (app) => {
 
     try {
       const verified = verifier.getKey
-        ? await jwtVerify(token, verifier.getKey, verifier.issuer ? { issuer: verifier.issuer } : {})
+        ? await jwtVerify(
+            token,
+            verifier.getKey,
+            verifier.issuer ? { issuer: verifier.issuer } : {}
+          )
         : await jwtVerify(
             token,
             verifier.key as JwtVerifierKey,

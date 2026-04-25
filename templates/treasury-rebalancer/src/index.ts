@@ -36,8 +36,14 @@ async function main(): Promise<void> {
   }
 
   let stopping = false;
-  process.on('SIGINT',  () => { stopping = true; log('shutdown', { signal: 'SIGINT' }); });
-  process.on('SIGTERM', () => { stopping = true; log('shutdown', { signal: 'SIGTERM' }); });
+  process.on('SIGINT', () => {
+    stopping = true;
+    log('shutdown', { signal: 'SIGINT' });
+  });
+  process.on('SIGTERM', () => {
+    stopping = true;
+    log('shutdown', { signal: 'SIGTERM' });
+  });
 
   while (!stopping) {
     try {

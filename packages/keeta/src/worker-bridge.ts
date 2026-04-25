@@ -12,7 +12,9 @@ export function createReadOnlyUserClient(env: Pick<AppEnv, 'KEETA_NETWORK'>): Us
 /**
  * Signing client for live execution — **only call in worker** with `KEETA_SIGNING_SEED` set.
  */
-export function createSigningUserClient(env: Pick<AppEnv, 'KEETA_NETWORK' | 'KEETA_SIGNING_SEED' | 'KEETA_ACCOUNT_INDEX'>): UserClient {
+export function createSigningUserClient(
+  env: Pick<AppEnv, 'KEETA_NETWORK' | 'KEETA_SIGNING_SEED' | 'KEETA_ACCOUNT_INDEX'>
+): UserClient {
   const seed = env.KEETA_SIGNING_SEED;
   if (!seed) {
     throw new Error('KEETA_SIGNING_SEED is required to create a signing UserClient');

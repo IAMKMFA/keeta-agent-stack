@@ -70,16 +70,16 @@ rebalance leg through the policy pack.
 
 All knobs live in `.env`:
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `KEETA_API_URL` | `http://localhost:3001` | Local API, your own sandbox, or your production deployment. |
-| `KEETA_API_TOKEN` | _(empty)_ | Bearer token. Required for `OPS_API_KEY`-protected APIs. |
-| `KEETA_WALLET_ID` | _(required)_ | The wallet UUID returned by `POST /wallets`. |
-| `REBALANCE_INTERVAL_SECONDS` | `60` | Loop cadence. |
-| `REBALANCE_DRIFT_THRESHOLD_BPS` | `200` | Skip ticks unless worst drift exceeds this. |
-| `REBALANCE_MAX_LEG_NOTIONAL` | `10000` | Hard cap mirrored into the policy pack. |
-| `REBALANCE_MAX_SLIPPAGE_BPS` | `50` | Slippage cap mirrored into the policy pack. |
-| `REBALANCE_INTENT_MODE` | `simulate` | `simulate` locally; `live` against your own API. |
+| Variable                        | Default                 | Purpose                                                     |
+| ------------------------------- | ----------------------- | ----------------------------------------------------------- |
+| `KEETA_API_URL`                 | `http://localhost:3001` | Local API, your own sandbox, or your production deployment. |
+| `KEETA_API_TOKEN`               | _(empty)_               | Bearer token. Required for `OPS_API_KEY`-protected APIs.    |
+| `KEETA_WALLET_ID`               | _(required)_            | The wallet UUID returned by `POST /wallets`.                |
+| `REBALANCE_INTERVAL_SECONDS`    | `60`                    | Loop cadence.                                               |
+| `REBALANCE_DRIFT_THRESHOLD_BPS` | `200`                   | Skip ticks unless worst drift exceeds this.                 |
+| `REBALANCE_MAX_LEG_NOTIONAL`    | `10000`                 | Hard cap mirrored into the policy pack.                     |
+| `REBALANCE_MAX_SLIPPAGE_BPS`    | `50`                    | Slippage cap mirrored into the policy pack.                 |
+| `REBALANCE_INTENT_MODE`         | `simulate`              | `simulate` locally; `live` against your own API.            |
 
 Target allocation lives in `src/config.ts` (`DEFAULT_TARGETS`). Edit the
 weights — they must sum to 1.

@@ -1,6 +1,14 @@
 import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
 import type { VenueAdapter } from '@keeta-agent-stack/adapter-base';
-import type { AdapterHealth, CapabilityMap, ExecutionIntent, QuoteRequest, QuoteResponse, RoutePlan, RouteStep } from '@keeta-agent-stack/types';
+import type {
+  AdapterHealth,
+  CapabilityMap,
+  ExecutionIntent,
+  QuoteRequest,
+  QuoteResponse,
+  RoutePlan,
+  RouteStep,
+} from '@keeta-agent-stack/types';
 import { randomUUID } from 'node:crypto';
 
 export interface RouterOptions {
@@ -40,13 +48,16 @@ const defaultWeights = {
   reliability: 0.25,
 };
 
-export function scoreRoute(input: {
-  totalFeeBps: number;
-  expectedSlippageBps: number;
-  hopCount: number;
-  healthOk: boolean;
-  adapterScoreAdjustment?: number;
-}, w = defaultWeights): number {
+export function scoreRoute(
+  input: {
+    totalFeeBps: number;
+    expectedSlippageBps: number;
+    hopCount: number;
+    healthOk: boolean;
+    adapterScoreAdjustment?: number;
+  },
+  w = defaultWeights
+): number {
   const reliability = input.healthOk ? 1 : 0;
   return (
     w.fee * -input.totalFeeBps +
@@ -68,13 +79,18 @@ export class Router {
     buildOpts: RouteBuildOptions = {}
   ): Promise<{ best: RoutePlan; alternates: RoutePlan[] }> {
     const eligibleAdapters: Array<{ adapter: VenueAdapter; capabilities: CapabilityMap }> = [];
-    for (const { adapter, capabilities } of await this.registry.discoverAdapters({ limit: this.opts.maxQuotes })) {
+    for (const { adapter, capabilities } of await this.registry.discoverAdapters({
+      limit: this.opts.maxQuotes,
+    })) {
       if (buildOpts.canUseAdapter && !(await buildOpts.canUseAdapter(adapter))) continue;
       if (!capabilities.pairs.some((pair) => adapter.supportsPair(pair.base, pair.quote))) continue;
       eligibleAdapters.push({ adapter, capabilities });
     }
     const w = this.opts.weights ?? defaultWeights;
-    const pairIndex = new Map<string, Array<{ adapter: VenueAdapter; pair: CapabilityMap['pairs'][number] }>>();
+    const pairIndex = new Map<
+      string,
+      Array<{ adapter: VenueAdapter; pair: CapabilityMap['pairs'][number] }>
+    >();
     const knownAssets = new Set<string>([intent.baseAsset, intent.quoteAsset]);
     for (const { adapter, capabilities } of eligibleAdapters) {
       for (const pair of capabilities.pairs) {
@@ -88,7 +104,9 @@ export class Router {
       }
     }
 
-    const candidatePaths: Array<Array<{ adapter: VenueAdapter; baseAsset: string; quoteAsset: string }>> = [];
+    const candidatePaths: Array<
+      Array<{ adapter: VenueAdapter; baseAsset: string; quoteAsset: string }>
+    > = [];
     const maxHops = Math.max(1, this.opts.maxHops);
     const visit = (
       currentAsset: string,
@@ -102,7 +120,10 @@ export class Router {
         const edges = pairIndex.get(edgeKey);
         if (!edges?.length) continue;
         for (const edge of edges) {
-          const nextPath = [...path, { adapter: edge.adapter, baseAsset: currentAsset, quoteAsset: nextAsset }];
+          const nextPath = [
+            ...path,
+            { adapter: edge.adapter, baseAsset: currentAsset, quoteAsset: nextAsset },
+          ];
           if (nextAsset === intent.quoteAsset) {
             candidatePaths.push(nextPath);
             continue;

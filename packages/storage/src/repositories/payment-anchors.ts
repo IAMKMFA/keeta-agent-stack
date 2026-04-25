@@ -6,11 +6,7 @@ export async function listPaymentAnchors(db: Database, limit = 200) {
   return db.select().from(paymentAnchors).orderBy(desc(paymentAnchors.createdAt)).limit(limit);
 }
 
-export async function listPaymentAnchorsByStatuses(
-  db: Database,
-  statuses: string[],
-  limit = 200
-) {
+export async function listPaymentAnchorsByStatuses(db: Database, statuses: string[], limit = 200) {
   if (statuses.length === 0) return [];
   return db
     .select()
@@ -26,7 +22,11 @@ export async function getPaymentAnchor(db: Database, id: string) {
 }
 
 export async function getPaymentAnchorByAdapterId(db: Database, adapterId: string) {
-  const rows = await db.select().from(paymentAnchors).where(eq(paymentAnchors.adapterId, adapterId)).limit(1);
+  const rows = await db
+    .select()
+    .from(paymentAnchors)
+    .where(eq(paymentAnchors.adapterId, adapterId))
+    .limit(1);
   return rows[0];
 }
 

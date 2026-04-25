@@ -10,10 +10,7 @@ export async function listStrategies(db: Database, limit = 200) {
   return db.select().from(strategies).orderBy(desc(strategies.createdAt)).limit(limit);
 }
 
-export async function createStrategy(
-  db: Database,
-  row: typeof strategies.$inferInsert
-) {
+export async function createStrategy(db: Database, row: typeof strategies.$inferInsert) {
   const [created] = await db.insert(strategies).values(row).returning();
   return created;
 }

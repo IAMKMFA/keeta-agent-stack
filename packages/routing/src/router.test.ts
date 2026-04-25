@@ -234,7 +234,8 @@ describe('Router scoring', () => {
             scoreAdjustment: adapter.id === 'anchor-exact' ? 6 : -2,
             scoreAdjustments: [
               {
-                source: adapter.id === 'anchor-exact' ? 'corridor_exact_match' : 'commercial_fee_penalty',
+                source:
+                  adapter.id === 'anchor-exact' ? 'corridor_exact_match' : 'commercial_fee_penalty',
                 value: adapter.id === 'anchor-exact' ? 12 : -2,
               },
             ],

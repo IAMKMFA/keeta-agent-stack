@@ -24,12 +24,12 @@ pnpm dev:all
 
 Set the env vars the MCP server reads:
 
-| Variable | Required | Purpose |
-|---|---|---|
-| `API_URL` (or `KEETA_AGENT_API_URL`) | yes | Where the MCP server sends control-plane calls. Default: `http://localhost:3001`. |
-| `OPS_API_KEY` | for write tools | Service credential. Required for `oracle.replay`, wallet `import`, etc. |
-| `KTA_ORACLE_BASE_URL` | optional | Override the default Oracle endpoint. |
-| `KTA_ORACLE_TIMEOUT_MS` | optional | Bound Oracle request latency. Default: 10_000. |
+| Variable                             | Required        | Purpose                                                                           |
+| ------------------------------------ | --------------- | --------------------------------------------------------------------------------- |
+| `API_URL` (or `KEETA_AGENT_API_URL`) | yes             | Where the MCP server sends control-plane calls. Default: `http://localhost:3001`. |
+| `OPS_API_KEY`                        | for write tools | Service credential. Required for `oracle.replay`, wallet `import`, etc.           |
+| `KTA_ORACLE_BASE_URL`                | optional        | Override the default Oracle endpoint.                                             |
+| `KTA_ORACLE_TIMEOUT_MS`              | optional        | Bound Oracle request latency. Default: 10_000.                                    |
 
 Launch the MCP server (it speaks stdio):
 
@@ -39,16 +39,16 @@ pnpm dev:mcp
 
 ## Tool catalog (most relevant)
 
-| Tool | Purpose |
-|---|---|
-| `keeta_create_intent` | Persist a new `ExecutionIntent`. |
-| `keeta_quote_intent` / `keeta_route_intent` / `keeta_evaluate_policy` / `keeta_execute_intent` | Walk an intent through the pipeline stages. |
-| `keeta_stream_events` | Capture SSE events for a bounded window — useful for "wait for terminal state". |
-| `oracle.payment.preview` | Rates + rails + execution instructions for a fiat → KTA payment. |
-| `oracle.payment.execute` | Idempotent execution of a previewed payment (CSRF-style confirmation required). |
-| `oracle.subscription.list` | List the agent's recurring subscriptions. |
-| `oracle.replay` | Operator-only replay of a previous run (requires `OPS_API_KEY`). |
-| `keeta_oracle_compare_rails` | Compare Keeta vs SWIFT/bankwire/Stripe/Visa pricing. |
+| Tool                                                                                           | Purpose                                                                         |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `keeta_create_intent`                                                                          | Persist a new `ExecutionIntent`.                                                |
+| `keeta_quote_intent` / `keeta_route_intent` / `keeta_evaluate_policy` / `keeta_execute_intent` | Walk an intent through the pipeline stages.                                     |
+| `keeta_stream_events`                                                                          | Capture SSE events for a bounded window — useful for "wait for terminal state". |
+| `oracle.payment.preview`                                                                       | Rates + rails + execution instructions for a fiat → KTA payment.                |
+| `oracle.payment.execute`                                                                       | Idempotent execution of a previewed payment (CSRF-style confirmation required). |
+| `oracle.subscription.list`                                                                     | List the agent's recurring subscriptions.                                       |
+| `oracle.replay`                                                                                | Operator-only replay of a previous run (requires `OPS_API_KEY`).                |
+| `keeta_oracle_compare_rails`                                                                   | Compare Keeta vs SWIFT/bankwire/Stripe/Visa pricing.                            |
 
 Run `keeta_oracle_list_mirrored_tools` to enumerate every mirrored upstream
 Oracle tool the server is shipping at runtime.
@@ -85,9 +85,9 @@ const tools = await listMcpTools(mcp);
 const functions = tools.map((tool) => ({
   type: 'function' as const,
   function: {
-    name: tool.name.replaceAll('.', '_'),         // OpenAI rejects dots
+    name: tool.name.replaceAll('.', '_'), // OpenAI rejects dots
     description: tool.description,
-    parameters: tool.inputSchema,                  // already JSON Schema
+    parameters: tool.inputSchema, // already JSON Schema
   },
 }));
 
@@ -193,9 +193,7 @@ const graph = new StateGraph({
   .compile();
 
 const out = await graph.invoke({
-  messages: [
-    { role: 'user', content: 'Schedule a recurring 50 USD weekly payment to keeta_abc.' },
-  ],
+  messages: [{ role: 'user', content: 'Schedule a recurring 50 USD weekly payment to keeta_abc.' }],
 });
 ```
 

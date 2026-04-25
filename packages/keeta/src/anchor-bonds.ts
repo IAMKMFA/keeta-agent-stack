@@ -81,6 +81,8 @@ class DefaultAnchorBondVerifier implements AnchorBondVerifier {
   }
 }
 
-export function createAnchorBondVerifier(env: Pick<AppEnv, 'ANCHOR_BOND_STRICT'>): AnchorBondVerifier {
+export function createAnchorBondVerifier(
+  env: Pick<AppEnv, 'ANCHOR_BOND_STRICT'>
+): AnchorBondVerifier {
   return new DefaultAnchorBondVerifier(env.ANCHOR_BOND_STRICT === true);
 }

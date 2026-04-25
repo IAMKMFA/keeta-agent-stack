@@ -1,6 +1,10 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { randomUUID } from 'node:crypto';
-import { ExecutionIntentSchema, canTransitionIntentStatus, type ExecutionIntent } from '@keeta-agent-stack/types';
+import {
+  ExecutionIntentSchema,
+  canTransitionIntentStatus,
+  type ExecutionIntent,
+} from '@keeta-agent-stack/types';
 import { intentRepo, routeRepo, auditRepo, routeOverrideRepo } from '@keeta-agent-stack/storage';
 import { QUEUE_NAMES, getDefaultJobOptions } from '@keeta-agent-stack/config';
 import { z } from 'zod';
@@ -70,7 +74,11 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
     const parsed = createIntentBody.safeParse(req.body);
     if (!parsed.success) {
       return reply.status(400).send({
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid intent', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid intent',
+          details: parsed.error.flatten(),
+        },
       });
     }
     const id = randomUUID();
@@ -164,7 +172,11 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
     const parsed = enqueuePolicyBody.safeParse(req.body ?? {});
     if (!parsed.success) {
       return reply.status(400).send({
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid policy enqueue body', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid policy enqueue body',
+          details: parsed.error.flatten(),
+        },
       });
     }
     const row = await intentRepo.getIntentById(app.db, id);
@@ -189,7 +201,9 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
     return reply.status(202).send({
       jobId: job.id,
       queue: QUEUE_NAMES.policyEvaluation,
-      ...(refreshed ? { policyPackId: policyPackIdFromIntentPayload(refreshed.payload) ?? null } : {}),
+      ...(refreshed
+        ? { policyPackId: policyPackIdFromIntentPayload(refreshed.payload) ?? null }
+        : {}),
     });
   });
 
@@ -202,7 +216,10 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
       queue: queue(QUEUE_NAMES.executionProcessing),
       jobName: 'execute',
       data: { intentId: id },
-      jobOptions: { jobId: `execute-${id}`, ...getDefaultJobOptions(QUEUE_NAMES.executionProcessing) },
+      jobOptions: {
+        jobId: `execute-${id}`,
+        ...getDefaultJobOptions(QUEUE_NAMES.executionProcessing),
+      },
       spanName: 'api.intent.execute.enqueue',
       attributes: { intentId: id },
     });
@@ -243,7 +260,10 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
     }
     if (!canTransitionIntentStatus(row.status, 'held')) {
       return reply.status(409).send({
-        error: { code: 'INVALID_TRANSITION', message: `Cannot transition intent from ${row.status} to held` },
+        error: {
+          code: 'INVALID_TRANSITION',
+          message: `Cannot transition intent from ${row.status} to held`,
+        },
       });
     }
     await intentRepo.updateIntentFields(app.db, id, { status: 'held' });
@@ -266,14 +286,20 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
     }
     if (row.status !== 'held') {
       return reply.status(409).send({
-        error: { code: 'INVALID_TRANSITION', message: `Cannot release intent from status ${row.status}` },
+        error: {
+          code: 'INVALID_TRANSITION',
+          message: `Cannot release intent from status ${row.status}`,
+        },
       });
     }
     const route = await routeRepo.getRoutePlanForIntent(app.db, id);
     const nextStatus = route ? 'routed' : 'quoted';
     if (!canTransitionIntentStatus(row.status, nextStatus)) {
       return reply.status(409).send({
-        error: { code: 'INVALID_TRANSITION', message: `Cannot transition intent from ${row.status} to ${nextStatus}` },
+        error: {
+          code: 'INVALID_TRANSITION',
+          message: `Cannot transition intent from ${row.status} to ${nextStatus}`,
+        },
       });
     }
     await intentRepo.updateIntentFields(app.db, id, { status: nextStatus });
@@ -282,7 +308,10 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
         queue: queue(QUEUE_NAMES.policyEvaluation),
         jobName: 'policy',
         data: { intentId: id },
-        jobOptions: { jobId: `policy-${id}`, ...getDefaultJobOptions(QUEUE_NAMES.policyEvaluation) },
+        jobOptions: {
+          jobId: `policy-${id}`,
+          ...getDefaultJobOptions(QUEUE_NAMES.policyEvaluation),
+        },
         spanName: 'api.intent.release.policy.enqueue',
         attributes: { intentId: id },
       });
@@ -312,11 +341,15 @@ export const intentsRoutes: FastifyPluginAsync = async (app) => {
     const schema = z.object({ routePlanId: z.string().uuid() });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const plan = await routeRepo.getRoutePlanById(app.db, parsed.data.routePlanId);
     if (!plan || plan.intentId !== id) {
-      return reply.status(400).send({ error: { code: 'INVALID_PLAN', message: 'Route plan not found for intent' } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'INVALID_PLAN', message: 'Route plan not found for intent' } });
     }
     await routeOverrideRepo.insertRouteOverride(app.db, {
       intentId: id,

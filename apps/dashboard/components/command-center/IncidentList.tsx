@@ -45,10 +45,7 @@ export function IncidentList({ adapterHealth, recentFailures, chainOk }: Inciden
       kind: 'adapter',
       tone: 'warning',
       title: `Adapter ${d.adapterId} unhealthy`,
-      detail:
-        d.latencyMs != null
-          ? `Last probe at ${d.latencyMs}ms`
-          : 'Last health probe failed.',
+      detail: d.latencyMs != null ? `Last probe at ${d.latencyMs}ms` : 'Last health probe failed.',
       timestamp: d.checkedAt,
     });
   }

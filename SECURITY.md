@@ -10,11 +10,11 @@ The Keeta Agent Stack is in active 0.x pre-release. Security fixes land on
 `main`. Tagged releases will be supported on a rolling-latest basis once
 1.0 ships.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| `main`  | yes                |
-| `0.x`   | best-effort        |
-| `< 0.x` | no                 |
+| Version | Supported   |
+| ------- | ----------- |
+| `main`  | yes         |
+| `0.x`   | best-effort |
+| `< 0.x` | no          |
 
 ## Reporting a Vulnerability
 
@@ -24,7 +24,7 @@ Instead, use one of these private channels:
 
 1. **GitHub Security Advisories** — preferred. Go to the repository's
    [Security tab](https://github.com/IAMKMFA/keeta-agent-stack/security/advisories/new)
-   and click *Report a vulnerability*. This creates a private advisory only
+   and click _Report a vulnerability_. This creates a private advisory only
    the maintainers can read.
 2. **Direct contact** — if you don't have a GitHub account, open an empty
    issue titled `Security contact request` and a maintainer will reach out

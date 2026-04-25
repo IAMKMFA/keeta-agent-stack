@@ -56,7 +56,10 @@ describe('rail metadata catalog', () => {
     expect(fiatPush.length).toBeGreaterThan(5);
     expect(fiatPush.every((r) => r.transport === 'fiat-push')).toBe(true);
 
-    const productionCrypto = listBuiltinRailsByTransport({ transports: ['crypto'], productionOnly: true });
+    const productionCrypto = listBuiltinRailsByTransport({
+      transports: ['crypto'],
+      productionOnly: true,
+    });
     expect(productionCrypto.every((r) => r.production && r.transport === 'crypto')).toBe(true);
     expect(productionCrypto.some((r) => r.id === 'anchor-evm-send')).toBe(true);
   });

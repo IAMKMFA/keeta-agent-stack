@@ -23,7 +23,12 @@ export interface KeetaPublishReceipt {
 }
 
 function blockHashToString(h: unknown): string {
-  if (h && typeof h === 'object' && 'toString' in h && typeof (h as { toString: () => string }).toString === 'function') {
+  if (
+    h &&
+    typeof h === 'object' &&
+    'toString' in h &&
+    typeof (h as { toString: () => string }).toString === 'function'
+  ) {
     return (h as { toString: () => string }).toString();
   }
   return String(h);
@@ -100,10 +105,7 @@ export async function sendTransferWithUserClientWithRetry(
       return await sendTransferWithUserClient(userClient, params);
     } catch (e) {
       last = e;
-      const retry =
-        e instanceof KeetaConnectionError
-          ? e.retryable
-          : isKeetaErrorRetryable(e);
+      const retry = e instanceof KeetaConnectionError ? e.retryable : isKeetaErrorRetryable(e);
       if (!retry || i === maxAttempts - 1) throw e;
       await sleep(baseDelayMs * 2 ** i);
     }
@@ -123,14 +125,19 @@ export async function buildTransferTx(tx: UnsignedTransfer): Promise<Uint8Array>
 
 export async function submitTx(_signed: Uint8Array): Promise<{ txId: string }> {
   void _signed;
-  throw new Error('submitTx is not used for Keeta — use sendTransferWithUserClient from the worker');
+  throw new Error(
+    'submitTx is not used for Keeta — use sendTransferWithUserClient from the worker'
+  );
 }
 
 /**
  * Not supported for Keeta native transfers: the SDK signs via `Account`, not arbitrary payloads.
  * Use {@link sendTransferWithUserClient} in the worker instead.
  */
-export async function signAndSubmit(_tx: UnsignedTransfer, _signer: Signer): Promise<{ txId: string }> {
+export async function signAndSubmit(
+  _tx: UnsignedTransfer,
+  _signer: Signer
+): Promise<{ txId: string }> {
   void _tx;
   void _signer;
   throw new Error(

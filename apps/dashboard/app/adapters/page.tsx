@@ -40,9 +40,7 @@ export default async function Page() {
         </StatusPill>
       ),
       latency: health?.latencyMs ?? '—',
-      checked: (
-        <span className="font-mono text-xs">{formatDateTime(health?.checkedAt)}</span>
-      ),
+      checked: <span className="font-mono text-xs">{formatDateTime(health?.checkedAt)}</span>,
       note: health?.message ?? '—',
     };
   });
@@ -62,12 +60,7 @@ export default async function Page() {
           value={formatNumber(adapters.length)}
           hint="Registry entries"
         />
-        <Kpi
-          label="Healthy"
-          value={formatNumber(healthy)}
-          hint="Latest health check"
-          trend="up"
-        />
+        <Kpi label="Healthy" value={formatNumber(healthy)} hint="Latest health check" trend="up" />
         <Kpi
           label="Degraded"
           value={formatNumber(Math.max(healthRows.length - healthy, 0))}

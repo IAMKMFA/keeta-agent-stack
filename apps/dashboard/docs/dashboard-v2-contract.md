@@ -15,19 +15,19 @@ shape/fields for dashboard-v2 use.
 
 Enumerated from [apps/dashboard/app/](../../app) tree.
 
-| Route                | Kind            | Audience today | Notes |
-|----------------------|-----------------|----------------|-------|
-| `/`                  | Server page     | Any            | Loads `/config/modes`, `/health`, `/adapters`, `/intents`, `/routes`, `/executions`, `/simulations`, oracle status. |
-| `/adapters`          | Server page     | Any            | |
-| `/anchors`           | Server page     | Any            | |
-| `/executions`        | Server page     | Any            | |
-| `/intents`           | Server page     | Any            | |
-| `/ops`               | Server page     | Operator-ish   | Pulls `/ops/metrics`; requires server-only `OPS_API_KEY`. |
-| `/routes`            | Server page     | Any            | |
-| `/simulations`       | Server page     | Any            | |
-| `/templates`         | Server page     | Any            | |
-| `/wallets`           | Server page     | Any            | |
-| `/api/events/stream` | Route handler   | Any            | Server-side SSE proxy to API `/events/stream`; forwards `x-ops-key` if `OPS_API_KEY` is set. |
+| Route                | Kind          | Audience today | Notes                                                                                                               |
+| -------------------- | ------------- | -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `/`                  | Server page   | Any            | Loads `/config/modes`, `/health`, `/adapters`, `/intents`, `/routes`, `/executions`, `/simulations`, oracle status. |
+| `/adapters`          | Server page   | Any            |                                                                                                                     |
+| `/anchors`           | Server page   | Any            |                                                                                                                     |
+| `/executions`        | Server page   | Any            |                                                                                                                     |
+| `/intents`           | Server page   | Any            |                                                                                                                     |
+| `/ops`               | Server page   | Operator-ish   | Pulls `/ops/metrics`; requires server-only `OPS_API_KEY`.                                                           |
+| `/routes`            | Server page   | Any            |                                                                                                                     |
+| `/simulations`       | Server page   | Any            |                                                                                                                     |
+| `/templates`         | Server page   | Any            |                                                                                                                     |
+| `/wallets`           | Server page   | Any            |                                                                                                                     |
+| `/api/events/stream` | Route handler | Any            | Server-side SSE proxy to API `/events/stream`; forwards `x-ops-key` if `OPS_API_KEY` is set.                        |
 
 Shared components: [components/Shell.tsx](../../components/Shell.tsx),
 [components/StatusCard.tsx](../../components/StatusCard.tsx),
@@ -47,49 +47,49 @@ Verified by grepping [apps/api/src/routes/](../../../api/src/routes).
 
 ### Unauthenticated / open
 
-| Route             | File                                                            |
-|-------------------|-----------------------------------------------------------------|
-| `GET /health`     | [health.ts](../../../api/src/routes/health.ts)                  |
-| `GET /adapters`   | [adapters.ts](../../../api/src/routes/adapters.ts)              |
-| `GET /config/modes` | [config-modes.ts](../../../api/src/routes/config-modes.ts)    |
-| `GET /chain/health` | [chain.ts](../../../api/src/routes/chain.ts)                  |
-| `GET /openapi.json` | [openapi.ts](../../../api/src/routes/openapi.ts)              |
+| Route               | File                                                       |
+| ------------------- | ---------------------------------------------------------- |
+| `GET /health`       | [health.ts](../../../api/src/routes/health.ts)             |
+| `GET /adapters`     | [adapters.ts](../../../api/src/routes/adapters.ts)         |
+| `GET /config/modes` | [config-modes.ts](../../../api/src/routes/config-modes.ts) |
+| `GET /chain/health` | [chain.ts](../../../api/src/routes/chain.ts)               |
+| `GET /openapi.json` | [openapi.ts](../../../api/src/routes/openapi.ts)           |
 
 ### `viewer`+ (JWT or ops key)
 
-| Route                             | File                                                            |
-|-----------------------------------|-----------------------------------------------------------------|
-| `GET /intents`                    | [intents.ts](../../../api/src/routes/intents.ts)                |
-| `GET /intents/:id`                | intents.ts                                                      |
-| `GET /routes`                     | [routes.ts](../../../api/src/routes/routes.ts)                  |
-| `GET /executions`                 | [executions.ts](../../../api/src/routes/executions.ts)          |
-| `GET /simulations` `GET /simulations/:id` | [simulations.ts](../../../api/src/routes/simulations.ts) |
-| `GET /wallets` `GET /wallets/:id/balances` | [wallets.ts](../../../api/src/routes/wallets.ts)       |
-| `GET /anchors` `GET /anchors/:id` | [anchors.ts](../../../api/src/routes/anchors.ts)                |
-| `GET /strategy-templates`         | [templates.ts](../../../api/src/routes/templates.ts)            |
-| `GET /events` `GET /events/stream` | [events.ts](../../../api/src/routes/events.ts)                 |
-| `GET /policy/rules` `GET /policy/packs` | [policy-admin.ts](../../../api/src/routes/policy-admin.ts) |
-| `GET /ops/webhooks` `GET /ops/webhook-deliveries` | [webhooks.ts](../../../api/src/routes/webhooks.ts) |
-| `GET /oracle/*`                   | [oracle.ts](../../../api/src/routes/oracle.ts)                  |
+| Route                                             | File                                                       |
+| ------------------------------------------------- | ---------------------------------------------------------- |
+| `GET /intents`                                    | [intents.ts](../../../api/src/routes/intents.ts)           |
+| `GET /intents/:id`                                | intents.ts                                                 |
+| `GET /routes`                                     | [routes.ts](../../../api/src/routes/routes.ts)             |
+| `GET /executions`                                 | [executions.ts](../../../api/src/routes/executions.ts)     |
+| `GET /simulations` `GET /simulations/:id`         | [simulations.ts](../../../api/src/routes/simulations.ts)   |
+| `GET /wallets` `GET /wallets/:id/balances`        | [wallets.ts](../../../api/src/routes/wallets.ts)           |
+| `GET /anchors` `GET /anchors/:id`                 | [anchors.ts](../../../api/src/routes/anchors.ts)           |
+| `GET /strategy-templates`                         | [templates.ts](../../../api/src/routes/templates.ts)       |
+| `GET /events` `GET /events/stream`                | [events.ts](../../../api/src/routes/events.ts)             |
+| `GET /policy/rules` `GET /policy/packs`           | [policy-admin.ts](../../../api/src/routes/policy-admin.ts) |
+| `GET /ops/webhooks` `GET /ops/webhook-deliveries` | [webhooks.ts](../../../api/src/routes/webhooks.ts)         |
+| `GET /oracle/*`                                   | [oracle.ts](../../../api/src/routes/oracle.ts)             |
 
 ### `operator`+ (JWT operator or ops key)
 
-| Route                                  | Notes |
-|----------------------------------------|-------|
-| `GET /ops/metrics`                     | Metric samples; 500-row cap. |
-| `POST /intents` / `POST /intents/:id/{quote,route,policy,execute,hold,release,approve}` | Full pipeline. |
+| Route                                                                                   | Notes                        |
+| --------------------------------------------------------------------------------------- | ---------------------------- |
+| `GET /ops/metrics`                                                                      | Metric samples; 500-row cap. |
+| `POST /intents` / `POST /intents/:id/{quote,route,policy,execute,hold,release,approve}` | Full pipeline.               |
 
 ### `admin` (JWT admin only; bypass token where explicitly allowed)
 
-| Route                                                | Notes |
-|------------------------------------------------------|-------|
-| `POST /ops/strategies/:id/pause`                     | |
-| `POST /ops/strategies/:id/unpause`                   | |
-| `GET|PUT|DELETE /ops/strategies/:id/policy-pack`     | |
-| `POST|PATCH|DELETE /policy/packs*`                   | |
-| `POST /policy/evaluate`                              | `allowAdminBypassToken: true`. |
-| `POST /ops/webhooks` `PATCH /ops/webhooks/:id`       | |
-| `POST /anchors` `POST /anchors/reconcile` `POST /anchors/onboarding/run` `PATCH /anchors/:id` `POST /anchors/:id/status` `PATCH /anchors/:id/bond` | |
+| Route                                                                                                                                              | Notes                          |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------------- | --- |
+| `POST /ops/strategies/:id/pause`                                                                                                                   |                                |
+| `POST /ops/strategies/:id/unpause`                                                                                                                 |                                |
+| `GET                                                                                                                                               | PUT                            | DELETE /ops/strategies/:id/policy-pack` |     |
+| `POST                                                                                                                                              | PATCH                          | DELETE /policy/packs\*`                 |     |
+| `POST /policy/evaluate`                                                                                                                            | `allowAdminBypassToken: true`. |
+| `POST /ops/webhooks` `PATCH /ops/webhooks/:id`                                                                                                     |                                |
+| `POST /anchors` `POST /anchors/reconcile` `POST /anchors/onboarding/run` `PATCH /anchors/:id` `POST /anchors/:id/status` `PATCH /anchors/:id/bond` |                                |
 
 ### Kill switch
 
@@ -159,15 +159,15 @@ export type DashboardRole = 'admin' | 'operator' | 'tenant' | 'exec' | 'anonymou
 
 Derivation from today's principal:
 
-| Principal                                              | DashboardRole |
-|--------------------------------------------------------|---------------|
-| JWT with role `admin`                                  | `admin`       |
-| JWT with role `operator`                               | `operator`    |
-| JWT with custom claim `dashboard_role=tenant` + `tenant_id` | `tenant`  |
-| JWT with custom claim `dashboard_role=exec`            | `exec`        |
-| JWT with only `viewer` and no `dashboard_role` claim   | `exec` (treat viewer-only JWTs as read-only exec by default) |
-| ops-key / admin-token                                  | not a dashboard viewer identity; never returned by `/me` |
-| missing auth                                           | `anonymous`   |
+| Principal                                                   | DashboardRole                                                |
+| ----------------------------------------------------------- | ------------------------------------------------------------ |
+| JWT with role `admin`                                       | `admin`                                                      |
+| JWT with role `operator`                                    | `operator`                                                   |
+| JWT with custom claim `dashboard_role=tenant` + `tenant_id` | `tenant`                                                     |
+| JWT with custom claim `dashboard_role=exec`                 | `exec`                                                       |
+| JWT with only `viewer` and no `dashboard_role` claim        | `exec` (treat viewer-only JWTs as read-only exec by default) |
+| ops-key / admin-token                                       | not a dashboard viewer identity; never returned by `/me`     |
+| missing auth                                                | `anonymous`                                                  |
 
 JWT claim schema for Phase A's `/me`:
 
@@ -175,8 +175,8 @@ JWT claim schema for Phase A's `/me`:
 {
   "sub": "user_123",
   "role": "operator",
-  "dashboard_role": "operator",       // optional override for exec/tenant
-  "tenant_id": "tenant_abc",          // required when dashboard_role === 'tenant'
+  "dashboard_role": "operator", // optional override for exec/tenant
+  "tenant_id": "tenant_abc", // required when dashboard_role === 'tenant'
   "scopes": ["ops:read", "ops:write", "kill_switch:write"],
   "name": "Jane Operator"
 }
@@ -186,12 +186,17 @@ JWT claim schema for Phase A's `/me`:
 
 ```ts
 export type Capability =
-  | 'ops:read'     | 'ops:write'
-  | 'tenant:read'  | 'tenant:write'
+  | 'ops:read'
+  | 'ops:write'
+  | 'tenant:read'
+  | 'tenant:write'
   | 'exec:read'
-  | 'kill_switch:read' | 'kill_switch:write'
-  | 'webhooks:read'    | 'webhooks:write'
-  | 'policy:read'      | 'policy:write'
+  | 'kill_switch:read'
+  | 'kill_switch:write'
+  | 'webhooks:read'
+  | 'webhooks:write'
+  | 'policy:read'
+  | 'policy:write'
   | 'rails:read';
 ```
 
@@ -209,20 +214,20 @@ Reconciled with [.env.example](../../../../.env.example) and
 
 ### Dashboard (`apps/dashboard`)
 
-| Var                                    | Public? | Purpose |
-|----------------------------------------|---------|---------|
-| `NEXT_PUBLIC_API_URL`                  | Public  | Base URL used by the server and, via `lib/api.ts`, the browser. Non-sensitive. |
-| `OPS_API_KEY`                          | Server-only | Service credential forwarded to backend ops routes as `x-ops-key`. Used in `app/ops/page.tsx` and `app/api/events/stream/route.ts`. Must never leak to the browser bundle. |
-| `API_URL`                              | Server-only | Fallback used by `app/api/events/stream/route.ts` when `NEXT_PUBLIC_API_URL` is absent. |
-| `KEETA_EXPLORER_TX_URL_TEMPLATE`       | Server-only | Used to format explorer links. Non-sensitive; could move to public if needed. |
-| `NEXT_PUBLIC_KEETA_EXPLORER_TX_URL_TEMPLATE` | Public | Backup of above. Non-sensitive. |
+| Var                                          | Public?     | Purpose                                                                                                                                                                    |
+| -------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`                        | Public      | Base URL used by the server and, via `lib/api.ts`, the browser. Non-sensitive.                                                                                             |
+| `OPS_API_KEY`                                | Server-only | Service credential forwarded to backend ops routes as `x-ops-key`. Used in `app/ops/page.tsx` and `app/api/events/stream/route.ts`. Must never leak to the browser bundle. |
+| `API_URL`                                    | Server-only | Fallback used by `app/api/events/stream/route.ts` when `NEXT_PUBLIC_API_URL` is absent.                                                                                    |
+| `KEETA_EXPLORER_TX_URL_TEMPLATE`             | Server-only | Used to format explorer links. Non-sensitive; could move to public if needed.                                                                                              |
+| `NEXT_PUBLIC_KEETA_EXPLORER_TX_URL_TEMPLATE` | Public      | Backup of above. Non-sensitive.                                                                                                                                            |
 
 Planned additions for v2:
 
-| Var                     | Public? | Purpose |
-|-------------------------|---------|---------|
-| `DASHBOARD_V2_ENABLED`  | **Server-only** | Gate new v2 routes/nav. Client components receive a safe boolean only. |
-| `AUTH_COOKIE_NAME`      | Server-only | Name of the session cookie forwarded to `/me`. Defaults to `keeta_session`. |
+| Var                    | Public?         | Purpose                                                                     |
+| ---------------------- | --------------- | --------------------------------------------------------------------------- |
+| `DASHBOARD_V2_ENABLED` | **Server-only** | Gate new v2 routes/nav. Client components receive a safe boolean only.      |
+| `AUTH_COOKIE_NAME`     | Server-only     | Name of the session cookie forwarded to `/me`. Defaults to `keeta_session`. |
 
 No `NEXT_PUBLIC_DASHBOARD_V2`. No `NEXT_PUBLIC_OPS_*`. No public flags that
 gate security-sensitive surfaces.
@@ -273,14 +278,14 @@ requests.
 
 ## 6. New backend endpoints required by dashboard v2
 
-| Endpoint                                                    | Status | Required by |
-|-------------------------------------------------------------|--------|-------------|
-| `GET /me`                                                   | NEW    | Phase A     |
-| `GET /ops/kill-switch` `POST /ops/kill-switch`              | NEW    | Phase B (Command Center) |
-| `GET /anchors/health`                                       | NEW    | Phase D (Anchor & Bond Health) |
-| `GET /ops/fees/aggregate`                                   | NEW (see §7) | Phase D (Cost & Fees) |
-| `GET /intents?tenantId=...` (with backend enforcement)      | EXTEND | Phase E (Tenant surfaces) |
-| `GET /wallets?tenantId=...` (with backend enforcement)      | EXTEND | Phase E (Tenant surfaces) |
+| Endpoint                                               | Status       | Required by                    |
+| ------------------------------------------------------ | ------------ | ------------------------------ |
+| `GET /me`                                              | NEW          | Phase A                        |
+| `GET /ops/kill-switch` `POST /ops/kill-switch`         | NEW          | Phase B (Command Center)       |
+| `GET /anchors/health`                                  | NEW          | Phase D (Anchor & Bond Health) |
+| `GET /ops/fees/aggregate`                              | NEW (see §7) | Phase D (Cost & Fees)          |
+| `GET /intents?tenantId=...` (with backend enforcement) | EXTEND       | Phase E (Tenant surfaces)      |
+| `GET /wallets?tenantId=...` (with backend enforcement) | EXTEND       | Phase E (Tenant surfaces)      |
 
 **Guard rule**: phases that depend on a `NEW` endpoint must not build UI
 until the endpoint lands. Phase D's Cost page in particular is blocked by §7.
@@ -304,11 +309,11 @@ There is **no dedicated fee column** on `executions` or a separate
 Aggregating fees server-side requires one of:
 
 1. **Extract fees to a generated column** — add `executions.fee_amount
-   numeric` and `executions.fee_currency text` populated via a DB trigger or
+numeric` and `executions.fee_currency text` populated via a DB trigger or
    worker write path, then index on `(created_at, adapter_id)`.
 2. **Materialized view** — nightly refresh of
    `execution_fee_aggregates_daily(bucket, adapter_id, rail, asset, count,
-   total_fee, p50_fee, p95_fee)`, refreshed by a worker job.
+total_fee, p50_fee, p95_fee)`, refreshed by a worker job.
 3. **On-the-fly json extraction** — scan `executions` with
    `(receipt->'fee'->>'amount')::numeric` aggregates. **Only viable for
    small windows** and requires a new index on `created_at`.
@@ -391,38 +396,38 @@ Phase A can begin.
 
 ### New backend endpoints shipped
 
-| Endpoint                    | File                                       | Phase |
-|-----------------------------|--------------------------------------------|-------|
-| `GET /me`                   | `apps/api/src/routes/me.ts`                | A     |
-| `GET /policy/decisions`     | `apps/api/src/routes/policy-admin.ts`      | C     |
-| `GET /rails/catalog`        | `apps/api/src/routes/rails.ts`             | D     |
-| `GET /anchors/health`       | `apps/api/src/routes/anchors.ts`           | D     |
-| `GET /ops/fees/aggregate`   | `apps/api/src/routes/fees.ts`              | D     |
-| `GET /ops/dashboard-summary` | `apps/api/src/routes/ops.ts`              | V3    |
-| `GET /ops/agents`            | `apps/api/src/routes/ops.ts`              | V3    |
-| `GET /ops/agents/:id`        | `apps/api/src/routes/ops.ts`              | V3    |
+| Endpoint                     | File                                  | Phase |
+| ---------------------------- | ------------------------------------- | ----- |
+| `GET /me`                    | `apps/api/src/routes/me.ts`           | A     |
+| `GET /policy/decisions`      | `apps/api/src/routes/policy-admin.ts` | C     |
+| `GET /rails/catalog`         | `apps/api/src/routes/rails.ts`        | D     |
+| `GET /anchors/health`        | `apps/api/src/routes/anchors.ts`      | D     |
+| `GET /ops/fees/aggregate`    | `apps/api/src/routes/fees.ts`         | D     |
+| `GET /ops/dashboard-summary` | `apps/api/src/routes/ops.ts`          | V3    |
+| `GET /ops/agents`            | `apps/api/src/routes/ops.ts`          | V3    |
+| `GET /ops/agents/:id`        | `apps/api/src/routes/ops.ts`          | V3    |
 
 ### New dashboard routes shipped
 
-| Route                         | Role gate                      | Capability gate |
-|-------------------------------|--------------------------------|-----------------|
-| `/` (redirect)                | any authenticated              | — (role-based)  |
-| `/dashboard`                  | admin, operator                | `ops:read`      |
-| `/command-center`             | admin, operator                | `ops:read`      |
-| `/live`                       | admin, operator                | `ops:read`      |
-| `/policy`                     | admin, operator                | `policy:read`   |
-| `/policy/builder`             | admin, operator                | `policy:read`   |
-| `/agents`                     | admin, operator                | `ops:read`      |
-| `/agents/[id]`                 | admin, operator                | `ops:read`      |
-| `/simulate`                    | admin, operator                | `ops:read`      |
-| `/backtest`                    | admin, operator                | `ops:read`      |
-| `/anchors-health`             | admin, operator                | `ops:read`      |
-| `/webhooks`                   | admin, operator                | `webhooks:read` |
-| `/cost`                       | admin, operator                | `ops:read`      |
-| `/overview`                   | admin, operator, exec          | `exec:read`     |
-| `/home`                       | admin, operator, tenant        | `tenant:read`   |
-| `/rails`                      | admin, operator, tenant, exec  | `rails:read`    |
-| `/forbidden`, `/login`        | any                            | —               |
+| Route                  | Role gate                     | Capability gate |
+| ---------------------- | ----------------------------- | --------------- |
+| `/` (redirect)         | any authenticated             | — (role-based)  |
+| `/dashboard`           | admin, operator               | `ops:read`      |
+| `/command-center`      | admin, operator               | `ops:read`      |
+| `/live`                | admin, operator               | `ops:read`      |
+| `/policy`              | admin, operator               | `policy:read`   |
+| `/policy/builder`      | admin, operator               | `policy:read`   |
+| `/agents`              | admin, operator               | `ops:read`      |
+| `/agents/[id]`         | admin, operator               | `ops:read`      |
+| `/simulate`            | admin, operator               | `ops:read`      |
+| `/backtest`            | admin, operator               | `ops:read`      |
+| `/anchors-health`      | admin, operator               | `ops:read`      |
+| `/webhooks`            | admin, operator               | `webhooks:read` |
+| `/cost`                | admin, operator               | `ops:read`      |
+| `/overview`            | admin, operator, exec         | `exec:read`     |
+| `/home`                | admin, operator, tenant       | `tenant:read`   |
+| `/rails`               | admin, operator, tenant, exec | `rails:read`    |
+| `/forbidden`, `/login` | any                           | —               |
 
 All operator/admin/exec/tenant pages are wrapped in role-gated route groups
 (`apps/dashboard/app/(authenticated)/(operator|exec|tenant)/layout.tsx`).
@@ -449,13 +454,13 @@ logic; live route guards are exercised through server components that call
 
 ### Environment variable rollout
 
-| Var                           | Where           | Purpose                                   |
-|-------------------------------|-----------------|-------------------------------------------|
-| `DASHBOARD_V2_ENABLED`        | Server only     | Rollout boolean; default `true`.          |
-| `DASHBOARD_DEV_VIEWER_ROLE`   | Server only     | Dev override; ignored in production.      |
-| `OPS_API_KEY`                 | Server only     | Service credential for privileged ops API calls. |
-| `API_URL`                     | Server only     | Upstream Fastify base URL.                |
-| `KEETA_EXPLORER_TX_URL_TEMPLATE` | Server/public | Explorer link template.                   |
+| Var                              | Where         | Purpose                                          |
+| -------------------------------- | ------------- | ------------------------------------------------ |
+| `DASHBOARD_V2_ENABLED`           | Server only   | Rollout boolean; default `true`.                 |
+| `DASHBOARD_DEV_VIEWER_ROLE`      | Server only   | Dev override; ignored in production.             |
+| `OPS_API_KEY`                    | Server only   | Service credential for privileged ops API calls. |
+| `API_URL`                        | Server only   | Upstream Fastify base URL.                       |
+| `KEETA_EXPLORER_TX_URL_TEMPLATE` | Server/public | Explorer link template.                          |
 
 No `NEXT_PUBLIC_DASHBOARD_V2` is used. No new `NEXT_PUBLIC_*` secrets were introduced.
 
@@ -510,7 +515,7 @@ search-and-replace follow-up.
   non-httpOnly client-readable `dashboard_csrf_client` cookie on first render,
   signed with the server-only `DASHBOARD_CSRF_SECRET`.
 - Today, only the kill-switch mutation routes exist; they return `501 Not
-  Implemented` with `{ error: { code: 'kill_switch_backend_pending' } }`
+Implemented` with `{ error: { code: 'kill_switch_backend_pending' } }`
   until the backend endpoint lands (see §8).
 
 ### Feature-flag behavior (A5)
@@ -541,12 +546,12 @@ search-and-replace follow-up.
   is explicitly designed for long-lived caching (currently none are). The
   following endpoints have been audited and are confirmed no-store:
 
-  | Endpoint family                                      | Source                                      |
-  |------------------------------------------------------|---------------------------------------------|
-  | `/me`                                                | `apps/dashboard/lib/auth.ts`                |
-  | `/intents`, `/executions`, `/simulations`, `/wallets`, `/anchors`, `/templates`, `/routes`, `/adapters`, `/config/modes`, `/health`, `/oracle/*`, `/policy/*`, `/rails/*`, `/ops/*`, `/anchor-bonds`, `/webhook-deliveries` | `apps/dashboard/lib/api.ts` |
-  | SSE `/api/events/stream`                              | `apps/dashboard/app/api/events/stream/route.ts` |
-  | CSRF-guarded mutations (`/api/ops/kill-switch/*`)    | Dashboard route handlers                    |
+  | Endpoint family                                                                                                                                                                                                             | Source                                          |
+  | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+  | `/me`                                                                                                                                                                                                                       | `apps/dashboard/lib/auth.ts`                    |
+  | `/intents`, `/executions`, `/simulations`, `/wallets`, `/anchors`, `/templates`, `/routes`, `/adapters`, `/config/modes`, `/health`, `/oracle/*`, `/policy/*`, `/rails/*`, `/ops/*`, `/anchor-bonds`, `/webhook-deliveries` | `apps/dashboard/lib/api.ts`                     |
+  | SSE `/api/events/stream`                                                                                                                                                                                                    | `apps/dashboard/app/api/events/stream/route.ts` |
+  | CSRF-guarded mutations (`/api/ops/kill-switch/*`)                                                                                                                                                                           | Dashboard route handlers                        |
 
 - Enforced by an ESLint `no-restricted-syntax` rule that flags bare `fetch(`
   calls outside `apps/dashboard/lib/api.ts`, `apps/dashboard/lib/auth.ts`, and
@@ -581,57 +586,57 @@ Every dashboard→API endpoint covered by Dashboard V2. Columns:
 
 ### 12.1 Viewer identity
 
-| Method / Path | Owner | Status | Roles | Scopes | Tenant scoping | Request | Response | Pagination | Cache | PII | Audit | DB notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `GET /me` | `apps/api/src/routes/me.ts` | EXISTS (Phase A) | jwt only | — (returns the viewer's own scopes) | n/a — `/me` returns the caller's `tenantId` | cookie + `Authorization` forwarded verbatim | `{ role, displayName?, tenantId?, scopes, authType }` validated by `MeResponseSchema` in `apps/dashboard/lib/auth.ts` | none | `no-store` on both sides; memoized per-request via React `cache()` | `displayName` may be a real name | no (identity lookup) | no DB write |
+| Method / Path | Owner                       | Status           | Roles    | Scopes                              | Tenant scoping                              | Request                                     | Response                                                                                                              | Pagination | Cache                                                              | PII                              | Audit                | DB notes    |
+| ------------- | --------------------------- | ---------------- | -------- | ----------------------------------- | ------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------ | -------------------------------- | -------------------- | ----------- |
+| `GET /me`     | `apps/api/src/routes/me.ts` | EXISTS (Phase A) | jwt only | — (returns the viewer's own scopes) | n/a — `/me` returns the caller's `tenantId` | cookie + `Authorization` forwarded verbatim | `{ role, displayName?, tenantId?, scopes, authType }` validated by `MeResponseSchema` in `apps/dashboard/lib/auth.ts` | none       | `no-store` on both sides; memoized per-request via React `cache()` | `displayName` may be a real name | no (identity lookup) | no DB write |
 
 ### 12.2 Real-time stream
 
-| Method / Path | Owner | Status | Roles | Scopes | Tenant scoping | Request | Response | Pagination | Cache | PII | Audit | DB notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `GET /api/events/stream` (dashboard proxy) | `apps/dashboard/app/api/events/stream/route.ts` | EXISTS | admin, operator | `ops:read` | — (ops-only today) | relative only; no direct upstream call from browser (enforced by `check-duplicate-routes.ts`) | `text/event-stream` | infinite; MAX_EVENTS buffer client-side | `Cache-Control: no-cache, no-transform` | events may carry PII (redact before rendering) | stream-level | no DB write |
-| `GET /events/stream` (upstream) | `apps/api/src/routes/events.ts` | EXISTS | viewer+ (API-level) | — | `tenant_id`-filtered topics | `Accept: text/event-stream`; `x-ops-key` when forwarded via proxy | SSE | infinite | `no-store` | same as above | no | relies on `events` table |
+| Method / Path                              | Owner                                           | Status | Roles               | Scopes     | Tenant scoping              | Request                                                                                       | Response            | Pagination                              | Cache                                   | PII                                            | Audit        | DB notes                 |
+| ------------------------------------------ | ----------------------------------------------- | ------ | ------------------- | ---------- | --------------------------- | --------------------------------------------------------------------------------------------- | ------------------- | --------------------------------------- | --------------------------------------- | ---------------------------------------------- | ------------ | ------------------------ |
+| `GET /api/events/stream` (dashboard proxy) | `apps/dashboard/app/api/events/stream/route.ts` | EXISTS | admin, operator     | `ops:read` | — (ops-only today)          | relative only; no direct upstream call from browser (enforced by `check-duplicate-routes.ts`) | `text/event-stream` | infinite; MAX_EVENTS buffer client-side | `Cache-Control: no-cache, no-transform` | events may carry PII (redact before rendering) | stream-level | no DB write              |
+| `GET /events/stream` (upstream)            | `apps/api/src/routes/events.ts`                 | EXISTS | viewer+ (API-level) | —          | `tenant_id`-filtered topics | `Accept: text/event-stream`; `x-ops-key` when forwarded via proxy                             | SSE                 | infinite                                | `no-store`                              | same as above                                  | no           | relies on `events` table |
 
 ### 12.3 Ops / operator surface
 
-| Method / Path | Owner | Status | Roles | Scopes | Tenant scoping | Request | Response | Pagination | Cache | PII | Audit | DB notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `GET /ops/metrics` | `apps/api/src/routes/ops.ts` | EXISTS | operator+ | `ops:read` | — | — | `{ samples: MetricSample[] }` capped at 500 rows | row-cap; no cursor | `no-store` | no | no | reads `metric_samples` |
-| `GET /ops/dashboard-summary` | `apps/api/src/routes/ops.ts` | EXISTS (V3) | operator+ | `ops:read` (dashboard uses `fetchJson` after viewer auth) | — | — | Single JSON payload: agents, intents, executions, policy, adapters, simulations, events, metrics aggregate | — | `no-store` | may include intent/audit refs | no | strategies, intents, executions, policy decisions, sim runs, audit, adapter registry health |
-| `GET /ops/agents` | `apps/api/src/routes/ops.ts` | EXISTS (V3) | operator+ | same | — | — | `{ agents, templates }` (strategy rows) | — | `no-store` | no | no | `strategies` table |
-| `GET /ops/agents/:id` | `apps/api/src/routes/ops.ts` | EXISTS (V3) | operator+ | same | — | — | Agent detail + recent intent/execution status breakdown | — | `no-store` | no | no | `strategies`, `execution_intents`, `executions` |
-| `GET /config/modes` | `apps/api/src/routes/config-modes.ts` | EXISTS | viewer+ | `ops:read` for dashboard use | — | — | `{ liveMode, keetaNetwork, mockAdapters, executionKillSwitch }` | — | `no-store` | no | no | reads `app_modes` table |
-| `GET /ops/kill-switch` | — | PROPOSED | operator+ | `kill_switch:read` | — | — | `{ engaged: boolean, actor?, updatedAt? }` | — | `no-store` | no | no | requires dedicated table or config mutation path |
-| `POST /api/ops/kill-switch/engage` (dashboard proxy) | `apps/dashboard/app/api/ops/kill-switch/engage/route.ts` | EXISTS (501) | admin, operator | `kill_switch:write` | — | JSON `{ confirm: "ENGAGE" }` + `x-dashboard-csrf` header | `501` `{ error: { code: 'kill_switch_backend_pending' } }` until backend lands | — | `no-store` | no | dashboard-level audit via `lib/audit.ts` | — |
-| `POST /api/ops/kill-switch/disengage` (dashboard proxy) | `apps/dashboard/app/api/ops/kill-switch/disengage/route.ts` | EXISTS (501) | admin, operator | `kill_switch:write` | — | JSON `{ confirm: "DISENGAGE" }` + `x-dashboard-csrf` header | `501` as above | — | `no-store` | no | dashboard-level audit | — |
+| Method / Path                                           | Owner                                                       | Status       | Roles           | Scopes                                                    | Tenant scoping | Request                                                     | Response                                                                                                   | Pagination         | Cache      | PII                           | Audit                                    | DB notes                                                                                    |
+| ------------------------------------------------------- | ----------------------------------------------------------- | ------------ | --------------- | --------------------------------------------------------- | -------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------ | ---------- | ----------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `GET /ops/metrics`                                      | `apps/api/src/routes/ops.ts`                                | EXISTS       | operator+       | `ops:read`                                                | —              | —                                                           | `{ samples: MetricSample[] }` capped at 500 rows                                                           | row-cap; no cursor | `no-store` | no                            | no                                       | reads `metric_samples`                                                                      |
+| `GET /ops/dashboard-summary`                            | `apps/api/src/routes/ops.ts`                                | EXISTS (V3)  | operator+       | `ops:read` (dashboard uses `fetchJson` after viewer auth) | —              | —                                                           | Single JSON payload: agents, intents, executions, policy, adapters, simulations, events, metrics aggregate | —                  | `no-store` | may include intent/audit refs | no                                       | strategies, intents, executions, policy decisions, sim runs, audit, adapter registry health |
+| `GET /ops/agents`                                       | `apps/api/src/routes/ops.ts`                                | EXISTS (V3)  | operator+       | same                                                      | —              | —                                                           | `{ agents, templates }` (strategy rows)                                                                    | —                  | `no-store` | no                            | no                                       | `strategies` table                                                                          |
+| `GET /ops/agents/:id`                                   | `apps/api/src/routes/ops.ts`                                | EXISTS (V3)  | operator+       | same                                                      | —              | —                                                           | Agent detail + recent intent/execution status breakdown                                                    | —                  | `no-store` | no                            | no                                       | `strategies`, `execution_intents`, `executions`                                             |
+| `GET /config/modes`                                     | `apps/api/src/routes/config-modes.ts`                       | EXISTS       | viewer+         | `ops:read` for dashboard use                              | —              | —                                                           | `{ liveMode, keetaNetwork, mockAdapters, executionKillSwitch }`                                            | —                  | `no-store` | no                            | no                                       | reads `app_modes` table                                                                     |
+| `GET /ops/kill-switch`                                  | —                                                           | PROPOSED     | operator+       | `kill_switch:read`                                        | —              | —                                                           | `{ engaged: boolean, actor?, updatedAt? }`                                                                 | —                  | `no-store` | no                            | no                                       | requires dedicated table or config mutation path                                            |
+| `POST /api/ops/kill-switch/engage` (dashboard proxy)    | `apps/dashboard/app/api/ops/kill-switch/engage/route.ts`    | EXISTS (501) | admin, operator | `kill_switch:write`                                       | —              | JSON `{ confirm: "ENGAGE" }` + `x-dashboard-csrf` header    | `501` `{ error: { code: 'kill_switch_backend_pending' } }` until backend lands                             | —                  | `no-store` | no                            | dashboard-level audit via `lib/audit.ts` | —                                                                                           |
+| `POST /api/ops/kill-switch/disengage` (dashboard proxy) | `apps/dashboard/app/api/ops/kill-switch/disengage/route.ts` | EXISTS (501) | admin, operator | `kill_switch:write`                                       | —              | JSON `{ confirm: "DISENGAGE" }` + `x-dashboard-csrf` header | `501` as above                                                                                             | —                  | `no-store` | no                            | dashboard-level audit                    | —                                                                                           |
 
 ### 12.4 Policy & rails
 
-| Method / Path | Owner | Status | Roles | Scopes | Tenant scoping | Request | Response | Pagination | Cache | PII | Audit | DB notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `GET /policy/decisions` | `apps/api/src/routes/policy-admin.ts` | EXISTS (Phase C) | operator+ | `policy:read` | tenant viewer forbidden today | `?limit` | `PolicyDecision[]` | limit cap (no cursor yet) | `no-store` | decision detail may reference tenant names | upstream writes audit on mutation routes | reads from `policy_decisions` |
-| `GET /rails/catalog` | `apps/api/src/routes/rails.ts` | EXISTS (Phase D) | any authenticated | `rails:read` | — (catalog is global) | `?transports=crypto,native&productionOnly=true` | `{ rails: RailEntry[] }` | — | `no-store` | no | no | in-memory registry |
+| Method / Path           | Owner                                 | Status           | Roles             | Scopes        | Tenant scoping                | Request                                         | Response                 | Pagination                | Cache      | PII                                        | Audit                                    | DB notes                      |
+| ----------------------- | ------------------------------------- | ---------------- | ----------------- | ------------- | ----------------------------- | ----------------------------------------------- | ------------------------ | ------------------------- | ---------- | ------------------------------------------ | ---------------------------------------- | ----------------------------- |
+| `GET /policy/decisions` | `apps/api/src/routes/policy-admin.ts` | EXISTS (Phase C) | operator+         | `policy:read` | tenant viewer forbidden today | `?limit`                                        | `PolicyDecision[]`       | limit cap (no cursor yet) | `no-store` | decision detail may reference tenant names | upstream writes audit on mutation routes | reads from `policy_decisions` |
+| `GET /rails/catalog`    | `apps/api/src/routes/rails.ts`        | EXISTS (Phase D) | any authenticated | `rails:read`  | — (catalog is global)         | `?transports=crypto,native&productionOnly=true` | `{ rails: RailEntry[] }` | —                         | `no-store` | no                                         | no                                       | in-memory registry            |
 
 ### 12.5 Anchors & bonds
 
-| Method / Path | Owner | Status | Roles | Scopes | Tenant scoping | Request | Response | Pagination | Cache | PII | Audit | DB notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `GET /anchors` | `apps/api/src/routes/anchors.ts` | EXISTS | viewer+ | `ops:read` | — | — | `Anchor[]` | — | `no-store` | operator names / treasury refs may be sensitive | no | reads `anchors` |
-| `GET /anchors/health` | `apps/api/src/routes/anchors.ts` (Phase D) | EXISTS (Phase D) | operator+ | `ops:read` | — | — | `{ totals, anchors: AnchorHealthRow[] }` | — | `no-store` | same | no | aggregates `anchors`, `anchor_bonds`, `anchor_reconciliation` |
-| `GET /anchor-bonds` | `apps/api/src/routes/anchors.ts` | EXISTS | viewer+ | `ops:read` | — | — | `AnchorBond[]` | — | `no-store` | yes | no | reads `anchor_bonds` |
+| Method / Path         | Owner                                      | Status           | Roles     | Scopes     | Tenant scoping | Request | Response                                 | Pagination | Cache      | PII                                             | Audit | DB notes                                                      |
+| --------------------- | ------------------------------------------ | ---------------- | --------- | ---------- | -------------- | ------- | ---------------------------------------- | ---------- | ---------- | ----------------------------------------------- | ----- | ------------------------------------------------------------- |
+| `GET /anchors`        | `apps/api/src/routes/anchors.ts`           | EXISTS           | viewer+   | `ops:read` | —              | —       | `Anchor[]`                               | —          | `no-store` | operator names / treasury refs may be sensitive | no    | reads `anchors`                                               |
+| `GET /anchors/health` | `apps/api/src/routes/anchors.ts` (Phase D) | EXISTS (Phase D) | operator+ | `ops:read` | —              | —       | `{ totals, anchors: AnchorHealthRow[] }` | —          | `no-store` | same                                            | no    | aggregates `anchors`, `anchor_bonds`, `anchor_reconciliation` |
+| `GET /anchor-bonds`   | `apps/api/src/routes/anchors.ts`           | EXISTS           | viewer+   | `ops:read` | —              | —       | `AnchorBond[]`                           | —          | `no-store` | yes                                             | no    | reads `anchor_bonds`                                          |
 
 ### 12.6 Webhooks
 
-| Method / Path | Owner | Status | Roles | Scopes | Tenant scoping | Request | Response | Pagination | Cache | PII | Audit | DB notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `GET /ops/webhooks` | `apps/api/src/routes/webhooks.ts` | EXISTS | viewer+ | `webhooks:read` | filtered by `tenantId` for tenants | — | `WebhookEndpoint[]` | — | `no-store` | URLs are sensitive | no | reads `webhooks` |
-| `GET /ops/webhook-deliveries` | `apps/api/src/routes/webhooks.ts` | EXISTS | viewer+ | `webhooks:read` | same | `?status, ?endpointId, ?limit` | `WebhookDelivery[]` | limit cap | `no-store` | request/response bodies may contain PII — redact before rendering | no | indexed on `(endpoint_id, created_at desc)` |
+| Method / Path                 | Owner                             | Status | Roles   | Scopes          | Tenant scoping                     | Request                        | Response            | Pagination | Cache      | PII                                                               | Audit | DB notes                                    |
+| ----------------------------- | --------------------------------- | ------ | ------- | --------------- | ---------------------------------- | ------------------------------ | ------------------- | ---------- | ---------- | ----------------------------------------------------------------- | ----- | ------------------------------------------- |
+| `GET /ops/webhooks`           | `apps/api/src/routes/webhooks.ts` | EXISTS | viewer+ | `webhooks:read` | filtered by `tenantId` for tenants | —                              | `WebhookEndpoint[]` | —          | `no-store` | URLs are sensitive                                                | no    | reads `webhooks`                            |
+| `GET /ops/webhook-deliveries` | `apps/api/src/routes/webhooks.ts` | EXISTS | viewer+ | `webhooks:read` | same                               | `?status, ?endpointId, ?limit` | `WebhookDelivery[]` | limit cap  | `no-store` | request/response bodies may contain PII — redact before rendering | no    | indexed on `(endpoint_id, created_at desc)` |
 
 ### 12.7 Fees aggregate
 
-| Method / Path | Owner | Status | Roles | Scopes | Tenant scoping | Request | Response | Pagination | Cache | PII | Audit | DB notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `GET /ops/fees/aggregate` | `apps/api/src/routes/fees.ts` | EXISTS (Phase D; on-the-fly JSON extraction) | operator+ | `ops:read` | — today | `?bucket=hour|day|week&groupBy=adapter|asset|status|none&windowDays=1..90` | `{ window, bucket, groupBy, totals, buckets: Bucket[] }` | — | `no-store` | no | no | scans `executions` with `(receipt->'fee'->>'amount')::numeric`; small-window only. §7 decision still pending on materialization. |
+| Method / Path             | Owner                         | Status                                       | Roles     | Scopes     | Tenant scoping | Request       | Response | Pagination           | Cache | PII    | Audit                  | DB notes                                                 |
+| ------------------------- | ----------------------------- | -------------------------------------------- | --------- | ---------- | -------------- | ------------- | -------- | -------------------- | ----- | ------ | ---------------------- | -------------------------------------------------------- | --- | ---------- | --- | --- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /ops/fees/aggregate` | `apps/api/src/routes/fees.ts` | EXISTS (Phase D; on-the-fly JSON extraction) | operator+ | `ops:read` | — today        | `?bucket=hour | day      | week&groupBy=adapter | asset | status | none&windowDays=1..90` | `{ window, bucket, groupBy, totals, buckets: Bucket[] }` | —   | `no-store` | no  | no  | scans `executions` with `(receipt->'fee'->>'amount')::numeric`; small-window only. §7 decision still pending on materialization. |
 
 ### 12.8 Tenant-scoped legacy surfaces
 

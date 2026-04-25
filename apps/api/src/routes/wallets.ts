@@ -71,7 +71,11 @@ export const walletsRoutes: FastifyPluginAsync = async (app) => {
     const parsed = createBody.safeParse(req.body);
     if (!parsed.success) {
       return reply.status(400).send({
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid body', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid body',
+          details: parsed.error.flatten(),
+        },
       });
     }
     if (!(await ensurePolicyPackExists(app, reply, parsed.data.settings?.defaultPolicyPackId))) {
@@ -103,7 +107,11 @@ export const walletsRoutes: FastifyPluginAsync = async (app) => {
     const parsed = importOrCreateBody.safeParse(req.body);
     if (!parsed.success) {
       return reply.status(400).send({
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid body', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid body',
+          details: parsed.error.flatten(),
+        },
       });
     }
     if (!(await ensurePolicyPackExists(app, reply, parsed.data.settings?.defaultPolicyPackId))) {
@@ -151,7 +159,11 @@ export const walletsRoutes: FastifyPluginAsync = async (app) => {
     const parsed = importBody.safeParse(req.body);
     if (!parsed.success) {
       return reply.status(400).send({
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid body', details: parsed.error.flatten() },
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid body',
+          details: parsed.error.flatten(),
+        },
       });
     }
     if (!(await ensurePolicyPackExists(app, reply, parsed.data.settings?.defaultPolicyPackId))) {

@@ -1,9 +1,6 @@
 import { z } from 'zod';
 
-const boolFromEnv = z.preprocess(
-  (v) => v === 'true' || v === '1' || v === true,
-  z.boolean()
-);
+const boolFromEnv = z.preprocess((v) => v === 'true' || v === '1' || v === true, z.boolean());
 
 const keetaNetwork = z.enum(['main', 'staging', 'test', 'dev']).default('test');
 
@@ -23,20 +20,22 @@ const EnvSchema = z.object({
   API_RATE_LIMIT_ALLOWLIST: z
     .string()
     .optional()
-    .transform((value) =>
-      value
-        ?.split(',')
-        .map((entry) => entry.trim())
-        .filter(Boolean) ?? []
+    .transform(
+      (value) =>
+        value
+          ?.split(',')
+          .map((entry) => entry.trim())
+          .filter(Boolean) ?? []
     ),
   API_CORS_ORIGINS: z
     .string()
     .optional()
-    .transform((value) =>
-      value
-        ?.split(',')
-        .map((entry) => entry.trim())
-        .filter(Boolean) ?? []
+    .transform(
+      (value) =>
+        value
+          ?.split(',')
+          .map((entry) => entry.trim())
+          .filter(Boolean) ?? []
     ),
   API_SWAGGER_TRY_IT_OUT_ENABLED: boolFromEnv.optional(),
   LIVE_MODE_ENABLED: boolFromEnv.default(false),
@@ -83,11 +82,12 @@ const EnvSchema = z.object({
   AUTH_JWT_AUDIENCE: z
     .string()
     .optional()
-    .transform((value) =>
-      value
-        ?.split(',')
-        .map((entry) => entry.trim())
-        .filter(Boolean) ?? []
+    .transform(
+      (value) =>
+        value
+          ?.split(',')
+          .map((entry) => entry.trim())
+          .filter(Boolean) ?? []
     ),
   /** Timeout for remote JWKS / OIDC metadata fetches (ms). */
   AUTH_JWT_REMOTE_TIMEOUT_MS: z.coerce.number().int().min(500).default(5_000),

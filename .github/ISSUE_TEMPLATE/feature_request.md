@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Propose a product, API, adapter, or documentation improvement
-title: "[feature] "
+title: '[feature] '
 ---
 
 ## Problem

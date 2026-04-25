@@ -17,8 +17,7 @@ const variantClasses: Record<ButtonVariant, string> = {
     'bg-[var(--keeta-accent)] text-white hover:bg-[var(--keeta-accent-deep)] disabled:bg-[rgba(50,149,144,0.5)]',
   secondary:
     'border border-[var(--keeta-line-strong)] bg-white text-[var(--keeta-ink)] hover:bg-[rgba(50,149,144,0.06)]',
-  ghost:
-    'text-[var(--keeta-ink-subtle)] hover:bg-[rgba(50,149,144,0.08)]',
+  ghost: 'text-[var(--keeta-ink-subtle)] hover:bg-[rgba(50,149,144,0.08)]',
   danger:
     'bg-[var(--keeta-danger)] text-white hover:bg-[#9e2e32] disabled:bg-[rgba(190,63,67,0.5)]',
 };

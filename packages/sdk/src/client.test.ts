@@ -143,9 +143,14 @@ describe('createClient control-plane parity', () => {
     const client = createClient({ baseUrl: 'https://api.example.com', fetchImpl });
 
     await expect(client.getChainHealth()).resolves.toMatchObject({ ok: true, network: 'test' });
-    await expect(client.getConfigModes()).resolves.toMatchObject({ keetaNetwork: 'test', mockAdapters: true });
+    await expect(client.getConfigModes()).resolves.toMatchObject({
+      keetaNetwork: 'test',
+      mockAdapters: true,
+    });
     await expect(client.getStrategyTemplates()).resolves.toHaveLength(1);
-    await expect(client.getOpsMetrics()).resolves.toMatchObject({ samples: [{ name: 'orders_total' }] });
+    await expect(client.getOpsMetrics()).resolves.toMatchObject({
+      samples: [{ name: 'orders_total' }],
+    });
   });
 
   it('creates, lists, updates, and deletes policy packs through the policy admin routes', async () => {
@@ -165,17 +170,23 @@ describe('createClient control-plane parity', () => {
         ]);
       }
       if (url.endsWith('/policy/packs') && init?.method === 'POST') {
-        return jsonResponse({
-          id: '550e8400-e29b-41d4-a716-446655440051',
-          name: 'desk-risk',
-          description: 'Desk policy pack',
-          rules: [],
-          compositions: [],
-          createdAt: now,
-          updatedAt: now,
-        }, 201);
+        return jsonResponse(
+          {
+            id: '550e8400-e29b-41d4-a716-446655440051',
+            name: 'desk-risk',
+            description: 'Desk policy pack',
+            rules: [],
+            compositions: [],
+            createdAt: now,
+            updatedAt: now,
+          },
+          201
+        );
       }
-      if (url.endsWith('/policy/packs/550e8400-e29b-41d4-a716-446655440051') && init?.method === 'PATCH') {
+      if (
+        url.endsWith('/policy/packs/550e8400-e29b-41d4-a716-446655440051') &&
+        init?.method === 'PATCH'
+      ) {
         return jsonResponse({
           id: '550e8400-e29b-41d4-a716-446655440051',
           name: 'desk-risk-v2',
@@ -186,7 +197,10 @@ describe('createClient control-plane parity', () => {
           updatedAt: now,
         });
       }
-      if (url.endsWith('/policy/packs/550e8400-e29b-41d4-a716-446655440051') && init?.method === 'DELETE') {
+      if (
+        url.endsWith('/policy/packs/550e8400-e29b-41d4-a716-446655440051') &&
+        init?.method === 'DELETE'
+      ) {
         return new Response(null, { status: 204 });
       }
       throw new Error(`Unexpected URL: ${url}`);
@@ -208,9 +222,16 @@ describe('createClient control-plane parity', () => {
         description: 'Updated',
       })
     ).resolves.toMatchObject({ name: 'desk-risk-v2' });
-    await expect(client.deletePolicyPack('550e8400-e29b-41d4-a716-446655440051')).resolves.toBeUndefined();
+    await expect(
+      client.deletePolicyPack('550e8400-e29b-41d4-a716-446655440051')
+    ).resolves.toBeUndefined();
 
-    expect(calls.map((call) => call.init?.method ?? 'GET')).toEqual(['GET', 'POST', 'PATCH', 'DELETE']);
+    expect(calls.map((call) => call.init?.method ?? 'GET')).toEqual([
+      'GET',
+      'POST',
+      'PATCH',
+      'DELETE',
+    ]);
   });
 
   it('passes policyPackId through policy preview requests and returns applied-pack metadata', async () => {
@@ -274,15 +295,18 @@ describe('createClient control-plane parity', () => {
     const now = new Date().toISOString();
     const { calls, fetchImpl } = createFetchStub((url, init) => {
       if (url.endsWith('/wallets/import') && init?.method === 'POST') {
-        return jsonResponse({
-          id: '550e8400-e29b-41d4-a716-446655440056',
-          label: 'Desk Wallet',
-          address: 'keeta_abc',
-          settings: {
-            defaultPolicyPackId: '550e8400-e29b-41d4-a716-446655440057',
+        return jsonResponse(
+          {
+            id: '550e8400-e29b-41d4-a716-446655440056',
+            label: 'Desk Wallet',
+            address: 'keeta_abc',
+            settings: {
+              defaultPolicyPackId: '550e8400-e29b-41d4-a716-446655440057',
+            },
+            createdAt: now,
           },
-          createdAt: now,
-        }, 201);
+          201
+        );
       }
       throw new Error(`Unexpected URL: ${url}`);
     });
@@ -302,17 +326,22 @@ describe('createClient control-plane parity', () => {
       },
     });
 
-    expect(calls[0]?.init?.body).toContain('"defaultPolicyPackId":"550e8400-e29b-41d4-a716-446655440057"');
+    expect(calls[0]?.init?.body).toContain(
+      '"defaultPolicyPackId":"550e8400-e29b-41d4-a716-446655440057"'
+    );
   });
 
   it('includes the selected policyPackId on policy enqueue responses', async () => {
     const { calls, fetchImpl } = createFetchStub((url, init) => {
       if (url.endsWith('/intents/intent-2/policy') && init?.method === 'POST') {
-        return jsonResponse({
-          jobId: 'policy-intent-2',
-          queue: 'policy-evaluation',
-          policyPackId: '550e8400-e29b-41d4-a716-446655440058',
-        }, 202);
+        return jsonResponse(
+          {
+            jobId: 'policy-intent-2',
+            queue: 'policy-evaluation',
+            policyPackId: '550e8400-e29b-41d4-a716-446655440058',
+          },
+          202
+        );
       }
       throw new Error(`Unexpected URL: ${url}`);
     });
@@ -328,7 +357,9 @@ describe('createClient control-plane parity', () => {
       policyPackId: '550e8400-e29b-41d4-a716-446655440058',
     });
     expect(calls[0]?.init?.method).toBe('POST');
-    expect(calls[0]?.init?.body).toBe(JSON.stringify({ policyPackId: '550e8400-e29b-41d4-a716-446655440058' }));
+    expect(calls[0]?.init?.body).toBe(
+      JSON.stringify({ policyPackId: '550e8400-e29b-41d4-a716-446655440058' })
+    );
   });
 
   it('gets, sets, and clears a strategy policy pack assignment', async () => {

@@ -30,7 +30,10 @@ function ModeBreakdown({ values }: { values: Record<string, number> }) {
 export default async function DashboardPage() {
   requireV2Enabled();
   const viewer = await requireScope('ops:read');
-  const summary = await fetchJson<DashboardSummary>('/ops/dashboard-summary', emptyDashboardSummary);
+  const summary = await fetchJson<DashboardSummary>(
+    '/ops/dashboard-summary',
+    emptyDashboardSummary
+  );
   const apiReady = isApiConfigured();
 
   return (
@@ -45,7 +48,9 @@ export default async function DashboardPage() {
               {apiReady ? 'API linked' : 'API missing'}
             </StatusPill>
             <StatusPill tone={summary.adapters.degraded === 0 ? 'success' : 'danger'}>
-              {summary.adapters.degraded === 0 ? 'Adapters healthy' : `${summary.adapters.degraded} degraded`}
+              {summary.adapters.degraded === 0
+                ? 'Adapters healthy'
+                : `${summary.adapters.degraded} degraded`}
             </StatusPill>
             <StatusPill tone="neutral">Updated {formatDateTime(summary.generatedAt)}</StatusPill>
           </>
@@ -74,13 +79,21 @@ export default async function DashboardPage() {
           value={formatNumber(summary.executions.successRate, 1)}
           unit="%"
           hint={`${formatNumber(summary.executions.succeeded)} succeeded · ${formatNumber(summary.executions.failed)} failed`}
-          trend={summary.executions.successRate >= 95 ? 'up' : summary.executions.successRate >= 80 ? 'flat' : 'down'}
+          trend={
+            summary.executions.successRate >= 95
+              ? 'up'
+              : summary.executions.successRate >= 80
+                ? 'flat'
+                : 'down'
+          }
         />
         <Kpi
           label="Policy denials"
           value={formatNumber(summary.policy.blocked)}
           hint={`${formatNumber(summary.policy.blockRate, 1)}% block rate`}
-          trend={summary.policy.blockRate < 5 ? 'up' : summary.policy.blockRate < 15 ? 'flat' : 'down'}
+          trend={
+            summary.policy.blockRate < 5 ? 'up' : summary.policy.blockRate < 15 ? 'flat' : 'down'
+          }
         />
         <Kpi
           label="Simulations"
@@ -159,7 +172,10 @@ export default async function DashboardPage() {
               <span className="text-[var(--keeta-muted)]">Blocked</span>
               <span className="font-mono">{formatNumber(summary.policy.blocked)}</span>
             </div>
-            <Link href="/policy/builder" className="inline-flex text-sm font-medium text-[var(--keeta-accent-deep)]">
+            <Link
+              href="/policy/builder"
+              className="inline-flex text-sm font-medium text-[var(--keeta-accent-deep)]"
+            >
               Open builder foundation
             </Link>
           </div>
@@ -167,13 +183,22 @@ export default async function DashboardPage() {
 
         <Card kicker="Risk" title="What to inspect next">
           <div className="space-y-2 text-sm text-[var(--keeta-ink-subtle)]">
-            <Link href="/backtest" className="block rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3">
+            <Link
+              href="/backtest"
+              className="block rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3"
+            >
               Backtest historical intents
             </Link>
-            <Link href="/webhooks" className="block rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3">
+            <Link
+              href="/webhooks"
+              className="block rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3"
+            >
               Review webhook delivery health
             </Link>
-            <Link href="/cost" className="block rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3">
+            <Link
+              href="/cost"
+              className="block rounded-xl border border-[var(--keeta-line)] bg-white/70 p-3"
+            >
               Inspect fees and cost drift
             </Link>
           </div>

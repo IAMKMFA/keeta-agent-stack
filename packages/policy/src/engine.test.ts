@@ -63,7 +63,10 @@ describe('PolicyEngine', () => {
       })
     );
 
-    expect(engine.listRules().map((rule) => rule.ruleId)).toEqual(['high_priority', 'low_priority']);
+    expect(engine.listRules().map((rule) => rule.ruleId)).toEqual([
+      'high_priority',
+      'low_priority',
+    ]);
     expect(engine.unregister('high_priority')).toBe(true);
     expect(engine.listRules().map((rule) => rule.ruleId)).toEqual(['low_priority']);
   });
@@ -242,7 +245,10 @@ describe('PolicyEngine', () => {
 
     const decision = engine.evaluate(createContext());
     expect(decision.allowed).toBe(true);
-    expect(decision.contributions.map((contribution) => contribution.ruleId)).toEqual(['corridor_all', 'corridor_any']);
+    expect(decision.contributions.map((contribution) => contribution.ruleId)).toEqual([
+      'corridor_all',
+      'corridor_any',
+    ]);
     expect(decision.contributions.every((contribution) => contribution.passed)).toBe(true);
   });
 

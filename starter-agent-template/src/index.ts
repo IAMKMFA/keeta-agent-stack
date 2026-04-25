@@ -9,9 +9,8 @@ async function main(): Promise<void> {
 
   const agent = buildAgent({ apiUrl, apiToken });
 
-  const intent = intentKind === 'rebalance'
-    ? buildRebalanceIntent(walletId)
-    : buildPaymentIntent(walletId);
+  const intent =
+    intentKind === 'rebalance' ? buildRebalanceIntent(walletId) : buildPaymentIntent(walletId);
 
   const result = await agent.execute(intent);
   console.log(JSON.stringify({ stage: 'agent.result', kind: result.kind, result }, null, 2));

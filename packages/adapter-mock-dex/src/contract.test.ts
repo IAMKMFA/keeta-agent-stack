@@ -24,7 +24,8 @@ describe('MockDexAdapter price feed', () => {
       feeBps: 0,
       maxSlippageBps: 0,
       failureRate: 0,
-      priceFeed: ({ baseAsset, quoteAsset }) => (baseAsset === 'KTA' && quoteAsset === 'USDC' ? 2 : 1),
+      priceFeed: ({ baseAsset, quoteAsset }) =>
+        baseAsset === 'KTA' && quoteAsset === 'USDC' ? 2 : 1,
     });
 
     const quote = await priced.getQuote({

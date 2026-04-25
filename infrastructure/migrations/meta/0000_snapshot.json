@@ -42,9 +42,7 @@
         "wallets_address_unique": {
           "name": "wallets_address_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "address"
-          ]
+          "columns": ["address"]
         }
       },
       "policies": {},
@@ -89,9 +87,7 @@
         "assets_symbol_unique": {
           "name": "assets_symbol_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "symbol"
-          ]
+          "columns": ["symbol"]
         }
       },
       "policies": {},
@@ -195,12 +191,8 @@
           "name": "execution_intents_strategy_id_strategies_id_fk",
           "tableFrom": "execution_intents",
           "tableTo": "strategies",
-          "columnsFrom": [
-            "strategy_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["strategy_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -208,12 +200,8 @@
           "name": "execution_intents_wallet_id_wallets_id_fk",
           "tableFrom": "execution_intents",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -267,12 +255,8 @@
           "name": "quotes_intent_id_execution_intents_id_fk",
           "tableFrom": "quotes",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -326,12 +310,8 @@
           "name": "route_plans_intent_id_execution_intents_id_fk",
           "tableFrom": "route_plans",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -384,12 +364,8 @@
           "name": "route_steps_plan_id_route_plans_id_fk",
           "tableFrom": "route_steps",
           "tableTo": "route_plans",
-          "columnsFrom": [
-            "plan_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["plan_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -437,12 +413,8 @@
           "name": "policy_decisions_intent_id_execution_intents_id_fk",
           "tableFrom": "policy_decisions",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -502,12 +474,8 @@
           "name": "executions_intent_id_execution_intents_id_fk",
           "tableFrom": "executions",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -561,12 +529,8 @@
           "name": "balance_snapshots_wallet_id_wallets_id_fk",
           "tableFrom": "balance_snapshots",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -574,12 +538,8 @@
           "name": "balance_snapshots_asset_id_assets_id_fk",
           "tableFrom": "balance_snapshots",
           "tableTo": "assets",
-          "columnsFrom": [
-            "asset_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["asset_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -666,12 +626,8 @@
           "name": "simulation_results_run_id_simulation_runs_id_fk",
           "tableFrom": "simulation_results",
           "tableTo": "simulation_runs",
-          "columnsFrom": [
-            "run_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["run_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -732,12 +688,8 @@
           "name": "simulation_runs_intent_id_execution_intents_id_fk",
           "tableFrom": "simulation_runs",
           "tableTo": "execution_intents",
-          "columnsFrom": [
-            "intent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["intent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -745,12 +697,8 @@
           "name": "simulation_runs_route_plan_id_route_plans_id_fk",
           "tableFrom": "simulation_runs",
           "tableTo": "route_plans",
-          "columnsFrom": [
-            "route_plan_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["route_plan_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

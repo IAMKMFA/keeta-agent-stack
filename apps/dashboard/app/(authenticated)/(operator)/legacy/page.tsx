@@ -86,8 +86,8 @@ export default async function Page() {
         <div className="hub-kicker">Mission Control</div>
         <h1 className="hub-heading mt-1 text-3xl font-semibold">Keeta Agent Hub Overview</h1>
         <p className="mt-2 max-w-3xl text-sm text-[var(--hub-muted)]">
-          Real-time operating surface for intents, route quality, execution settlement, and Oracle-assisted
-          payment playbooks.
+          Real-time operating surface for intents, route quality, execution settlement, and
+          Oracle-assisted payment playbooks.
         </p>
       </div>
 
@@ -106,7 +106,9 @@ export default async function Page() {
         <span className="hub-pill px-3 py-1.5">
           {modes.mockAdapters ? 'Mock adapters' : 'Production adapters'}
         </span>
-        <span className="hub-pill px-3 py-1.5">Oracle: {oracleStatus?.ok ? 'online' : 'unavailable'}</span>
+        <span className="hub-pill px-3 py-1.5">
+          Oracle: {oracleStatus?.ok ? 'online' : 'unavailable'}
+        </span>
         {modes.executionKillSwitch ? (
           <span className="hub-pill border-[rgba(190,63,67,0.45)] bg-[rgba(190,63,67,0.1)] px-3 py-1.5 text-[var(--hub-danger)]">
             Kill switch enabled
@@ -193,12 +195,16 @@ export default async function Page() {
               </div>
               <div>
                 <div className="text-[var(--hub-muted)]">Representatives</div>
-                <div className="font-mono text-[13px]">{chain.ledger?.representativeCount ?? '—'}</div>
+                <div className="font-mono text-[13px]">
+                  {chain.ledger?.representativeCount ?? '—'}
+                </div>
               </div>
               {chain.networkInfo ? (
                 <div className="md:col-span-2">
                   <div className="text-[var(--hub-muted)]">Base token</div>
-                  <div className="mt-1 font-mono text-xs">{shortId(chain.networkInfo.baseToken, 14)}</div>
+                  <div className="mt-1 font-mono text-xs">
+                    {shortId(chain.networkInfo.baseToken, 14)}
+                  </div>
                 </div>
               ) : null}
             </div>

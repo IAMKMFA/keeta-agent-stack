@@ -132,7 +132,7 @@ upstream-sync + deep-audit refactor. Preserved for traceability.
   `DEFAULT_REDACT_PATHS` list covering `seed`, `signingSeed`, `privateKey`, `apiKey`,
   `authorization`, and friends. `LOG_REDACT_EXTRA` lets operators extend the list per-env.
 - **CI security-audit job**: `.github/workflows/ci.yml` now runs `pnpm audit --prod
-  --audit-level high`, `google/osv-scanner-action`, and a Drizzle migration-drift check in a
+--audit-level high`, `google/osv-scanner-action`, and a Drizzle migration-drift check in a
   dedicated `security-audit` job (non-blocking, reported via annotations).
 
 ### Phase 4 — Worker decomposition + performance

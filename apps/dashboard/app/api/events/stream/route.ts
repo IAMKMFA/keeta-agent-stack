@@ -58,10 +58,9 @@ export async function GET(request: Request) {
       signal: upstreamAbort.signal,
     });
   } catch (err) {
-    return new Response(
-      err instanceof Error ? err.message : 'Upstream event stream failed',
-      { status: 502 }
-    );
+    return new Response(err instanceof Error ? err.message : 'Upstream event stream failed', {
+      status: 502,
+    });
   }
 
   if (!response.ok || !response.body) {

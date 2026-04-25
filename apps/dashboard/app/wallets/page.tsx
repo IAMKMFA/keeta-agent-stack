@@ -26,17 +26,13 @@ export default async function Page() {
     address: (
       <div className="space-y-0.5">
         <div className="font-mono text-xs">{shortId(row.address, 10)}</div>
-        <div className="font-mono text-[11px] text-[var(--keeta-muted)]">
-          {row.address}
-        </div>
+        <div className="font-mono text-[11px] text-[var(--keeta-muted)]">{row.address}</div>
       </div>
     ),
     policyPack: (
       <div className="space-y-0.5">
         <div className="font-mono text-xs">
-          {row.settings?.defaultPolicyPackId
-            ? shortId(row.settings.defaultPolicyPackId)
-            : '—'}
+          {row.settings?.defaultPolicyPackId ? shortId(row.settings.defaultPolicyPackId) : '—'}
         </div>
         <div className="text-[11px] text-[var(--keeta-muted)]">
           {row.settings?.defaultPolicyPackId ? 'wallet default' : 'none'}

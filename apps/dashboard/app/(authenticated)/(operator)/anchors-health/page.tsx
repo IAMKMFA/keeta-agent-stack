@@ -57,10 +57,9 @@ interface AnchorHealthResponse {
   anchors: AnchorHealthItem[];
 }
 
-function readinessTone(status: 'ready' | 'needs_attention' | 'blocked'):
-  | 'success'
-  | 'warning'
-  | 'danger' {
+function readinessTone(
+  status: 'ready' | 'needs_attention' | 'blocked'
+): 'success' | 'warning' | 'danger' {
   return status === 'ready' ? 'success' : status === 'needs_attention' ? 'warning' : 'danger';
 }
 
@@ -182,19 +181,11 @@ export default async function AnchorsHealthPage() {
                     <td className="px-2 py-3">
                       <StatusPill
                         tone={
-                          a.bond?.verified === true
-                            ? 'success'
-                            : a.bond
-                              ? 'warning'
-                              : 'neutral'
+                          a.bond?.verified === true ? 'success' : a.bond ? 'warning' : 'neutral'
                         }
                         dot={false}
                       >
-                        {a.bond?.verified === true
-                          ? 'verified'
-                          : a.bond
-                            ? 'unverified'
-                            : '—'}
+                        {a.bond?.verified === true ? 'verified' : a.bond ? 'unverified' : '—'}
                       </StatusPill>
                     </td>
                     <td className="px-2 py-3 font-mono text-xs text-[var(--keeta-muted)]">

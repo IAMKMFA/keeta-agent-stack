@@ -97,7 +97,8 @@ export function registerAgentPlaybookTools(server: McpServer): void {
             text: JSON.stringify(
               {
                 model: {
-                  setupFee: 'Integration development and quality-control fee; stored as commercial metadata.',
+                  setupFee:
+                    'Integration development and quality-control fee; stored as commercial metadata.',
                   bond: {
                     asset: 'KTA',
                     withdrawalDelayDays: Number(withdrawal_delay_days),

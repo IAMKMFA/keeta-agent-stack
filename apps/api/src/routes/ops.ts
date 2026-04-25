@@ -42,8 +42,10 @@ function countBy<T>(rows: T[], key: (row: T) => string | null | undefined): Reco
 function policyOutcome(payload: unknown): 'allowed' | 'blocked' | 'unknown' {
   if (!payload || typeof payload !== 'object') return 'unknown';
   const record = payload as Record<string, unknown>;
-  if (record.allowed === true || record.outcome === 'allowed' || record.decision === 'allowed') return 'allowed';
-  if (record.allowed === false || record.outcome === 'blocked' || record.decision === 'blocked') return 'blocked';
+  if (record.allowed === true || record.outcome === 'allowed' || record.decision === 'allowed')
+    return 'allowed';
+  if (record.allowed === false || record.outcome === 'blocked' || record.decision === 'blocked')
+    return 'blocked';
   return 'unknown';
 }
 
@@ -159,7 +161,9 @@ export const opsRoutes: FastifyPluginAsync = async (app) => {
         successRate:
           successfulExecutions.length + failedExecutions.length > 0
             ? Math.round(
-                (successfulExecutions.length / (successfulExecutions.length + failedExecutions.length)) * 1000
+                (successfulExecutions.length /
+                  (successfulExecutions.length + failedExecutions.length)) *
+                  1000
               ) / 10
             : 0,
         byStatus: countBy(executions, (row) => row.status),
@@ -225,7 +229,9 @@ export const opsRoutes: FastifyPluginAsync = async (app) => {
     if (!row) {
       return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Agent not found' } });
     }
-    const intents = (await intentRepo.listIntents(app.db, 500)).filter((intent) => intent.strategyId === id);
+    const intents = (await intentRepo.listIntents(app.db, 500)).filter(
+      (intent) => intent.strategyId === id
+    );
     const intentIds = new Set(intents.map((intent) => intent.id));
     const executions = (await executionRepo.listExecutions(app.db, 500)).filter((execution) =>
       intentIds.has(execution.intentId)
@@ -268,7 +274,9 @@ export const opsRoutes: FastifyPluginAsync = async (app) => {
     const { id } = req.params as { id: string };
     const strategy = await strategyRepo.getStrategyById(app.db, id);
     if (!strategy) {
-      return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Strategy not found' } });
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Strategy not found' } });
     }
     return {
       strategyId: id,
@@ -287,15 +295,25 @@ export const opsRoutes: FastifyPluginAsync = async (app) => {
       })
       .safeParse(req.body);
     if (!parsed.success) {
-      return reply.status(400).send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
+      return reply
+        .status(400)
+        .send({ error: { code: 'VALIDATION_ERROR', details: parsed.error.flatten() } });
     }
     const pack = await policyRepo.getPolicyPackById(app.db, parsed.data.policyPackId);
     if (!pack) {
-      return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Policy pack not found' } });
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Policy pack not found' } });
     }
-    const updated = await strategyRepo.setStrategyPolicyPackId(app.db, id, parsed.data.policyPackId);
+    const updated = await strategyRepo.setStrategyPolicyPackId(
+      app.db,
+      id,
+      parsed.data.policyPackId
+    );
     if (!updated) {
-      return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Strategy not found' } });
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Strategy not found' } });
     }
     return {
       strategyId: id,
@@ -310,7 +328,9 @@ export const opsRoutes: FastifyPluginAsync = async (app) => {
     const { id } = req.params as { id: string };
     const updated = await strategyRepo.setStrategyPolicyPackId(app.db, id, null);
     if (!updated) {
-      return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Strategy not found' } });
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Strategy not found' } });
     }
     return {
       strategyId: id,

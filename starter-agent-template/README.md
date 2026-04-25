@@ -38,12 +38,12 @@ starter-agent-template/
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|---|---|---|
-| `ECONNREFUSED 127.0.0.1:3001` | The Keeta API isn't running. | From the monorepo root: `docker compose up -d && pnpm dev:all`. |
+| Symptom                                           | Likely cause                                             | Fix                                                                              |
+| ------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `ECONNREFUSED 127.0.0.1:3001`                     | The Keeta API isn't running.                             | From the monorepo root: `docker compose up -d && pnpm dev:all`.                  |
 | `kind: 'failed'` with `error: 'No SDK supplied.'` | `KEETA_API_URL` is empty and you removed the SDK wiring. | Restore `KEETA_API_URL` in `.env` or add `registry` + `policy` for offline mode. |
-| `kind: 'denied'` | Policy rejected the intent. | Inspect `result.detail.contributions` to see which rule failed. |
-| `pnpm install` pulls workspace packages | You ran inside the monorepo. | Run from outside the monorepo or use `pnpm install --ignore-workspace`. |
+| `kind: 'denied'`                                  | Policy rejected the intent.                              | Inspect `result.detail.contributions` to see which rule failed.                  |
+| `pnpm install` pulls workspace packages           | You ran inside the monorepo.                             | Run from outside the monorepo or use `pnpm install --ignore-workspace`.          |
 
 ## Going further
 

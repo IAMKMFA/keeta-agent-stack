@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildOraclePaymentPlaybook, normalizeOracleToolResult, type OracleToolCaller } from './oracle-playbook.js';
+import {
+  buildOraclePaymentPlaybook,
+  normalizeOracleToolResult,
+  type OracleToolCaller,
+} from './oracle-playbook.js';
 
 describe('normalizeOracleToolResult', () => {
   it('parses single text content JSON payload', () => {

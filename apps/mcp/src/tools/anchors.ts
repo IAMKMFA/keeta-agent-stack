@@ -4,7 +4,10 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 const DEFAULT_API_URL = 'http://localhost:3001';
 
 function getApiUrl(): string {
-  return (process.env.API_URL ?? process.env.KEETA_AGENT_API_URL ?? DEFAULT_API_URL).replace(/\/$/, '');
+  return (process.env.API_URL ?? process.env.KEETA_AGENT_API_URL ?? DEFAULT_API_URL).replace(
+    /\/$/,
+    ''
+  );
 }
 
 async function requestJson(path: string, init?: RequestInit): Promise<unknown> {
@@ -22,7 +25,9 @@ async function requestJson(path: string, init?: RequestInit): Promise<unknown> {
   const text = await response.text();
   const parsed = text.length > 0 ? JSON.parse(text) : null;
   if (!response.ok) {
-    throw new Error(typeof parsed?.error?.message === 'string' ? parsed.error.message : `HTTP ${response.status}`);
+    throw new Error(
+      typeof parsed?.error?.message === 'string' ? parsed.error.message : `HTTP ${response.status}`
+    );
   }
   return parsed;
 }
@@ -39,13 +44,18 @@ function render(payload: unknown) {
 }
 
 export function registerAnchorTools(server: McpServer): void {
-  server.tool('keeta_list_payment_anchors', 'List payment anchors known to the Keeta Agent Stack API.', {}, async () => {
-    try {
-      return render(await requestJson('/anchors'));
-    } catch (error) {
-      return render({ error: error instanceof Error ? error.message : String(error) });
+  server.tool(
+    'keeta_list_payment_anchors',
+    'List payment anchors known to the Keeta Agent Stack API.',
+    {},
+    async () => {
+      try {
+        return render(await requestJson('/anchors'));
+      } catch (error) {
+        return render({ error: error instanceof Error ? error.message : String(error) });
+      }
     }
-  });
+  );
 
   server.tool(
     'keeta_get_payment_anchor',
@@ -72,7 +82,15 @@ export function registerAnchorTools(server: McpServer): void {
       setup_fee_note: z.string().optional(),
       volume_fee_bps: z.number().nonnegative().optional(),
     },
-    async ({ adapter_id, label, corridor_key, operator_ref, supported_assets, setup_fee_note, volume_fee_bps }) => {
+    async ({
+      adapter_id,
+      label,
+      corridor_key,
+      operator_ref,
+      supported_assets,
+      setup_fee_note,
+      volume_fee_bps,
+    }) => {
       try {
         return render(
           await requestJson('/anchors', {

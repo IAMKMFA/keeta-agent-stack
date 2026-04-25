@@ -66,8 +66,7 @@ function extractRoles(payload: JWTPayload): AuthRole[] {
         .filter((entry: unknown): entry is string => typeof entry === 'string')
         .map((entry: string) => normalizeRole(entry))
     : [];
-  const fromRoleClaim =
-    typeof payload.role === 'string' ? [normalizeRole(payload.role)] : [];
+  const fromRoleClaim = typeof payload.role === 'string' ? [normalizeRole(payload.role)] : [];
   const fromScopeClaim =
     typeof payload.scope === 'string'
       ? payload.scope.split(/\s+/).map((entry: string) => normalizeRole(entry))
@@ -84,7 +83,9 @@ function hasRequiredRole(principal: AuthPrincipal, requiredRoles: AuthRole[]): b
 
   if (!highestPrincipalRole) return false;
 
-  return requiredRoles.some((requiredRole) => roleRank[highestPrincipalRole] >= roleRank[requiredRole]);
+  return requiredRoles.some(
+    (requiredRole) => roleRank[highestPrincipalRole] >= roleRank[requiredRole]
+  );
 }
 
 function extractBearerToken(req: FastifyRequest): string | undefined {
@@ -160,7 +161,10 @@ function getRemoteJwkSet(app: FastifyInstance, url: string) {
   return cached;
 }
 
-async function fetchOidcDiscovery(app: FastifyInstance, url: string): Promise<OidcDiscoveryDocument> {
+async function fetchOidcDiscovery(
+  app: FastifyInstance,
+  url: string
+): Promise<OidcDiscoveryDocument> {
   let cached = oidcDiscoveryCache.get(url);
   if (!cached) {
     cached = (async () => {
@@ -271,9 +275,7 @@ export async function authorizeRequest(
   try {
     const principal = await verifyJwtPrincipal(app, req);
     if (principal) {
-      return hasRequiredRole(principal, options.anyOfRoles)
-        ? principal
-        : (forbidden(reply), null);
+      return hasRequiredRole(principal, options.anyOfRoles) ? principal : (forbidden(reply), null);
     }
   } catch (error) {
     app.log.warn({ err: error }, 'jwt verification failed');
@@ -301,7 +303,12 @@ export async function authorizeRequest(
       const role = legacyOpsKeyRole(app);
       if (!hasRequiredRole({ authType: 'ops-key', roles: [role] }, options.anyOfRoles)) {
         app.log.warn(
-          { route: req.routeOptions?.url ?? req.url, ip: req.ip, grantedRole: role, required: options.anyOfRoles },
+          {
+            route: req.routeOptions?.url ?? req.url,
+            ip: req.ip,
+            grantedRole: role,
+            required: options.anyOfRoles,
+          },
           'legacy ops-key has insufficient role for this route'
         );
         forbidden(reply);
@@ -318,11 +325,19 @@ export async function authorizeRequest(
   return null;
 }
 
-export async function requireViewerAccess(app: FastifyInstance, req: FastifyRequest, reply: FastifyReply) {
+export async function requireViewerAccess(
+  app: FastifyInstance,
+  req: FastifyRequest,
+  reply: FastifyReply
+) {
   return authorizeRequest(app, req, reply, { anyOfRoles: ['viewer'] });
 }
 
-export async function requireOperatorAccess(app: FastifyInstance, req: FastifyRequest, reply: FastifyReply) {
+export async function requireOperatorAccess(
+  app: FastifyInstance,
+  req: FastifyRequest,
+  reply: FastifyReply
+) {
   return authorizeRequest(app, req, reply, { anyOfRoles: ['operator'] });
 }
 

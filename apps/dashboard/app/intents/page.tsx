@@ -93,9 +93,7 @@ export default async function Page() {
       </div>
     ),
     wallet: <span className="font-mono text-xs">{shortId(row.walletId)}</span>,
-    updated: (
-      <span className="font-mono text-xs">{formatDateTime(row.updatedAt)}</span>
-    ),
+    updated: <span className="font-mono text-xs">{formatDateTime(row.updatedAt)}</span>,
   }));
 
   return (
