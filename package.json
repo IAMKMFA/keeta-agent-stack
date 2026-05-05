@@ -5,7 +5,8 @@
   "packageManager": "pnpm@9.15.4",
   "pnpm": {
     "overrides": {
-      "protobufjs": "^7.5.5"
+      "protobufjs": "^7.5.5",
+      "@keetanetwork/keetanet-client": "0.16.2"
     }
   },
   "scripts": {
@@ -20,6 +21,7 @@
     "lint": "turbo run lint",
     "lint:security": "turbo run lint:security",
     "typecheck": "turbo run typecheck",
+    "verify:agent": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm --filter @keeta-agent-stack/docs build && pnpm publint:all",
     "clean": "turbo run clean && rm -rf node_modules",
     "db:generate": "pnpm --filter @keeta-agent-stack/storage exec drizzle-kit generate",
     "db:migrate": "pnpm --filter @keeta-agent-stack/storage exec tsx src/migrate.ts",

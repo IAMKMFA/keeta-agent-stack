@@ -110,7 +110,7 @@ what still depends on lower-level or internal paths.
 | List adapters                                                           | Strong                   | `GET /adapters`; SDK `listAdapters()`                                                                                                                          |
 | Adapter health                                                          | Good                     | Backend route exists; SDK has `partial` exposure                                                                                                               |
 | Shared built-in rail metadata                                           | Strong                   | Backend `/rails/catalog`, SDK `listRailCatalog()` / `filterRailCatalog()`, and MCP `keeta_list_available_rails` expose production vs mock labeling             |
-| Enumerated fiat-push / fiat-pull / crypto rails (UAE, CAD, Plaid, PULL) | Good                     | Backed by `@keetanetwork/anchor` 0.0.58 enum surface                                                                                                           |
+| Enumerated fiat-push / fiat-pull / crypto rails (UAE, CAD, Plaid, PULL) | Good                     | Backed by `@keetanetwork/anchor` 0.0.60 enum surface                                                                                                           |
 | Anchor chaining (resolveAssets / pathOwner / distance)                  | Good                     | MCP tools `keeta_anchor_chaining_*`. Require server-held seed unless `MCP_ALLOW_INLINE_SEEDS=true`.                                                            |
 
 ## Keeta Network Primitive Coverage

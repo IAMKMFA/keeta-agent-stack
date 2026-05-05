@@ -16,13 +16,12 @@ pnpm dev:all
 Then in a separate terminal:
 
 ```bash
-pnpm build
-pnpm typecheck
-pnpm lint
-pnpm test
+pnpm verify:agent
 ```
 
-If all four pass and your change is documented, open a pull request.
+If that passes and your change is documented, open a pull request. Use
+[`docs/agent-build-handbook.md`](./docs/agent-build-handbook.md) when handing work to an AI agent or
+automation runner.
 
 ## Code of Conduct
 
@@ -70,6 +69,12 @@ focus on the work, and assume good intent.
 ## Required Local Checks
 
 Run the same checks CI runs before opening a PR:
+
+```bash
+pnpm verify:agent  # format, typecheck, lint, unit tests, build, docs bundle, publint
+```
+
+Focused checks are still useful while iterating:
 
 ```bash
 pnpm typecheck     # tsc --noEmit across every package and app

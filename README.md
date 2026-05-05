@@ -13,6 +13,7 @@ risk, execute safely, and keep users and operators informed in real time.
 | **NPM packages**          | `@keeta-agent-stack/*` is not on npm yet (first publish is gated on the scope decision).                                                                                                                                                                                          |
 | **Hosted API / Typedoc**  | Build locally — `pnpm --filter @keeta-agent-stack/docs build` → `apps/docs/dist` + `openapi.json`. To publish the same bundle on GitHub Pages, set the repository Actions variable `ENABLE_GITHUB_PAGES=true` (see [`.github/workflows/pages.yml`](.github/workflows/pages.yml)). |
 | **Fastest “see it work”** | [Quick Start](#quick-start) (`docker compose` → `db:migrate` → `pnpm dev:all` → `pnpm demo`) or [`examples/hello-agent`](./examples/hello-agent).                                                                                                                                 |
+| **Agent build proof**     | `pnpm install --frozen-lockfile && pnpm verify:agent` verifies formatting, typecheck, lint, tests, build, docs bundle, and package publishability. See [Agent Build Handbook](./docs/agent-build-handbook.md).                                                                    |
 
 ### Architecture at a glance
 
@@ -66,12 +67,14 @@ pnpm add @keeta-agent-stack/sdk @keeta-agent-stack/agent-runtime @keeta-agent-st
 
 Three files to read first, in order:
 
-1. **[`examples/hello-agent`](./examples/hello-agent)** — minimal `createClient` -> wallet -> intent
+1. **[`docs/agent-build-handbook.md`](./docs/agent-build-handbook.md)** — exact fresh-clone,
+   verification, service-map, and safety contract for AI agents and automation runners.
+2. **[`examples/hello-agent`](./examples/hello-agent)** — minimal `createClient` -> wallet -> intent
    -> quote in <30 lines. Run it against your local dev stack or your own API.
-2. **[`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md)** — every one of the 81 MCP tools, grouped by
+3. **[`apps/mcp/TOOLS.md`](./apps/mcp/TOOLS.md)** — every one of the 81 MCP tools, grouped by
    module, with input schemas and read/write/signing classification. Auto-generated from the live
    Zod schemas, verified in CI.
-3. **[`templates/treasury-rebalancer`](./templates/treasury-rebalancer)** — the flagship template: a
+4. **[`templates/treasury-rebalancer`](./templates/treasury-rebalancer)** — the flagship template: a
    real drift-driven rebalance loop with a working policy pack (caps, slippage, venue + asset
    allowlists, daily-trade and unsettled gates), pinned to every emitted intent.
 
@@ -387,6 +390,12 @@ See [`.env.example`](.env.example) for the full runtime contract.
 Quality checks:
 
 ```bash
+pnpm verify:agent
+```
+
+Focused checks:
+
+```bash
 pnpm build
 pnpm typecheck
 pnpm lint
@@ -437,6 +446,8 @@ The integration suite runs the real API and worker against Postgres and Redis.
 
 - [Documentation index](./docs/README.md) - guided map across the long-form docs, generated
   references, and live API docs.
+- [Agent Build Handbook](./docs/agent-build-handbook.md) — fresh-clone, verification, service-map,
+  and safety contract for AI agents and automation runners.
 - [Deployment guide](./docs/deployment.md) — topology, env, scaling, observability, the self-hosted
   sandbox Fly recipe, and a reference `docker-compose.prod.yml` + Helm chart skeleton.
 - [Creating a new adapter](./docs/creating-new-adapter.md) — step-by-step from

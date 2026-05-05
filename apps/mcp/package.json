@@ -17,8 +17,8 @@
     "@keeta-agent-stack/keeta": "workspace:*",
     "@keeta-agent-stack/policy": "workspace:*",
     "@keeta-agent-stack/sdk": "workspace:*",
-    "@keetanetwork/anchor": "^0.0.58",
-    "@keetanetwork/keetanet-client": "^0.16.1",
+    "@keetanetwork/anchor": "^0.0.60",
+    "@keetanetwork/keetanet-client": "^0.16.2",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "zod": "^3.24.0"
   },

@@ -8,6 +8,7 @@ fastest route to the right guide.
 | If you want to...                                       | Open                                                                                               |
 | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | Understand the product surface quickly                  | [../README.md](../README.md)                                                                       |
+| Give an AI agent or automation runner a build handoff   | [agent-build-handbook.md](./agent-build-handbook.md)                                               |
 | See API docs and generated SDK reference entrypoints    | [sdk-reference.md](./sdk-reference.md)                                                             |
 | Plan a production deployment                            | [deployment.md](./deployment.md)                                                                   |
 | Dashboard operator contract (roles, API map, V3 routes) | [../apps/dashboard/docs/dashboard-v2-contract.md](../apps/dashboard/docs/dashboard-v2-contract.md) |
@@ -25,9 +26,11 @@ fastest route to the right guide.
 ## GitHub-Friendly Reading Order
 
 1. Start with the root [README](../README.md).
-2. Jump to [sdk-reference.md](./sdk-reference.md) for API and Typedoc entrypoints.
-3. Use [deployment.md](./deployment.md) if you are operating the stack.
-4. Use [creating-new-adapter.md](./creating-new-adapter.md) if you are extending the platform.
+2. Use [agent-build-handbook.md](./agent-build-handbook.md) for fresh-clone verification and the
+   repo service map.
+3. Jump to [sdk-reference.md](./sdk-reference.md) for API and Typedoc entrypoints.
+4. Use [deployment.md](./deployment.md) if you are operating the stack.
+5. Use [creating-new-adapter.md](./creating-new-adapter.md) if you are extending the platform.
 
 ## Related Files
 

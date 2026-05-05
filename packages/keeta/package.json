@@ -48,7 +48,7 @@
     "@keeta-agent-stack/config": "workspace:*",
     "@keeta-agent-stack/types": "workspace:*",
     "@keeta-agent-stack/wallet": "workspace:*",
-    "@keetanetwork/keetanet-client": "^0.16.1"
+    "@keetanetwork/keetanet-client": "^0.16.2"
   },
   "devDependencies": {
     "tsup": "^8.3.5",

@@ -13,7 +13,7 @@ import {
 } from './helpers.js';
 
 /**
- * MCP tools that expose `@keetanetwork/anchor` chaining capabilities (0.0.58+):
+ * MCP tools that expose `@keetanetwork/anchor` chaining capabilities (0.0.60):
  *   - `keeta_anchor_chaining_graph_nodes`: compute all graph nodes (providers/routes)
  *   - `keeta_anchor_chaining_find_paths`: enumerate candidate paths between two assets/locations
  *   - `keeta_anchor_chaining_resolve_assets`: resolve reachable source/target assets with distance + rails
@@ -133,7 +133,7 @@ export function registerAnchorChainingTools(server: McpServer): void {
 
   server.tool(
     'keeta_anchor_chaining_resolve_assets',
-    "Resolve reachable source/target assets in the Keeta anchor-chaining graph, with rail inbound/outbound lists and pathLength distance (anchor 0.0.58's resolveAssets).",
+    'Resolve reachable source/target assets in the Keeta anchor-chaining graph, with rail inbound/outbound lists and pathLength distance (anchor 0.0.60 resolveAssets).',
     {
       network: z.enum(['main', 'test']).describe('Keeta network to query.'),
       from: sideFilterSchema.optional(),
@@ -165,7 +165,7 @@ export function registerAnchorChainingTools(server: McpServer): void {
 
   server.tool(
     'keeta_anchor_chaining_list_assets',
-    'List assets reachable from or to a side of the Keeta anchor-chaining graph (anchor 0.0.58 listAssets).',
+    'List assets reachable from or to a side of the Keeta anchor-chaining graph (anchor 0.0.60 listAssets).',
     {
       network: z.enum(['main', 'test']),
       side: z.enum(['from', 'to']).default('from'),

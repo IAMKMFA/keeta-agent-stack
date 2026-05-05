@@ -6,6 +6,7 @@ settings:
 
 overrides:
   protobufjs: ^7.5.5
+  '@keetanetwork/keetanet-client': 0.16.2
 
 importers:
 
@@ -195,11 +196,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       '@keetanetwork/anchor':
-        specifier: ^0.0.58
-        version: 0.0.58(@types/node@22.19.15)(typescript@5.9.3)
+        specifier: ^0.0.60
+        version: 0.0.60(@types/node@22.19.15)(typescript@5.9.3)
       '@keetanetwork/keetanet-client':
-        specifier: ^0.16.1
-        version: 0.16.1
+        specifier: 0.16.2
+        version: 0.16.2
       '@modelcontextprotocol/sdk':
         specifier: ^1.12.1
         version: 1.29.0(zod@3.25.76)
@@ -743,8 +744,8 @@ importers:
         specifier: workspace:*
         version: link:../wallet
       '@keetanetwork/keetanet-client':
-        specifier: ^0.16.1
-        version: 0.16.1
+        specifier: 0.16.2
+        version: 0.16.2
     devDependencies:
       tsup:
         specifier: ^8.3.5
@@ -1931,8 +1932,8 @@ packages:
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
 
-  '@keetanetwork/anchor@0.0.58':
-    resolution: {integrity: sha512-ssfdcS/8U/8wBx00h0kp6qXNPcgjdneUl3RZpOg1wkHDiw4Rxkn4znbqJcacqPirnwB6C/ytWwgLPydqbpkOkg==}
+  '@keetanetwork/anchor@0.0.60':
+    resolution: {integrity: sha512-ogMbKl8N2oJmKV2WTBnlj1Wi1fQ8drvyjwRi9eItbmkxTOypv+Mb1FJjkPPvD6xDGz7HuaP0LzBvP8MX5j5RXg==}
     engines: {node: 20.18.0}
 
   '@keetanetwork/asn1-napi-rs@1.2.2':
@@ -1942,8 +1943,8 @@ packages:
   '@keetanetwork/currency-info@1.2.5':
     resolution: {integrity: sha512-3IJz864AY46ng3Di84gSxqGV/DzzQzjJwOkm4BPefWkMYpA61/7411p5xCjzkFsC8mfR9ChXfI01m4xRgrKskw==}
 
-  '@keetanetwork/keetanet-client@0.16.1':
-    resolution: {integrity: sha512-SS31ZlQvz/qvcZf039K3COjSje3FiQOPBbhB0xAfn2Mwrc+QSqvM/FEi/3uWZdEWqeu4+cziUi1vMRReBUMGwA==}
+  '@keetanetwork/keetanet-client@0.16.2':
+    resolution: {integrity: sha512-ifhICBG8k4r1Fyi+SaMgu9DUCIHuu5iV/YVmn2NKCwF7U+6kOoEJeRgrVyan9Vd8tF+xHtrj2O8dIwAWu44x9w==}
 
   '@lukeed/ms@2.0.2':
     resolution: {integrity: sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA==}
@@ -5270,10 +5271,12 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   vary@1.1.2:
@@ -6229,10 +6232,10 @@ snapshots:
   '@js-sdsl/ordered-map@4.4.2':
     optional: true
 
-  '@keetanetwork/anchor@0.0.58(@types/node@22.19.15)(typescript@5.9.3)':
+  '@keetanetwork/anchor@0.0.60(@types/node@22.19.15)(typescript@5.9.3)':
     dependencies:
       '@keetanetwork/currency-info': 1.2.5
-      '@keetanetwork/keetanet-client': 0.16.1
+      '@keetanetwork/keetanet-client': 0.16.2
       typia: 9.5.0(@types/node@22.19.15)(typescript@5.9.3)
     transitivePeerDependencies:
       - '@types/node'
@@ -6245,7 +6248,7 @@ snapshots:
 
   '@keetanetwork/currency-info@1.2.5': {}
 
-  '@keetanetwork/keetanet-client@0.16.1':
+  '@keetanetwork/keetanet-client@0.16.2':
     dependencies:
       secp256k1: 5.0.1
     optionalDependencies:

@@ -7,6 +7,36 @@ All notable changes to the Keeta Agent Stack are documented here. Subsequent ent
 
 ## Unreleased
 
+### Developer experience
+
+- Added `pnpm verify:agent` as the canonical full-stack verification command for AI agents,
+  automation runners, and new contributors.
+- Added [`docs/agent-build-handbook.md`](./docs/agent-build-handbook.md) with fresh-clone setup,
+  service ownership, focused checks, MCP/docs regeneration rules, and signing-safety boundaries.
+
+### Upstream Keeta packages
+
+- Bumped `@keetanetwork/keetanet-client` to `^0.16.2` in
+  [`packages/keeta`](./packages/keeta/package.json) and [`apps/mcp`](./apps/mcp/package.json).
+  Release notes:
+  [keetanet-client v0.16.2](https://github.com/KeetaNetwork/keetanet-client/releases/tag/releases/v0.16.2),
+  [node v0.16.1…v0.16.2](https://github.com/KeetaNetwork/node/compare/releases/v0.16.1...releases/v0.16.2).
+- Bumped `@keetanetwork/anchor` to `^0.0.60` in [`apps/mcp`](./apps/mcp/package.json) (latest on npm
+  at bump time). Changes since the previous stack pin (`0.0.58`) span
+  [anchor v0.0.58…v0.0.59](https://github.com/KeetaNetwork/anchor/compare/releases/v0.0.58...releases/v0.0.59),
+  [v0.0.59…v0.0.60](https://github.com/KeetaNetwork/anchor/compare/releases/v0.0.59...releases/v0.0.60).
+  [v0.0.61](https://github.com/KeetaNetwork/anchor/releases/tag/releases/v0.0.61) is tagged on
+  GitHub (HTTP URL resolver support, see
+  [compare](https://github.com/KeetaNetwork/anchor/compare/releases/v0.0.60...releases/v0.0.61))
+  `npm view @keetanetwork/anchor version` was `0.0.60` on both **2026-04-30** and **2026-05-05**
+  (re-checked) — cannot pin `0.0.61` until Keeta publishes it to npm. Once published, run:
+  `pnpm add @keetanetwork/anchor@0.0.61 --filter @keeta-agent-stack/mcp` and refresh MCP tool copy /
+  `TOOLS.md` if needed.
+- Added a root [`package.json`](./package.json) pnpm override so every workspace dependency
+  (including `@keetanetwork/anchor`) resolves `@keetanetwork/keetanet-client` to **0.16.2** only —
+  Anchor’s npm metadata still pins an older peer range, but the runtime stays aligned with the
+  stack.
+
 ### Dashboard (Epic V3 — cockpit foundation)
 
 - Operator/admin home is `/dashboard` (`roleHome` for admin/operator); aggregates use
