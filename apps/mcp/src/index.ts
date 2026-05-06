@@ -2,7 +2,15 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { declareRuntime } from '@keeta-agent-stack/custody-guards';
 import { registerBootstrapTools } from './tools/bootstrap.js';
+
+// Declare the MCP runtime so any signing surface this process touches refuses
+// to construct a Keeta UserClient. The MCP host is intentionally NOT a signer:
+// signing-class tools resolve a seed via `assertNoInlineSeedUnlessExplicitlyAllowed`
+// and call into the Keeta SDK directly with that seed; they do not go through
+// `@keeta-agent-stack/keeta`'s `createSigningUserClient*` helpers.
+declareRuntime('mcp');
 import { registerDiscoveryTools } from './tools/discovery.js';
 import { registerExecuteTools } from './tools/execute.js';
 import { registerOracleTools } from './tools/oracle.js';

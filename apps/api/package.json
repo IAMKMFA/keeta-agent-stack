@@ -18,6 +18,7 @@
     "@fastify/swagger-ui": "^5.2.6",
     "@keeta-agent-stack/adapter-registry": "workspace:*",
     "@keeta-agent-stack/config": "workspace:*",
+    "@keeta-agent-stack/custody-guards": "workspace:*",
     "@keeta-agent-stack/keeta": "workspace:*",
     "@keeta-agent-stack/policy": "workspace:*",
     "@keeta-agent-stack/storage": "workspace:*",

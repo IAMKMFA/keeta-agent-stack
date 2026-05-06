@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { assertNoInlineSeedUnlessExplicitlyAllowed } from '@keeta-agent-stack/custody-guards';
 import { KeetaAnchor, KeetaNet } from './helpers.js';
 import {
   getProperty,
@@ -55,17 +56,7 @@ type AnchorChainingInstance = {
 };
 
 function resolveSeed(inlineSeed: string | undefined): string | undefined {
-  if (inlineSeed !== undefined) {
-    const allow =
-      process.env.MCP_ALLOW_INLINE_SEEDS === 'true' || process.env.MCP_ALLOW_INLINE_SEEDS === '1';
-    if (!allow) {
-      throw new Error(
-        'Inline seeds are disabled in this MCP deployment. Remove the `seed` argument or set MCP_ALLOW_INLINE_SEEDS=true (dev only).'
-      );
-    }
-    return inlineSeed;
-  }
-  return process.env.KEETA_SIGNING_SEED;
+  return assertNoInlineSeedUnlessExplicitlyAllowed(inlineSeed);
 }
 
 async function withAnchorChaining<T>(

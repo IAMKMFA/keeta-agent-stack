@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@keeta-agent-stack/config": "workspace:*",
+    "@keeta-agent-stack/custody-guards": "workspace:*",
     "@keeta-agent-stack/types": "workspace:*",
     "@keeta-agent-stack/wallet": "workspace:*",
     "@keetanetwork/keetanet-client": "^0.16.2"

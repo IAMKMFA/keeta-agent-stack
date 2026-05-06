@@ -55,6 +55,15 @@ export {
 export { resolveSigner, type SignerEnv } from './signer/resolve.js';
 export { type KeetaSigningAccount, type SignerProvider } from './signer/types.js';
 export {
+  CustodyBoundaryError,
+  type CustodyBoundaryErrorCode,
+  type RuntimeKind,
+  KEETA_RUNTIME_ENV,
+  declareRuntime,
+  detectRuntime,
+  assertWorkerSigningRuntime,
+} from '@keeta-agent-stack/custody-guards';
+export {
   createKeetaWallet,
   type CreateKeetaWalletOptions,
   type CreatedKeetaWallet,

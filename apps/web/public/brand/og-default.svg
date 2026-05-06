@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Keeta Agent Stack">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#080b0f" />
+      <stop offset="100%" stop-color="#10161c" />
+    </linearGradient>
+    <radialGradient id="glow" cx="20%" cy="0%" r="60%">
+      <stop offset="0%" stop-color="#44f1a6" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#44f1a6" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glow2" cx="100%" cy="0%" r="60%">
+      <stop offset="0%" stop-color="#5ad7ff" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#5ad7ff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <rect width="1200" height="630" fill="url(#glow)" />
+  <rect width="1200" height="630" fill="url(#glow2)" />
+  <g transform="translate(80,170)">
+    <circle cx="20" cy="20" r="20" fill="#44f1a6" />
+    <text x="60" y="32" font-family="ui-sans-serif, system-ui, sans-serif" font-size="38" font-weight="600" fill="#ecfdf5">Keeta Agent Stack</text>
+    <text x="0" y="120" font-family="ui-sans-serif, system-ui, sans-serif" font-size="68" font-weight="600" fill="#ffffff" letter-spacing="-1">The execution layer for</text>
+    <text x="0" y="200" font-family="ui-sans-serif, system-ui, sans-serif" font-size="68" font-weight="600" fill="#ffffff" letter-spacing="-1">autonomous financial agents.</text>
+    <text x="0" y="280" font-family="ui-sans-serif, system-ui, sans-serif" font-size="26" fill="#a3b8c4">Intent ’ Quote ’ Route ’ Policy ’ Simulate ’ Execute ’ Audit.</text>
+  </g>
+</svg>

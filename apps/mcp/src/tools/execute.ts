@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {
+  assertNoInlineSeedUnlessExplicitlyAllowed,
+  isInlineSeedFlagEnabled,
+} from '@keeta-agent-stack/custody-guards';
+import {
   accountFromPublicKey,
   accountFromSeed,
   createAnchorServiceClient,
@@ -24,16 +28,18 @@ import {
 } from './helpers.js';
 
 /**
- * MCP security gate for inline seeds. When `MCP_ALLOW_INLINE_SEEDS` is not truthy, the worker
- * rejects requests that include a `seed` argument and instead falls back to the server-held
- * `KEETA_SIGNING_SEED` if present.
+ * MCP security gate for inline seeds. When `MCP_ALLOW_INLINE_SEEDS` is not truthy, the MCP
+ * server rejects requests that include a `seed` argument and instead falls back to the
+ * server-held `KEETA_SIGNING_SEED` if present.
  *
  * Motivation: inline seed arguments flow through the MCP transcript, server logs, and client
  * tool invocations — giving them far more exposure than a worker-pinned environment variable.
+ *
+ * Implementation: delegates to `@keeta-agent-stack/custody-guards` so the gate is identical
+ * here and in `apps/mcp/src/tools/anchor-chaining.ts`.
  */
 export function inlineSeedsAllowed(): boolean {
-  const v = process.env.MCP_ALLOW_INLINE_SEEDS;
-  return v === 'true' || v === '1';
+  return isInlineSeedFlagEnabled();
 }
 
 /**
@@ -44,15 +50,7 @@ export function inlineSeedsAllowed(): boolean {
  *   - Otherwise return `undefined` so callers can choose a read-only path.
  */
 export function resolveSeedOrThrow(inlineSeed: string | undefined): string | undefined {
-  if (inlineSeed !== undefined) {
-    if (!inlineSeedsAllowed()) {
-      throw new Error(
-        'Inline seeds are disabled in this MCP deployment. Remove the `seed` argument or set MCP_ALLOW_INLINE_SEEDS=true (dev only).'
-      );
-    }
-    return inlineSeed;
-  }
-  return process.env.KEETA_SIGNING_SEED;
+  return assertNoInlineSeedUnlessExplicitlyAllowed(inlineSeed);
 }
 
 export function registerExecuteTools(server: McpServer): void {

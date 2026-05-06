@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
     '@keeta-agent-stack/routing',
     '@keeta-agent-stack/sdk',
     '@keeta-agent-stack/types',
+    '@keeta-agent-stack/ui',
+    '@keeta-agent-stack/visualizer',
   ],
 };
 

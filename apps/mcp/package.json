@@ -14,6 +14,7 @@
     "docs:tools": "tsx scripts/dump-tools.ts"
   },
   "dependencies": {
+    "@keeta-agent-stack/custody-guards": "workspace:*",
     "@keeta-agent-stack/keeta": "workspace:*",
     "@keeta-agent-stack/policy": "workspace:*",
     "@keeta-agent-stack/sdk": "workspace:*",

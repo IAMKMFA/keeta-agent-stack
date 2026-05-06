@@ -5,14 +5,23 @@
 :root {
   color-scheme: dark;
   background: #080b0f;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace;
+}
+
+html,
+body {
+  margin: 0;
 }
 
 body {
-  margin: 0;
   background:
     radial-gradient(circle at top left, rgba(68, 241, 166, 0.12), transparent 28rem),
     radial-gradient(circle at top right, rgba(90, 215, 255, 0.08), transparent 26rem), #080b0f;
   color: #ecfdf5;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -22,4 +31,52 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+::selection {
+  background: rgba(68, 241, 166, 0.35);
+  color: #ecfdf5;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  .surface-card {
+    background-color: rgb(16 22 28 / 0.85);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 14px;
+    backdrop-filter: blur(8px);
+  }
+
+  .surface-card-hover {
+    transition:
+      transform 200ms ease-out,
+      border-color 200ms ease-out,
+      box-shadow 240ms ease-out;
+  }
+
+  .surface-card-hover:hover {
+    transform: translateY(-2px);
+    border-color: rgba(68, 241, 166, 0.35);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 8px 32px rgba(0, 0, 0, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

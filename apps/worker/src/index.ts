@@ -1,6 +1,13 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { declareRuntime } from '@keeta-agent-stack/custody-guards';
 import { runWorkerApp } from './run.js';
+
+// Declare the worker runtime as early as possible. `assertWorkerSigningRuntime()`
+// (called inside `createSigningUserClientFromSigner`) reads `KEETA_RUNTIME` at
+// signing time; declaring it here means the assertion sees `worker` regardless
+// of how the process was launched (`pnpm dev`, `tsx`, `node dist/index.js`).
+declareRuntime('worker');
 
 export { runWorkerApp } from './run.js';
 

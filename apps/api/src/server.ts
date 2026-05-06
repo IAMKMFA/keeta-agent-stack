@@ -9,6 +9,12 @@ import swaggerUi from '@fastify/swagger-ui';
 import { Queue } from 'bullmq';
 import { Redis } from 'ioredis';
 import { loadEnv, QUEUE_NAMES, getDefaultJobOptions, type AppEnv } from '@keeta-agent-stack/config';
+import {
+  assertEnvNotPresentForRuntime,
+  assertNoBrowserSecretExposure,
+  declareRuntime,
+  detectRuntime,
+} from '@keeta-agent-stack/custody-guards';
 import { createDb } from '@keeta-agent-stack/storage';
 import {
   createDefaultDevRegistry,
@@ -64,6 +70,25 @@ export interface BuildApiAppOptions {
 
 export async function buildApiApp(options: BuildApiAppOptions = {}): Promise<FastifyInstance> {
   const env = options.env ?? loadEnv();
+
+  // Custody guard: declare the API runtime, refuse boot if a NEXT_PUBLIC_* env carries a
+  // secret-shaped name, and refuse boot if signing material has leaked into this process's
+  // environment. See `packages/custody-guards` and `docs/security/CUSTODY_GUARD_AUDIT.md`.
+  //
+  // `declareRuntime` is idempotent: if the worker entrypoint already declared `worker` in
+  // this process (e.g. integration tests that boot both side-by-side), we honor the existing
+  // declaration and skip the API-only signing-env assertions. Single-process API deployments
+  // — the production topology — see runtime === 'api' and enforce the seed/KMS bans.
+  const runtime = declareRuntime('api');
+  assertNoBrowserSecretExposure();
+  if (detectRuntime() === 'api' && runtime === 'api') {
+    // Signing seeds and KMS keys must never live on the API host. If this assertion ever
+    // needs to be relaxed, document the reason in SECURITY.md before removing the call.
+    assertEnvNotPresentForRuntime('api', 'KEETA_SIGNING_SEED');
+    assertEnvNotPresentForRuntime('api', 'KEETA_KMS_KEY');
+    assertEnvNotPresentForRuntime('api', 'KEETA_KMS_PROVIDER');
+  }
+
   initTracing({
     serviceName: env.OTEL_SERVICE_NAME ?? 'keeta-agent-api',
     enabled: env.OTEL_ENABLED,

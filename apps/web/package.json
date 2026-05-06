@@ -21,11 +21,15 @@
     "@keeta-agent-stack/routing": "workspace:*",
     "@keeta-agent-stack/sdk": "workspace:*",
     "@keeta-agent-stack/types": "workspace:*",
+    "@keeta-agent-stack/ui": "workspace:*",
+    "@keeta-agent-stack/visualizer": "workspace:*",
     "clsx": "^2.1.1",
+    "framer-motion": "^11.18.0",
     "lucide-react": "^0.475.0",
     "next": "^15.5.15",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.15",
