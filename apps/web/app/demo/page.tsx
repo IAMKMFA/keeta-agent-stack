@@ -1,13 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { StatusPill } from '@keeta-agent-stack/ui';
-import {
-  LiveMetricsTicker,
-  SettlementRailMap,
-} from '@keeta-agent-stack/visualizer/client';
+import { LiveMetricsTicker, SettlementRailMap } from '@keeta-agent-stack/visualizer/client';
 import { DemoPlaybackBoard } from '../../components/demo/DemoPlaybackBoard';
 import { CTASection } from '../../components/site/CTASection';
-import { publicEnv } from '../../lib/env';
+import { getPublicApiSnapshot } from '../../lib/api-client';
 import { buildMetadata } from '../../lib/seo';
 
 export const metadata: Metadata = buildMetadata({
@@ -17,7 +14,9 @@ export const metadata: Metadata = buildMetadata({
     'Interactive demo of the full Keeta Agent Stack pipeline: playback controls, event log, policy result, route graph, simulation console, and execution timeline. Demo data only — no backend required.',
 });
 
-export default function DemoPage() {
+export default async function DemoPage() {
+  const apiSnapshot = await getPublicApiSnapshot();
+
   return (
     <>
       <section className="mx-auto max-w-7xl px-5 pt-16 pb-6">
@@ -31,15 +30,20 @@ export default function DemoPage() {
           Nothing on this page calls a backend.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <StatusPill status={publicEnv.liveMode ? 'live' : 'demo'} pulse>
-            mode · {publicEnv.liveMode ? 'live (read-only available)' : 'demo only'}
+          <StatusPill status={apiSnapshot.mode === 'live' ? 'live' : 'demo'} pulse>
+            mode ·{' '}
+            {apiSnapshot.mode === 'live'
+              ? 'live public probes'
+              : apiSnapshot.mode === 'fallback'
+                ? 'live fallback'
+                : 'demo only'}
           </StatusPill>
           <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
-            data · deterministic fixtures
+            pipeline · deterministic fixtures
           </span>
         </div>
         <div className="mt-8">
-          <LiveMetricsTicker />
+          <LiveMetricsTicker metrics={apiSnapshot.metrics} />
         </div>
       </section>
 
@@ -57,6 +61,41 @@ export default function DemoPage() {
         </p>
         <div className="mt-6">
           <SettlementRailMap />
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-12">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-keeta">
+          Public API probes
+        </h2>
+        <p className="mt-2 max-w-2xl text-base leading-7 text-zinc-400">
+          Live mode only checks public, read-only endpoints. Every probe times out quickly and falls
+          back to demo data without interrupting the page.
+        </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          {apiSnapshot.probes.map((probe) => (
+            <article key={probe.id} className="surface-card p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-white">{probe.label}</h3>
+                  <p className="mt-1 font-mono text-xs text-zinc-500">{probe.path}</p>
+                </div>
+                <StatusPill
+                  status={
+                    probe.status === 'ok' ? 'live' : probe.status === 'skipped' ? 'demo' : 'paused'
+                  }
+                >
+                  {probe.status}
+                </StatusPill>
+              </div>
+              <p className="mt-4 text-sm leading-6 text-zinc-400">{probe.summary}</p>
+              {probe.httpStatus ? (
+                <p className="mt-3 font-mono text-[11px] uppercase tracking-widest text-zinc-500">
+                  http · {probe.httpStatus}
+                </p>
+              ) : null}
+            </article>
+          ))}
         </div>
       </section>
 
@@ -80,14 +119,18 @@ export default function DemoPage() {
             <ul className="mt-3 space-y-2 text-sm text-zinc-300">
               <li>Submit intents, trigger execution, or call any admin route.</li>
               <li>
-                Forward operator credentials, JWTs, or <span className="font-mono">OPS_API_KEY</span>.
+                Forward operator credentials, JWTs, or{' '}
+                <span className="font-mono">OPS_API_KEY</span>.
               </li>
               <li>Persist anything to local storage, cookies, or third parties.</li>
             </ul>
           </article>
         </div>
         <p className="mt-4 text-xs text-zinc-500">
-          See <Link href="/security#frontend" className="text-keeta hover:underline">/security</Link>{' '}
+          See{' '}
+          <Link href="/security#frontend" className="text-keeta hover:underline">
+            /security
+          </Link>{' '}
           for the full list of things the frontend deliberately never receives.
         </p>
       </section>

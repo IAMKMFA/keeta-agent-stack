@@ -1,0 +1,79 @@
+name: Web CI
+
+on:
+  pull_request:
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - 'packages/visualizer/**'
+      - 'docs/web/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
+      - '.github/workflows/web-ci.yml'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - 'packages/visualizer/**'
+      - 'docs/web/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
+      - '.github/workflows/web-ci.yml'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  NEXT_PUBLIC_DEMO_MODE: 'true'
+
+jobs:
+  web:
+    name: Web Lint, Typecheck, Build, E2E
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint web
+        run: pnpm lint:web
+
+      - name: Typecheck web
+        run: pnpm typecheck:web
+
+      - name: Build web
+        run: pnpm build:web
+
+      - name: Install Playwright browser
+        run: pnpm dlx @playwright/test@1.51.1 install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: pnpm test:web:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: web-playwright-report
+          path: apps/web/playwright-report
+          if-no-files-found: ignore

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { cn } from '@keeta-agent-stack/ui';
 import {
   DEMO_QUOTES,
@@ -37,7 +37,7 @@ export function RouteGraph({
         <p className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">quotes</p>
         <ul className="mt-3 space-y-2">
           {quotes.map((quote) => (
-            <motion.li
+            <m.li
               key={quote.venue}
               initial={false}
               animate={{
@@ -61,7 +61,7 @@ export function RouteGraph({
                   </p>
                 ) : null}
               </div>
-            </motion.li>
+            </m.li>
           ))}
         </ul>
       </div>
@@ -87,9 +87,24 @@ export function RouteGraph({
             const x2 = 60 + (360 / Math.max(hops.length - 1, 1)) * (index + 1);
             return (
               <g key={`wire-${hop.id}`}>
-                <line x1={x1} y1={80} x2={x2} y2={80} stroke="url(#route-wire)" strokeWidth={2} />
+                <m.line
+                  x1={x1}
+                  y1={80}
+                  x2={x2}
+                  y2={80}
+                  stroke="url(#route-wire)"
+                  strokeWidth={2}
+                  strokeDasharray="8 8"
+                  initial={false}
+                  animate={{ strokeDashoffset: reduced ? 0 : [16, 0] }}
+                  transition={{
+                    duration: reduced ? 0 : 1.8,
+                    repeat: reduced ? 0 : Infinity,
+                    ease: 'linear',
+                  }}
+                />
                 {!reduced && (
-                  <motion.circle
+                  <m.circle
                     cx={x1}
                     cy={80}
                     r={3.5}
@@ -112,6 +127,18 @@ export function RouteGraph({
             return (
               <g key={hop.id}>
                 <circle cx={cx} cy={80} r={20} fill="currentColor" fillOpacity={0.08} />
+                {!reduced ? (
+                  <m.circle
+                    cx={cx}
+                    cy={80}
+                    r={20}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeOpacity={0.22}
+                    animate={{ r: [18, 25, 18], opacity: [0.5, 0.15, 0.5] }}
+                    transition={{ duration: 2.4, repeat: Infinity, delay: index * 0.16 }}
+                  />
+                ) : null}
                 <circle cx={cx} cy={80} r={8} fill="currentColor" fillOpacity={0.85} />
                 <text
                   x={cx}

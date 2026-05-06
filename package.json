@@ -16,6 +16,7 @@
     "dev:web": "pnpm --filter @keeta-agent-stack/web dev",
     "build:web": "pnpm --filter @keeta-agent-stack/web build",
     "lint:web": "pnpm --filter @keeta-agent-stack/web lint",
+    "test:web:e2e": "pnpm --filter @keeta-agent-stack/web test:e2e",
     "typecheck:web": "pnpm --filter @keeta-agent-stack/web typecheck",
     "build": "turbo run build",
     "test": "turbo run test",

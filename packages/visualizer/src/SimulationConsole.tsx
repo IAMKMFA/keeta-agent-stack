@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { cn } from '@keeta-agent-stack/ui';
 import { DEMO_SIMULATION, type DemoSimulationLine } from './data/demo-pipeline.js';
 import { useReducedMotionSafe } from './hooks/useReducedMotionSafe.js';
@@ -22,6 +22,8 @@ export function SimulationConsole({
   status = 'passed',
 }: SimulationConsoleProps) {
   const reduced = useReducedMotionSafe();
+  const playbackMs = Math.max(lines.length * 520, 1600);
+
   return (
     <figure
       className={cn(
@@ -40,13 +42,31 @@ export function SimulationConsole({
           <span className={status === 'passed' ? 'text-keeta' : 'text-rose-300'}>{status}</span>
         </div>
       </div>
+      <div aria-hidden className="h-px bg-white/5">
+        <m.div
+          className="h-px bg-gradient-to-r from-keeta/20 via-keeta/90 to-cyanline/50"
+          initial={{ width: reduced ? '100%' : '0%' }}
+          animate={{ width: '100%' }}
+          transition={{ duration: reduced ? 0 : playbackMs / 1000, ease: 'linear' }}
+        />
+      </div>
       <div className="px-5 py-4 font-mono text-[12.5px] leading-6 text-zinc-200">
-        <p className="text-zinc-500">$ keeta simulate intent_4f1e9c</p>
+        <p className="text-zinc-500">
+          $ keeta simulate intent_4f1e9c
+          {!reduced ? (
+            <m.span
+              aria-hidden
+              className="ml-1 inline-block h-4 w-2 translate-y-0.5 bg-keeta/75"
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          ) : null}
+        </p>
         <ul className="mt-2 space-y-1">
           {lines.map((line, index) => {
             const positive = line.delta.startsWith('+');
             return (
-              <motion.li
+              <m.li
                 key={`${line.account}-${line.delta}`}
                 initial={{ opacity: 0, y: reduced ? 0 : 4 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -55,12 +75,12 @@ export function SimulationConsole({
                   duration: reduced ? 0 : 0.32,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="grid grid-cols-[1.4fr_0.7fr_1fr] gap-3"
+                className="grid grid-cols-[1.4fr_0.7fr_1fr] gap-3 rounded-sm px-1 transition-colors hover:bg-white/[0.03]"
               >
                 <span className="text-zinc-300">{line.account}</span>
                 <span className={positive ? 'text-keeta' : 'text-rose-300'}>{line.delta}</span>
                 <span className="text-zinc-500">{line.balanceAfter}</span>
-              </motion.li>
+              </m.li>
             );
           })}
         </ul>

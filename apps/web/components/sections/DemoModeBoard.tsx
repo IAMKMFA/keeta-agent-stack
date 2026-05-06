@@ -73,7 +73,7 @@ export function DemoModeBoard({ snapshot, liveModeEnabled }: DemoModeBoardProps)
             {mode === 'live' ? (liveModeEnabled ? 'live · read-only' : 'preview') : 'simulation'}
           </StatusPill>
           <span className="hidden font-mono text-[11px] uppercase tracking-widest text-zinc-500 sm:inline">
-            source · {snapshot.source}
+            pipeline · {snapshot.source} · api · {snapshot.api.mode}
           </span>
         </div>
       </div>
@@ -144,9 +144,9 @@ function LiveView({
       <div className="rounded-lg border border-white/10 bg-panel/60 p-4 text-xs leading-6 text-zinc-300">
         {liveModeEnabled ? (
           <p>
-            Live mode is enabled. The cards below show <span className="text-keeta">live</span> data
-            from the configured public read-only endpoint, falling back to demo fixtures on any
-            failure.
+            Live mode is enabled. The page has checked safe public endpoints and reported{' '}
+            <span className="text-keeta">{snapshot.api.mode}</span> API status, while the pipeline
+            cards below remain deterministic fixtures.
           </p>
         ) : (
           <p>
@@ -156,6 +156,29 @@ function LiveView({
             then, the page never calls a backend.
           </p>
         )}
+      </div>
+      <div className="grid gap-3 lg:grid-cols-3">
+        {snapshot.api.probes.map((probe) => (
+          <div key={probe.id} className="rounded-lg border border-white/10 bg-panel/40 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+                {probe.label}
+              </span>
+              <span
+                className={
+                  probe.status === 'ok'
+                    ? 'text-xs text-keeta'
+                    : probe.status === 'skipped'
+                      ? 'text-xs text-zinc-500'
+                      : 'text-xs text-amber-300'
+                }
+              >
+                {probe.status}
+              </span>
+            </div>
+            <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">{probe.summary}</p>
+          </div>
+        ))}
       </div>
       <div className="grid gap-5 lg:grid-cols-3">
         {snapshot.rows.map((row) => (

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { cn } from '@keeta-agent-stack/ui';
 import { useReducedMotionSafe } from './hooks/useReducedMotionSafe.js';
 
@@ -92,7 +92,7 @@ export function AgentNetworkHero({
               strokeWidth={1.25}
             />
             {!reduced && (
-              <motion.circle
+              <m.circle
                 r={3}
                 fill="currentColor"
                 initial={{ opacity: 0 }}
@@ -108,7 +108,7 @@ export function AgentNetworkHero({
                 <animateMotion dur="4.2s" begin={`${link.delay}s`} repeatCount="indefinite">
                   <mpath href={`#${id}`} />
                 </animateMotion>
-              </motion.circle>
+              </m.circle>
             )}
           </g>
         );

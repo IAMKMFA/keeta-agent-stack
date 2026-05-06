@@ -8,6 +8,7 @@
     "start": "next start -p 3002",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit --incremental false -p tsconfig.typecheck.json",
+    "test:e2e": "pnpm dlx @playwright/test@1.51.1 test -c playwright.config.ts",
     "clean": "rm -rf .next tsconfig.tsbuildinfo"
   },
   "dependencies": {

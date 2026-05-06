@@ -6,9 +6,12 @@ import { MobileNav } from './MobileNav';
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b border-white/10 bg-graphite/85 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-white/10 bg-graphite/88 shadow-[0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl supports-[backdrop-filter]:bg-graphite/70">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-3.5">
-        <Link href="/" className="flex items-center gap-3 font-semibold tracking-wide text-white">
+        <Link
+          href="/"
+          className="rounded-md px-1 py-1 -ml-1 flex items-center gap-3 font-semibold tracking-wide text-white transition-colors hover:text-keeta"
+        >
           <span aria-hidden className="h-3 w-3 rounded-full bg-keeta shadow-glow" />
           <span>{siteConfig.name}</span>
         </Link>
@@ -18,7 +21,7 @@ export function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-md px-3 py-2 text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+              className="rounded-md px-3 py-2 text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-keeta/70"
             >
               {link.label}
             </Link>
@@ -28,7 +31,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <Link
             href={siteConfig.repoUrl}
-            className="hidden h-9 items-center gap-2 rounded-md border border-white/10 px-3 text-sm text-zinc-200 transition-colors hover:border-white/30 hover:text-white md:inline-flex"
+            className="hidden h-9 items-center gap-2 rounded-md border border-white/10 px-3 text-sm text-zinc-200 transition-colors hover:border-white/30 hover:text-white focus-visible:ring-2 focus-visible:ring-keeta/70 md:inline-flex"
             aria-label="View source on GitHub"
           >
             <Github className="h-4 w-4" />

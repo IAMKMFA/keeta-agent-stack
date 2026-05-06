@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { cn } from '@keeta-agent-stack/ui';
 import { DEMO_RAILS, type DemoSettlementRail } from './data/demo-pipeline.js';
 import { useReducedMotionSafe } from './hooks/useReducedMotionSafe.js';
@@ -34,7 +34,7 @@ export function SettlementRailMap({ className, rails = DEMO_RAILS }: SettlementR
       )}
     >
       {rails.map((rail) => (
-        <motion.li
+        <m.li
           key={rail.id}
           initial={false}
           animate={{ opacity: rail.status === 'paused' ? 0.65 : 1 }}
@@ -73,7 +73,7 @@ export function SettlementRailMap({ className, rails = DEMO_RAILS }: SettlementR
               {rail.latencyMs > 0 ? `${rail.latencyMs} ms` : '—'}
             </span>
           </div>
-        </motion.li>
+        </m.li>
       ))}
     </ul>
   );

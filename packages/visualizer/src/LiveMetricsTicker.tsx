@@ -21,7 +21,10 @@ export function LiveMetricsTicker({ className, metrics = DEMO_METRICS }: LiveMet
       )}
     >
       {metrics.map((metric) => (
-        <li key={metric.id} className="flex flex-col">
+        <li
+          key={metric.id}
+          className="metric-sheen rounded-md border border-white/5 bg-black/10 p-3"
+        >
           <MetricValue metric={metric} />
           <span className="text-xs text-zinc-400">{metric.label}</span>
         </li>

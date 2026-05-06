@@ -36,6 +36,7 @@ function readUrl(name: string): string | undefined {
   if (!value) return undefined;
   try {
     const parsed = new URL(value);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return undefined;
     return parsed.toString().replace(/\/$/, '');
   } catch {
     return undefined;

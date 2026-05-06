@@ -11,3 +11,5 @@ coverage
 *.tsbuildinfo
 .claude/settings.local.json
 docs/typedoc/
+apps/web/test-results/
+apps/web/playwright-report/

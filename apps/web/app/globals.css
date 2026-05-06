@@ -14,6 +14,10 @@ body {
   margin: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background:
     radial-gradient(circle at top left, rgba(68, 241, 166, 0.12), transparent 28rem),
@@ -31,6 +35,13 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible,
+[role='tab']:focus-visible {
+  outline: 2px solid rgba(68, 241, 166, 0.75);
+  outline-offset: 3px;
 }
 
 ::selection {
@@ -68,6 +79,93 @@ a {
       0 1px 0 rgba(255, 255, 255, 0.04) inset,
       0 8px 32px rgba(0, 0, 0, 0.45);
   }
+
+  .motion-surface {
+    transform: translateZ(0);
+    will-change: transform, opacity;
+  }
+
+  .glow-field {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glow-field::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(68, 241, 166, 0.16), transparent 30%),
+      radial-gradient(circle at 86% 12%, rgba(90, 215, 255, 0.12), transparent 28%);
+    opacity: 0.8;
+  }
+
+  .glow-field > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .pipeline-packet {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 0.55rem;
+    width: 0.55rem;
+    border-radius: 999px;
+    background: #44f1a6;
+    box-shadow: 0 0 22px rgba(68, 241, 166, 0.75);
+    transform: translate(-50%, -50%);
+    animation: packet-run 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+
+  .metric-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-sheen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.08),
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    animation: sheen 5.5s ease-in-out infinite;
+  }
+}
+
+@keyframes packet-run {
+  0%,
+  8% {
+    left: 0%;
+    opacity: 0;
+  }
+  13%,
+  86% {
+    opacity: 1;
+  }
+  92%,
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes sheen {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  85%,
+  100% {
+    transform: translateX(120%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -78,5 +176,9 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto;
   }
 }

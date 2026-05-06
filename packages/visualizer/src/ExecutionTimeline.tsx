@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { cn } from '@keeta-agent-stack/ui';
 import {
   DEMO_AUDIT,
@@ -39,7 +39,7 @@ export function ExecutionTimeline({
       </p>
       <ol className="mt-4 space-y-4">
         {steps.map((step, index) => (
-          <motion.li
+          <m.li
             key={step.id}
             initial={{ opacity: 0, x: reduced ? 0 : -6 }}
             animate={{ opacity: 1, x: 0 }}
@@ -68,7 +68,7 @@ export function ExecutionTimeline({
             >
               {step.status}
             </span>
-          </motion.li>
+          </m.li>
         ))}
       </ol>
       <div className="mt-5 grid gap-2 rounded-md border border-keeta/30 bg-keeta/5 p-3 text-xs">

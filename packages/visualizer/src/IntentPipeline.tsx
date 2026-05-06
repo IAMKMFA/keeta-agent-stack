@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { cn } from '@keeta-agent-stack/ui';
 import {
   PIPELINE_STAGES,
@@ -45,27 +45,60 @@ export function IntentPipeline({
       role="img"
       aria-label={`Execution pipeline. Active stage: ${stages[safeIndex]?.label ?? 'unknown'}.`}
     >
-      <div className="relative h-1 w-full overflow-hidden rounded-full bg-white/8">
-        <motion.div
-          className="h-full rounded-full bg-keeta/60"
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/8">
+        <m.div
+          className="h-full rounded-full bg-gradient-to-r from-keeta/45 via-keeta/75 to-cyanline/60"
           initial={false}
           animate={{ width: `${completion * 100}%` }}
           transition={{ duration: reduced ? 0 : 0.6, ease: [0.22, 1, 0.36, 1] }}
         />
+        {!reduced ? (
+          <m.span
+            aria-hidden
+            className="absolute top-1/2 h-2.5 w-2.5 rounded-full bg-keeta shadow-[0_0_22px_rgba(68,241,166,0.78)]"
+            initial={false}
+            animate={{ left: `${completion * 100}%`, opacity: [0.72, 1, 0.72] }}
+            transition={{
+              left: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+              opacity: { duration: 1.6, repeat: Infinity, ease: 'easeInOut' },
+            }}
+            style={{ transform: 'translate(-50%, -50%)' }}
+          />
+        ) : null}
       </div>
       <ol className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
         {stages.map((stage, index) => {
           const isActive = index === safeIndex;
           const isDone = index < safeIndex;
           return (
-            <li
+            <m.li
               key={stage.id}
+              initial={{ opacity: 0, y: reduced ? 0 : 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: reduced ? 0 : index * 0.035,
+                duration: reduced ? 0 : 0.28,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className={cn(
-                'rounded-md border bg-panel/60 p-4 transition-colors',
-                isActive ? 'border-keeta/60' : isDone ? 'border-keeta/20' : 'border-white/10'
+                'relative overflow-hidden rounded-md border bg-panel/60 p-4 transition-colors',
+                isActive
+                  ? 'border-keeta/60 shadow-[0_0_26px_rgba(68,241,166,0.10)]'
+                  : isDone
+                    ? 'border-keeta/20'
+                    : 'border-white/10'
               )}
               aria-current={isActive ? 'step' : undefined}
             >
+              {isActive && !reduced ? (
+                <m.span
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-keeta/80 to-transparent"
+                  initial={{ x: '-80%', opacity: 0 }}
+                  animate={{ x: '80%', opacity: [0, 1, 0] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              ) : null}
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[11px] uppercase tracking-widest text-zinc-500">
                   {(index + 1).toString().padStart(2, '0')}
@@ -87,7 +120,7 @@ export function IntentPipeline({
               <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-zinc-600">
                 {stage.evidence}
               </p>
-            </li>
+            </m.li>
           );
         })}
       </ol>

@@ -167,6 +167,27 @@ This is not a prompt wrapper. It is an execution platform.
 | MCP server    | `apps/mcp`               | Tool surface for LLM-driven workflows and oracle-assisted playbooks                            |
 | Agent runtime | `packages/agent-runtime` | High-level orchestration hooks for custom agent behavior                                       |
 
+## Public Website (`apps/web`)
+
+- The public marketing site lives at [`apps/web`](./apps/web) and is built with Next.js 15 +
+  React 19. Default deployment target is Vercel.
+- **Demo mode works without a backend.** With `NEXT_PUBLIC_DEMO_MODE=true` (the default), the site
+  renders deterministic fixtures from [`packages/visualizer`](./packages/visualizer) and makes zero
+  network calls. No `apps/api`, worker, Postgres, Redis, or signer is required to run the website.
+- **Live mode is opt-in and read-only.** Live mode requires both `NEXT_PUBLIC_DEMO_MODE=false` and
+  `NEXT_PUBLIC_KEETA_API_BASE_URL` set to a public read-only origin. It probes only `/health`,
+  `/status`, and `/openapi.json` with a four-second timeout, and falls back to demo data on any
+  failure. It never submits intents, signs, or hits admin routes.
+- **Security claims are grounded in the repo.** Every claim on `/security` links to
+  [`SECURITY.md`](./SECURITY.md) and the canonical files under [`docs/security/`](./docs/security)
+  (custody guard audit, secret boundary map). The published claim allowlist lives in
+  [`docs/web/WEBSITE_SECURITY_CLAIMS.md`](./docs/web/WEBSITE_SECURITY_CLAIMS.md).
+
+Web-specific guides: [`docs/web/DEPLOYMENT.md`](./docs/web/DEPLOYMENT.md),
+[`docs/web/LAUNCH_CHECKLIST.md`](./docs/web/LAUNCH_CHECKLIST.md),
+[`docs/web/ROLLBACK.md`](./docs/web/ROLLBACK.md). Web verify commands from the repo root:
+`pnpm lint:web`, `pnpm typecheck:web`, `pnpm build:web`, `pnpm test:web:e2e`.
+
 ## What Is Real Today
 
 | Area                                             | Current state                                          |
