@@ -50,6 +50,14 @@
     "@keeta-agent-stack/wallet": "workspace:*",
     "@keetanetwork/keetanet-client": "^0.16.2"
   },
+  "peerDependencies": {
+    "@google-cloud/kms": "^5.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@google-cloud/kms": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",

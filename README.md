@@ -169,18 +169,19 @@ This is not a prompt wrapper. It is an execution platform.
 
 ## What Is Real Today
 
-| Area                                             | Current state                                 |
-| ------------------------------------------------ | --------------------------------------------- |
-| Keeta chain reads                                | Real via `@keetanetwork/keetanet-client`      |
-| Native KTA transfer execution                    | Real in live mode through the worker          |
-| Oracle-assisted rate and rail planning           | Real                                          |
-| Multi-hop routing                                | Real                                          |
-| Policy engine with custom rules and composition  | Real                                          |
-| Dashboard, events, webhooks, metrics, tracing    | Real                                          |
-| Integration test harness with Postgres and Redis | Real                                          |
-| x402, pay.sh, and MPP agent-payment adapters     | Simulatable; live execution not configured    |
-| Mock DEX and mock anchor venues                  | Simulated by design                           |
-| Additional live third-party venue adapters       | Future expansion through the adapter contract |
+| Area                                             | Current state                                          |
+| ------------------------------------------------ | ------------------------------------------------------ |
+| Keeta chain reads                                | Real via `@keetanetwork/keetanet-client`               |
+| Native KTA transfer execution                    | Real in live mode through the worker                   |
+| Keeta live signing backends                      | Seed signer for local/dev; GCP KMS BYOK for production |
+| Oracle-assisted rate and rail planning           | Real                                                   |
+| Multi-hop routing                                | Real                                                   |
+| Policy engine with custom rules and composition  | Real                                                   |
+| Dashboard, events, webhooks, metrics, tracing    | Real                                                   |
+| Integration test harness with Postgres and Redis | Real                                                   |
+| x402, pay.sh, and MPP agent-payment adapters     | Simulatable; live execution not configured             |
+| Mock DEX and mock anchor venues                  | Simulated by design                                    |
+| Additional live third-party venue adapters       | Future expansion through the adapter contract          |
 
 ## Security Model
 
@@ -372,7 +373,9 @@ For live native Keeta transfers:
 
 - set `LIVE_MODE_ENABLED=true`
 - set `KEETA_NETWORK`
-- set `KEETA_SIGNING_SEED` in the worker environment only
+- for local/dev, set `KEETA_SIGNING_SEED` in the worker environment only
+- for production, prefer GCP KMS-backed signing with `KEETA_KMS_PROVIDER=gcp`, `KEETA_KMS_KEY`, and
+  `GOOGLE_APPLICATION_CREDENTIALS`; with KMS configured, `KEETA_SIGNING_SEED` is optional
 - route through the `keeta-transfer` adapter
 - provide transfer metadata such as `metadata.transferTo`
 
@@ -383,6 +386,9 @@ Useful environment variables:
 - `KEETA_NETWORK`
 - `KEETA_SIGNING_SEED`
 - `KEETA_ACCOUNT_INDEX`
+- `KEETA_KMS_PROVIDER`
+- `KEETA_KMS_KEY`
+- `GOOGLE_APPLICATION_CREDENTIALS`
 - `KEETA_POLICY_ENABLED`
 - `AUTH_JWT_*`
 - `METRICS_ENABLED`

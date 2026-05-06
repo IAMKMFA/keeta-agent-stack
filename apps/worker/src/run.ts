@@ -89,7 +89,8 @@ import {
   getBalances,
   KEETA_USER_CLIENT_EXTENSION,
   readChainHealth,
-  createSigningUserClient,
+  createSigningUserClientFromSigner,
+  resolveSigner,
   type UserClient,
 } from '@keeta-agent-stack/keeta';
 
@@ -97,6 +98,7 @@ const log = createLogger('worker');
 const WEBHOOK_EVENT_CURSOR_KEY = 'webhook_event_delivery_cursor';
 
 let signingUserClient: UserClient | null | undefined;
+let signingUserClientPromise: Promise<UserClient | null> | undefined;
 
 export interface WorkerAppOptions {
   env?: AppEnv;
@@ -104,14 +106,28 @@ export interface WorkerAppOptions {
 }
 
 function createSigningGetter(env: AppEnv) {
-  return function getSigningUserClient(): UserClient | null {
-    if (!env.LIVE_MODE_ENABLED || !env.KEETA_SIGNING_SEED) {
+  return async function getSigningUserClient(): Promise<UserClient | null> {
+    if (!env.LIVE_MODE_ENABLED) {
       return null;
+    }
+    if (signingUserClientPromise === undefined) {
+      signingUserClientPromise = (async () => {
+        const signer = resolveSigner(env);
+        const client = await createSigningUserClientFromSigner(env, signer);
+        const publicKey = await signer.getPublicKey();
+        log.info(
+          { signerKind: signer.kind, publicKey },
+          'Keeta signing UserClient initialized for live execution'
+        );
+        return client;
+      })().catch((e) => {
+        log.error({ err: e }, 'Failed to create Keeta signing UserClient');
+        return null;
+      });
     }
     if (signingUserClient === undefined) {
       try {
-        signingUserClient = createSigningUserClient(env);
-        log.info('Keeta signing UserClient initialized for live execution');
+        signingUserClient = await signingUserClientPromise;
       } catch (e) {
         log.error({ err: e }, 'Failed to create Keeta signing UserClient');
         signingUserClient = null;
@@ -1657,7 +1673,7 @@ export async function runWorkerApp(options: WorkerAppOptions = {}): Promise<() =
             });
             return;
           }
-          const signing = getSigningUserClient();
+          const signing = await getSigningUserClient();
           const extensions: Record<string, unknown> = {};
           if (mode === 'live' && signing) {
             extensions[KEETA_USER_CLIENT_EXTENSION] = signing;

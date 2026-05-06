@@ -49,6 +49,12 @@ const EnvSchema = z.object({
   /** Hex seed for the signing account — worker only; required for live native transfers */
   KEETA_SIGNING_SEED: z.string().min(1).optional(),
   KEETA_ACCOUNT_INDEX: z.coerce.number().int().min(0).default(0),
+  /** Optional BYOK signer backend for worker live signing. */
+  KEETA_KMS_PROVIDER: z.enum(['gcp']).optional(),
+  /** GCP Cloud KMS key resource name for KMS-backed worker signing. */
+  KEETA_KMS_KEY: z.string().min(1).optional(),
+  /** Standard Google auth path used by @google-cloud/kms at runtime. */
+  GOOGLE_APPLICATION_CREDENTIALS: z.string().min(1).optional(),
   /** Optional printf-style template with `{hash}` for explorer links (network-specific) */
   KEETA_EXPLORER_TX_URL_TEMPLATE: z.string().min(1).optional(),
   /** KTA-Oracle HTTP base URL for rate/compliance integrations. */

@@ -1,6 +1,7 @@
 import { UserClient } from '@keetanetwork/keetanet-client';
 import type { AppEnv } from '@keeta-agent-stack/config';
-import * as KeetaSDK from '@keetanetwork/keetanet-client';
+import { createSeedSigningAccount } from './signer/seed-signer.js';
+import type { SignerProvider } from './signer/types.js';
 
 /**
  * Read-only client for chain queries (balances, chain health via underlying Client).
@@ -19,6 +20,18 @@ export function createSigningUserClient(
   if (!seed) {
     throw new Error('KEETA_SIGNING_SEED is required to create a signing UserClient');
   }
-  const account = KeetaSDK.lib.Account.fromSeed(seed, env.KEETA_ACCOUNT_INDEX);
-  return UserClient.fromNetwork(env.KEETA_NETWORK, account);
+  const account = createSeedSigningAccount({
+    seed,
+    network: env.KEETA_NETWORK,
+    accountIndex: env.KEETA_ACCOUNT_INDEX,
+  });
+  return UserClient.fromNetwork(env.KEETA_NETWORK, account as never);
+}
+
+export async function createSigningUserClientFromSigner(
+  env: Pick<AppEnv, 'KEETA_NETWORK'>,
+  signer: SignerProvider
+): Promise<UserClient> {
+  const account = await signer.getAccount();
+  return UserClient.fromNetwork(env.KEETA_NETWORK, account as never);
 }

@@ -107,6 +107,31 @@ We treat `KEETA_SIGNING_SEED` as a long-lived secret. Rotation procedure:
 4. Post-rotation, revoke the prior secret in your secret manager and verify no log line, audit row,
    or webhook payload contains the rotated value (`pino` redaction should already enforce this).
 
+### KMS-backed signing
+
+For production live Keeta transfers, the recommended path is BYOK signing through Google Cloud KMS:
+
+- Set `KEETA_KMS_PROVIDER=gcp` and `KEETA_KMS_KEY` in the worker environment. The key name must use
+  the Cloud KMS resource format
+  `projects/<project>/locations/<location>/keyRings/<ring>/cryptoKeys/<key>`, optionally pinned to
+  `/cryptoKeyVersions/<version>`.
+- Install the optional peer dependency `@google-cloud/kms` only in the worker runtime that needs KMS
+  signing. Seed-only deployments do not need the package installed.
+- Configure Google Application Default Credentials with `GOOGLE_APPLICATION_CREDENTIALS` or the
+  platform-native ADC mechanism for your runtime.
+- Grant the worker service account `roles/cloudkms.signer` on the specific KMS key only. Do not
+  grant project-wide KMS admin/editor roles.
+- When KMS is configured, `KEETA_SIGNING_SEED` is optional. If both KMS and seed env vars are set,
+  the worker selects KMS.
+
+Threat model upgrade: with KMS-backed signing, the private key never leaves Cloud KMS. The worker
+can request signatures for live Keeta blocks, but it cannot export signing material. This reduces
+blast radius for process compromise compared with a raw long-lived seed, while preserving the same
+policy gate and execution audit trail.
+
+The GCP KMS signer supports Keeta SECP256K1 and SECP256R1 account keys. Unsupported key algorithms
+fail loudly during signer initialization or key lookup instead of falling back silently.
+
 ### `OPS_API_KEY`, `ADMIN_BYPASS_TOKEN`, and policy-admin authz
 
 - `OPS_API_KEY` is a legacy admin key. As of the upstream-sync refactor it defaults to the

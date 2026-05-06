@@ -35,7 +35,25 @@ export {
   type SettlementState,
 } from './transactions.js';
 export { signPayload } from './signer-bridge.js';
-export { createReadOnlyUserClient, createSigningUserClient } from './worker-bridge.js';
+export {
+  createReadOnlyUserClient,
+  createSigningUserClient,
+  createSigningUserClientFromSigner,
+} from './worker-bridge.js';
+export {
+  SeedSigner,
+  createSeedSigningAccount,
+  type SeedSignerOptions,
+} from './signer/seed-signer.js';
+export {
+  GcpKmsSigner,
+  type AccountKeyAlgorithm,
+  type GcpKmsKeyConfig,
+  type GcpKmsSignerLoaders,
+  type GcpKmsSignerOptions,
+} from './signer/gcp-kms-signer.js';
+export { resolveSigner, type SignerEnv } from './signer/resolve.js';
+export { type KeetaSigningAccount, type SignerProvider } from './signer/types.js';
 export {
   createKeetaWallet,
   type CreateKeetaWalletOptions,
