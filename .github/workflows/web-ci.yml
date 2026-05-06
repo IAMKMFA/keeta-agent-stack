@@ -55,6 +55,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build workspace dependencies of apps/web
+        run: pnpm --filter "@keeta-agent-stack/web^..." build
+
       - name: Lint web
         run: pnpm lint:web
 

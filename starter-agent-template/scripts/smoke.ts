@@ -49,6 +49,7 @@ const ALL_INTERNAL_PACKAGES = [
   '@keeta-agent-stack/utils',
   '@keeta-agent-stack/wallet',
   '@keeta-agent-stack/config',
+  '@keeta-agent-stack/custody-guards',
   '@keeta-agent-stack/policy',
   '@keeta-agent-stack/adapter-base',
   '@keeta-agent-stack/adapter-mock-dex',
