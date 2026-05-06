@@ -14,11 +14,7 @@ export class CustodyBoundaryError extends Error {
   readonly code: CustodyBoundaryErrorCode;
   readonly detail?: Record<string, unknown>;
 
-  constructor(
-    code: CustodyBoundaryErrorCode,
-    message: string,
-    detail?: Record<string, unknown>
-  ) {
+  constructor(code: CustodyBoundaryErrorCode, message: string, detail?: Record<string, unknown>) {
     super(message);
     this.name = 'CustodyBoundaryError';
     this.code = code;

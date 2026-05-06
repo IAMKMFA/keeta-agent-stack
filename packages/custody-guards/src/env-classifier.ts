@@ -75,10 +75,7 @@ const ADMIN_CRED_NAMES = new Set([
   'DASHBOARD_DEV_VIEWER_ROLE',
 ]);
 
-const PARTNER_SECRET_NAMES = new Set([
-  'WEBHOOK_SECRET',
-  'ORACLE_RAIL_CCTP_LIVE_URL',
-]);
+const PARTNER_SECRET_NAMES = new Set(['WEBHOOK_SECRET', 'ORACLE_RAIL_CCTP_LIVE_URL']);
 
 const PUBLIC_CONFIG_NAMES = new Set([
   'NEXT_PUBLIC_API_URL',
@@ -139,7 +136,8 @@ export function classifyEnvVarSafety(name: string): EnvVarSafety {
       allowedRuntimes: ['worker', 'test'],
       browserSafe: false,
       nextPublicPrefix,
-      notes: 'Worker-only. MCP may hold KEETA_SIGNING_SEED if and only if operators accept the documented co-signer trade-off.',
+      notes:
+        'Worker-only. MCP may hold KEETA_SIGNING_SEED if and only if operators accept the documented co-signer trade-off.',
     };
   }
 
@@ -193,7 +191,8 @@ export function classifyEnvVarSafety(name: string): EnvVarSafety {
     allowedRuntimes: [],
     browserSafe: false,
     nextPublicPrefix,
-    notes: 'Unknown env var. Default-deny: not browser-safe, not allowed in any runtime by guard checks.',
+    notes:
+      'Unknown env var. Default-deny: not browser-safe, not allowed in any runtime by guard checks.',
   };
 }
 

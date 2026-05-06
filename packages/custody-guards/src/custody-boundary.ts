@@ -1,9 +1,5 @@
 import { CustodyBoundaryError } from './errors.js';
-import {
-  classifyEnvVarSafety,
-  looksLikeSecretName,
-  type EnvVarSafety,
-} from './env-classifier.js';
+import { classifyEnvVarSafety, looksLikeSecretName, type EnvVarSafety } from './env-classifier.js';
 import { detectRuntime, type RuntimeKind } from './runtime.js';
 
 /**
@@ -28,9 +24,7 @@ const SIGNING_RUNTIMES: ReadonlyArray<RuntimeKind> = ['worker', 'test'];
  * Throws `CustodyBoundaryError({ code: 'WRONG_RUNTIME_FOR_SIGNING' })` when
  * the runtime is not allowed.
  */
-export function assertWorkerSigningRuntime(
-  env: NodeJS.ProcessEnv = process.env
-): RuntimeKind {
+export function assertWorkerSigningRuntime(env: NodeJS.ProcessEnv = process.env): RuntimeKind {
   const runtime = detectRuntime(env);
   if (!SIGNING_RUNTIMES.includes(runtime)) {
     throw new CustodyBoundaryError(
@@ -62,9 +56,9 @@ export function assertWorkerSigningRuntime(
  * Throws `CustodyBoundaryError({ code: 'BROWSER_SECRET_EXPOSED' })`. Returns
  * the list of vars inspected on success for caller telemetry.
  */
-export function assertNoBrowserSecretExposure(
-  env: NodeJS.ProcessEnv = process.env
-): { inspected: number } {
+export function assertNoBrowserSecretExposure(env: NodeJS.ProcessEnv = process.env): {
+  inspected: number;
+} {
   let inspected = 0;
   for (const name of Object.keys(env)) {
     inspected += 1;

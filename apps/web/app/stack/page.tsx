@@ -130,9 +130,7 @@ export default function StackPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 pb-12">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-keeta">
-          The pipeline
-        </h2>
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-keeta">The pipeline</h2>
         <p className="mt-2 max-w-2xl text-base leading-7 text-zinc-400">
           Intent → Quote → Route → Policy → Simulate → Execute → Audit. Seven typed boundaries.
           Every stage has a name, a contract, and an evidence path.

@@ -73,7 +73,8 @@ const claims: ReadonlyArray<Claim> = [
 const envBoundaries = [
   {
     side: 'Browser',
-    description: 'Public-only env: `NEXT_PUBLIC_*`. Never receives seeds, JWTs, OPS keys, KMS scopes.',
+    description:
+      'Public-only env: `NEXT_PUBLIC_*`. Never receives seeds, JWTs, OPS keys, KMS scopes.',
     accent: 'border-keeta/20',
   },
   {
@@ -141,15 +142,15 @@ export default function SecurityPage() {
           Underclaim. Overprove. Cite the file.
         </h1>
         <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-zinc-300">
-          Every claim on this page is grounded in a file in the repo. We don’t paraphrase
-          guarantees we can’t enforce. The full posture lives in our public{' '}
+          Every claim on this page is grounded in a file in the repo. We don’t paraphrase guarantees
+          we can’t enforce. The full posture lives in our public{' '}
           <Link
             href={siteConfig.securityUrl}
             className="text-keeta underline-offset-4 hover:underline"
           >
             SECURITY.md
-          </Link>
-          {' '}and{' '}
+          </Link>{' '}
+          and{' '}
           <Link
             href={`${siteConfig.repoUrl}/blob/main/docs/web/WEBSITE_SECURITY_CLAIMS.md`}
             className="text-keeta underline-offset-4 hover:underline"

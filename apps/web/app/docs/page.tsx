@@ -61,8 +61,7 @@ const groups: ReadonlyArray<DocGroup> = [
   },
   {
     heading: 'Guides',
-    intro:
-      'Hand-written, repo-resident guides. Edit them on GitHub directly; PRs welcome.',
+    intro: 'Hand-written, repo-resident guides. Edit them on GitHub directly; PRs welcome.',
     items: [
       {
         title: 'Agent build handbook',
@@ -194,18 +193,20 @@ export default function DocsPage() {
             Build the docs locally
           </h2>
           <p className="mt-2 text-sm leading-6 text-zinc-300">
-            <span className="font-mono text-zinc-100">pnpm --filter @keeta-agent-stack/docs build</span>{' '}
-            outputs the static site to <span className="font-mono text-zinc-100">apps/docs/dist</span>{' '}
-            including the bundled OpenAPI snapshot. The live API also serves the current spec at{' '}
+            <span className="font-mono text-zinc-100">
+              pnpm --filter @keeta-agent-stack/docs build
+            </span>{' '}
+            outputs the static site to{' '}
+            <span className="font-mono text-zinc-100">apps/docs/dist</span> including the bundled
+            OpenAPI snapshot. The live API also serves the current spec at{' '}
             <Link
               href={siteConfig.openApiLocalUrl}
               className="font-mono text-keeta hover:underline"
             >
               {siteConfig.openApiLocalUrl}
             </Link>
-            . Run{' '}
-            <span className="font-mono text-zinc-100">pnpm docs:typedoc</span> at the workspace
-            root to regenerate the Typedoc HTML.
+            . Run <span className="font-mono text-zinc-100">pnpm docs:typedoc</span> at the
+            workspace root to regenerate the Typedoc HTML.
           </p>
         </div>
 

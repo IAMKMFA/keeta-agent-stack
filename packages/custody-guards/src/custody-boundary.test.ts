@@ -290,7 +290,9 @@ describe('redaction', () => {
 
 describe('assertEnvNotPresentForRuntime', () => {
   it('passes when the env var is absent', () => {
-    expect(() => assertEnvNotPresentForRuntime('api', 'KEETA_SIGNING_SEED', withEnv({}))).not.toThrow();
+    expect(() =>
+      assertEnvNotPresentForRuntime('api', 'KEETA_SIGNING_SEED', withEnv({}))
+    ).not.toThrow();
   });
 
   it('passes when the runtime is allowed for that var', () => {
@@ -305,14 +307,22 @@ describe('assertEnvNotPresentForRuntime', () => {
 
   it('passes when the var classifies as public/internal config', () => {
     expect(() =>
-      assertEnvNotPresentForRuntime('api', 'NEXT_PUBLIC_API_URL', withEnv({ NEXT_PUBLIC_API_URL: 'x' }))
+      assertEnvNotPresentForRuntime(
+        'api',
+        'NEXT_PUBLIC_API_URL',
+        withEnv({ NEXT_PUBLIC_API_URL: 'x' })
+      )
     ).not.toThrow();
   });
 
   it('throws when API runtime holds KEETA_SIGNING_SEED', () => {
     let thrown: unknown;
     try {
-      assertEnvNotPresentForRuntime('api', 'KEETA_SIGNING_SEED', withEnv({ KEETA_SIGNING_SEED: 'x' }));
+      assertEnvNotPresentForRuntime(
+        'api',
+        'KEETA_SIGNING_SEED',
+        withEnv({ KEETA_SIGNING_SEED: 'x' })
+      );
     } catch (err) {
       thrown = err;
     }

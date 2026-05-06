@@ -55,11 +55,7 @@ export const useCases: ReadonlyArray<UseCase> = [
       'Reconciliation worker chases anchor bonds until settlement is confirmed.',
       'Operator-visible kill switch interrupts every queue at runtime.',
     ],
-    evidence: [
-      'packages/adapter-oracle-rail',
-      'examples/oracle-payment-playbook',
-      'apps/worker',
-    ],
+    evidence: ['packages/adapter-oracle-rail', 'examples/oracle-payment-playbook', 'apps/worker'],
   },
   {
     id: 'policy-gated-trading-agent',

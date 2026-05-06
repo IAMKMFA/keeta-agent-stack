@@ -21,17 +21,9 @@
  * and from build/lint scripts.
  */
 
-export {
-  CustodyBoundaryError,
-  type CustodyBoundaryErrorCode,
-} from './errors.js';
+export { CustodyBoundaryError, type CustodyBoundaryErrorCode } from './errors.js';
 
-export {
-  type RuntimeKind,
-  KEETA_RUNTIME_ENV,
-  detectRuntime,
-  declareRuntime,
-} from './runtime.js';
+export { type RuntimeKind, KEETA_RUNTIME_ENV, detectRuntime, declareRuntime } from './runtime.js';
 
 export {
   assertWorkerSigningRuntime,
@@ -49,8 +41,4 @@ export {
   looksLikeSecretName,
 } from './env-classifier.js';
 
-export {
-  redactSecret,
-  redactObjectSecrets,
-  isSecretLikeKey,
-} from './redact.js';
+export { redactSecret, redactObjectSecrets, isSecretLikeKey } from './redact.js';
