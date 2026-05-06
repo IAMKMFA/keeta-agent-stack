@@ -1,7 +1,14 @@
 import { z } from 'zod';
 
 /** Cross-rail classification for unified audit (Keeta native, CCTP, fiat rails, etc.). */
-export const RailKindSchema = z.enum(['native_kt', 'cctp_usdc', 'fiat', 'swift', 'other']);
+export const RailKindSchema = z.enum([
+  'native_kt',
+  'cctp_usdc',
+  'fiat',
+  'swift',
+  'agent_payment',
+  'other',
+]);
 
 export type RailKind = z.infer<typeof RailKindSchema>;
 

@@ -1,0 +1,22 @@
+{
+  "name": "@keeta-agent-stack/example-agent-api-payment",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@keeta-agent-stack/adapter-keeta-transfer": "workspace:*",
+    "@keeta-agent-stack/adapter-mpp": "workspace:*",
+    "@keeta-agent-stack/adapter-pay-sh": "workspace:*",
+    "@keeta-agent-stack/adapter-registry": "workspace:*",
+    "@keeta-agent-stack/adapter-x402": "workspace:*",
+    "@keeta-agent-stack/agent-runtime": "workspace:*",
+    "@keeta-agent-stack/policy": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

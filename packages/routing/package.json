@@ -50,6 +50,8 @@
     "@keeta-agent-stack/types": "workspace:*"
   },
   "devDependencies": {
+    "@keeta-agent-stack/adapter-pay-sh": "workspace:*",
+    "@keeta-agent-stack/adapter-x402": "workspace:*",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vitest": "^3.2.4"

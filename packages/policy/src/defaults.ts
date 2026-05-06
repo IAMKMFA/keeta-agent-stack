@@ -58,6 +58,11 @@ export function defaultPolicyConfigFromEnv(
     maxNotionalPerStrategy: readNumEnv(processEnv, 'POLICY_MAX_NOTIONAL_PER_STRATEGY'),
     maxDailyTrades: readNumEnv(processEnv, 'POLICY_MAX_DAILY_TRADES', 50_000),
     maxUnsettledExecutions: readNumEnv(processEnv, 'POLICY_MAX_UNSETTLED', 5000),
+    perSessionAgentSpendCapUsd: readNumEnv(
+      processEnv,
+      'POLICY_AGENT_PAYMENT_SESSION_SPEND_CAP_USD'
+    ),
+    allowedAgentPaymentRails: readCsvEnv(processEnv, 'POLICY_ALLOWED_AGENT_PAYMENT_RAILS'),
     maxDrawdownBps: readNumEnv(processEnv, 'POLICY_MAX_DRAWDOWN_BPS'),
   };
 }

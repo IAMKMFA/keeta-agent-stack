@@ -163,6 +163,7 @@ This is not a prompt wrapper. It is an execution platform.
 | API           | `apps/api`               | Fastify control plane with typed routes, auth, metrics, and OpenAPI                            |
 | Worker        | `apps/worker`            | BullMQ-driven execution, policy, simulation, reconciliation, and delivery engine               |
 | Dashboard     | `apps/dashboard`         | Operator UI for platform visibility and control                                                |
+| Public web    | `apps/web`               | Simulated product surface for Super Swap, ramps, connectivity, and policy-gated agent payments |
 | MCP server    | `apps/mcp`               | Tool surface for LLM-driven workflows and oracle-assisted playbooks                            |
 | Agent runtime | `packages/agent-runtime` | High-level orchestration hooks for custom agent behavior                                       |
 
@@ -177,6 +178,7 @@ This is not a prompt wrapper. It is an execution platform.
 | Policy engine with custom rules and composition  | Real                                          |
 | Dashboard, events, webhooks, metrics, tracing    | Real                                          |
 | Integration test harness with Postgres and Redis | Real                                          |
+| x402, pay.sh, and MPP agent-payment adapters     | Simulatable; live execution not configured    |
 | Mock DEX and mock anchor venues                  | Simulated by design                           |
 | Additional live third-party venue adapters       | Future expansion through the adapter contract |
 
@@ -203,6 +205,7 @@ Default local surfaces:
 
 - API: `http://localhost:3001`
 - Dashboard: `http://localhost:3000`
+- Public web: `http://localhost:3002` via `pnpm --filter @keeta-agent-stack/web dev`
 
 To run API, worker, dashboard, and MCP together:
 
@@ -323,7 +326,7 @@ in user-facing agents.
 
 ## Common Agent Patterns & Examples
 
-Five turn-key reference agents live under [`examples/`](./examples). Each folder has its own README
+Turn-key reference agents live under [`examples/`](./examples). Each folder has its own README
 explaining the scenario, prerequisites, and run command.
 
 | Pattern                       | Folder                                                                   | What it shows                                                                 |
@@ -332,6 +335,7 @@ explaining the scenario, prerequisites, and run command.
 | Paper trader                  | [`examples/paper-trader`](./examples/paper-trader)                       | Hands-off simulation loop using `createKeetaAgent` and the mock DEX.          |
 | Rebalance bot                 | [`examples/rebalance-bot`](./examples/rebalance-bot)                     | Periodic portfolio rebalancing via policy-gated route execution.              |
 | Oracle payment playbook       | [`examples/oracle-payment-playbook`](./examples/oracle-payment-playbook) | Oracle-priced fiat → KTA payment with the new `oracle.payment.*` MCP tools.   |
+| Agent API payment             | [`examples/agent-api-payment`](./examples/agent-api-payment)             | Simulated KTA → x402 → pay.sh Gemini API call through the existing pipeline.  |
 | Route inspector               | [`examples/route-inspector`](./examples/route-inspector)                 | Pull alternates and explainable scoring out of the routing engine.            |
 | Simulation fidelity           | [`examples/simulation-fidelity`](./examples/simulation-fidelity)         | Compare standard / shadow / replay simulation modes against live chain reads. |
 

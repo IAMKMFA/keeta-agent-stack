@@ -5,8 +5,9 @@ boilerplate to a real venue adapter that the routing engine, policy engine, and 
 
 ## Mental Model
 
-Every adapter implements a `VenueAdapter` (DEX, anchor bridge, or transfer rail). The routing engine
-never calls a venue's underlying API directly — it only calls the adapter's typed contract:
+Every adapter implements a `VenueAdapter` (DEX, anchor bridge, transfer rail, or agent-payment
+rail). The routing engine never calls a venue's underlying API directly — it only calls the
+adapter's typed contract:
 
 ```mermaid
 flowchart LR
@@ -46,7 +47,7 @@ want). Each method maps to a routing-engine guarantee:
 | Method               | Purpose                                                           | Notes                                                                |
 | -------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------- |
 | `id`                 | Stable identifier used by routes, audit logs, and routing weights | Lowercase kebab-case, e.g. `binance-usdt-spot`                       |
-| `kind`               | `'dex' \| 'anchor' \| 'transfer'`                                 | Drives default capability discovery                                  |
+| `kind`               | `'dex' \| 'anchor' \| 'transfer' \| 'agent-payment'`              | Drives default capability discovery                                  |
 | `healthCheck()`      | Report liveness                                                   | Cheap. Used for adapter-health dashboards.                           |
 | `getCapabilities()`  | Advertise supported pairs + features                              | Static is fine; refresh on a timer if your venue listings change     |
 | `supportsPair(b, q)` | Fast path filter for the router                                   | Pure boolean check                                                   |
@@ -132,6 +133,18 @@ describing:
 - which paths are real vs. stubbed
 - the `KEETA_ENABLE_*` env flag (if any)
 
+## Agent Payment Rails
+
+Agent-payment adapters follow the same contract. Use the new simulated rails as references:
+
+- [`adapter-x402`](../packages/adapter-x402) for HTTP 402-style API request payments.
+- [`adapter-pay-sh`](../packages/adapter-pay-sh) for API discovery plus a paid API-call hop.
+- [`adapter-mpp`](../packages/adapter-mpp) for Machine Payments Protocol-style payment credits.
+
+For this class of adapter, put request-pricing detail in `quote.raw.agentPayment`, set
+`getCapabilities().supportLevel` honestly, and return a structured not-configured `err(...)` from
+`execute(mode='live')` until the live facilitator/provider is wired.
+
 ## Step 7 — Verify
 
 ```bash
@@ -158,6 +171,9 @@ pnpm --filter @keeta-agent-stack/adapter-myvenue publish --dry-run --no-git-chec
 | Documented stub (live throws)         | [`adapter-solana-stub`](../packages/adapter-solana-stub)       | Quote + simulate work; live throws `SolanaNotImplementedError`. |
 | Real native rail                      | [`adapter-keeta-transfer`](../packages/adapter-keeta-transfer) | Reference for production patterns.                              |
 | Real anchor bridge                    | [`adapter-mock-anchor`](../packages/adapter-mock-anchor)       | Pattern for asynchronous settlement.                            |
+| Simulated agent-payment rail          | [`adapter-x402`](../packages/adapter-x402)                     | x402 quote + simulate path with live not configured.            |
+| Simulated API payment gateway         | [`adapter-pay-sh`](../packages/adapter-pay-sh)                 | API discovery and Gemini-call fixture.                          |
+| Simulated MPP rail                    | [`adapter-mpp`](../packages/adapter-mpp)                       | Machine-payment quote + simulate path.                          |
 
 ## Why "throw on execute" is safe
 

@@ -1,0 +1,41 @@
+{
+  "name": "@keeta-agent-stack/web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3002",
+    "build": "next build",
+    "start": "next start -p 3002",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit --incremental false -p tsconfig.typecheck.json",
+    "clean": "rm -rf .next tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@keeta-agent-stack/adapter-base": "workspace:*",
+    "@keeta-agent-stack/adapter-keeta-transfer": "workspace:*",
+    "@keeta-agent-stack/adapter-mpp": "workspace:*",
+    "@keeta-agent-stack/adapter-pay-sh": "workspace:*",
+    "@keeta-agent-stack/adapter-registry": "workspace:*",
+    "@keeta-agent-stack/adapter-x402": "workspace:*",
+    "@keeta-agent-stack/policy": "workspace:*",
+    "@keeta-agent-stack/routing": "workspace:*",
+    "@keeta-agent-stack/sdk": "workspace:*",
+    "@keeta-agent-stack/types": "workspace:*",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.475.0",
+    "next": "^15.5.15",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@next/eslint-plugin-next": "^15.5.15",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
+    "eslint-config-next": "^15.5.15",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
+  }
+}

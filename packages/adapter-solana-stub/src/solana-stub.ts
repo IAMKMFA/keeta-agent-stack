@@ -89,7 +89,8 @@ export class SolanaStubAdapter implements DexVenueAdapter {
         const [base, quote] = k.split(':');
         return { base: base!, quote: quote! };
       }),
-      features: ['quote', 'simulate'],
+      features: ['quote', 'simulate', 'agent-payment-demo', 'solana-stablecoin-demo'],
+      supportLevel: 'simulatable',
     };
   }
 

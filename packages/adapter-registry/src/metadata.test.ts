@@ -37,7 +37,9 @@ describe('rail metadata catalog', () => {
 
   it('tags each builtin rail with a transport category', () => {
     for (const rail of listBuiltinRailMetadataDetailed()) {
-      expect(['fiat-push', 'fiat-pull', 'crypto', 'native']).toContain(rail.transport);
+      expect(['fiat-push', 'fiat-pull', 'crypto', 'native', 'agent-payment']).toContain(
+        rail.transport
+      );
     }
   });
 

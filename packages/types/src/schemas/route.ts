@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AssetIdSchema, SideSchema, VenueKindSchema } from './common.js';
+import { AssetIdSchema, SideSchema, SupportLevelSchema, VenueKindSchema } from './common.js';
 import { QuoteResponseSchema } from './quote.js';
 
 export const RouteScoreAdjustmentSchema = z.object({
@@ -25,6 +25,7 @@ export const RouteStepSchema = z.object({
   stepIndex: z.number().int().min(0),
   adapterId: z.string(),
   venueKind: VenueKindSchema.optional(),
+  supportLevel: SupportLevelSchema.optional(),
   paymentAnchorId: z.string().uuid().optional(),
   routingContext: RouteStepRoutingContextSchema.optional(),
   baseAsset: AssetIdSchema,
@@ -44,6 +45,7 @@ export const RoutePlanSchema = z.object({
   expectedSlippageBps: z.number(),
   hopCount: z.number().int().min(1),
   score: z.number(),
+  supportLevel: SupportLevelSchema.optional(),
   createdAt: z.string().datetime(),
 });
 

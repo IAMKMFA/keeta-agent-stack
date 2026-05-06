@@ -26,6 +26,8 @@ import { ruleExposurePerWallet } from './rules/exposure-wallet.js';
 import { ruleDrawdown } from './rules/drawdown.js';
 import { ruleAnchorBondActive } from './rules/anchor-bond-active.js';
 import { ruleIdentityAttestation } from './rules/identity-attestation.js';
+import { ruleAgentPaymentSessionSpendCap } from './rules/agent-payment-session-spend-cap.js';
+import { ruleAllowedAgentPaymentRails } from './rules/allowed-agent-payment-rails.js';
 
 type RegisteredPolicyEntry = {
   definition: PolicyRuleDefinition<unknown> | PolicyRuleCompositionDefinition;
@@ -64,6 +66,8 @@ const policyConfigKeys = new Set<string>([
   'maxNotionalPerStrategy',
   'maxDailyTrades',
   'maxUnsettledExecutions',
+  'perSessionAgentSpendCapUsd',
+  'allowedAgentPaymentRails',
   'maxDrawdownBps',
 ]);
 
@@ -143,6 +147,18 @@ const defaultPolicyRules: PolicyRuleDefinition[] = [
     'maxUnsettledExecutions',
     'Cap unsettled executions using worker-supplied portfolio statistics.',
     ruleUnsettledCap
+  ),
+  wrapRule(
+    'agent_payment_session_spend_cap',
+    'perSessionAgentSpendCapUsd',
+    'Cap simulated agent-payment spend per session using route quote metadata.',
+    ruleAgentPaymentSessionSpendCap
+  ),
+  wrapRule(
+    'allowed_agent_payment_rails',
+    'allowedAgentPaymentRails',
+    'Restrict agent-payment route steps to approved rail adapter ids.',
+    ruleAllowedAgentPaymentRails
   ),
   wrapRule(
     'notional_per_strategy',

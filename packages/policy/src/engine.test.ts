@@ -120,6 +120,16 @@ describe('PolicyEngine', () => {
           configKey: 'venueAllowlist',
           source: 'default',
         }),
+        expect.objectContaining({
+          ruleId: 'agent_payment_session_spend_cap',
+          configKey: 'perSessionAgentSpendCapUsd',
+          source: 'default',
+        }),
+        expect.objectContaining({
+          ruleId: 'allowed_agent_payment_rails',
+          configKey: 'allowedAgentPaymentRails',
+          source: 'default',
+        }),
       ])
     );
   });
@@ -273,5 +283,154 @@ describe('PolicyEngine', () => {
     expect(decision.allowed).toBe(false);
     expect(decision.contributions[0]?.ruleId).toBe('not_live_mode');
     expect(decision.contributions[0]?.passed).toBe(false);
+  });
+
+  it('caps agent-payment session spend using route quote metadata', () => {
+    const engine = new PolicyEngine();
+    const routePlan = {
+      id: '550e8400-e29b-41d4-a716-446655440201',
+      intentId: '550e8400-e29b-41d4-a716-446655440123',
+      supportLevel: 'simulatable' as const,
+      steps: [
+        {
+          stepIndex: 0,
+          adapterId: 'x402',
+          venueKind: 'agent-payment' as const,
+          supportLevel: 'simulatable' as const,
+          baseAsset: 'KTA',
+          quoteAsset: 'X402_API_CREDIT',
+          side: 'sell' as const,
+          sizeIn: '1',
+          sizeOutEstimate: '0.955',
+          feeBps: 0,
+          quote: {
+            adapterId: 'x402',
+            baseAsset: 'KTA',
+            quoteAsset: 'X402_API_CREDIT',
+            side: 'sell' as const,
+            sizeIn: '1',
+            sizeOut: '0.955',
+            price: '0.955',
+            feeBps: 0,
+            expectedSlippageBps: 0,
+            raw: { agentPayment: { estimatedUsd: 0.045 } },
+          },
+        },
+      ],
+      totalFeeBps: 0,
+      expectedSlippageBps: 0,
+      hopCount: 1,
+      score: 1,
+      createdAt: new Date().toISOString(),
+    };
+
+    const passed = engine.evaluate({
+      ...createContext(),
+      routePlan,
+      config: {
+        ...createContext().config,
+        perSessionAgentSpendCapUsd: 0.1,
+      },
+    });
+    expect(
+      passed.contributions.find((rule) => rule.ruleId === 'agent_payment_session_spend_cap')
+    ).toMatchObject({ passed: true });
+
+    const blocked = engine.evaluate({
+      ...createContext(),
+      routePlan,
+      config: {
+        ...createContext().config,
+        perSessionAgentSpendCapUsd: 0.05,
+      },
+      portfolioStats: {
+        dailyTradeCount: 0,
+        unsettledExecutions: 0,
+        agentPaymentSessionSpendUsd: 0.02,
+      },
+    });
+    expect(blocked.allowed).toBe(false);
+    expect(
+      blocked.contributions.find((rule) => rule.ruleId === 'agent_payment_session_spend_cap')
+    ).toMatchObject({ passed: false });
+  });
+
+  it('enforces allowed agent-payment rails only for agent-payment steps', () => {
+    const engine = new PolicyEngine();
+    const baseRoute = {
+      id: '550e8400-e29b-41d4-a716-446655440202',
+      intentId: '550e8400-e29b-41d4-a716-446655440123',
+      supportLevel: 'simulatable' as const,
+      totalFeeBps: 0,
+      expectedSlippageBps: 0,
+      hopCount: 1,
+      score: 1,
+      createdAt: new Date().toISOString(),
+    };
+    const quote = {
+      adapterId: 'x402',
+      baseAsset: 'KTA',
+      quoteAsset: 'X402_API_CREDIT',
+      side: 'sell' as const,
+      sizeIn: '1',
+      sizeOut: '0.955',
+      price: '0.955',
+      feeBps: 0,
+      expectedSlippageBps: 0,
+      raw: { agentPayment: { estimatedUsd: 0.045 } },
+    };
+
+    const allowed = engine.evaluate({
+      ...createContext(),
+      routePlan: {
+        ...baseRoute,
+        steps: [
+          {
+            stepIndex: 0,
+            adapterId: 'x402',
+            venueKind: 'agent-payment' as const,
+            supportLevel: 'simulatable' as const,
+            baseAsset: 'KTA',
+            quoteAsset: 'X402_API_CREDIT',
+            side: 'sell' as const,
+            sizeIn: '1',
+            sizeOutEstimate: '0.955',
+            feeBps: 0,
+            quote,
+          },
+        ],
+      },
+      config: { ...createContext().config, allowedAgentPaymentRails: ['x402', 'pay-sh'] },
+    });
+    expect(
+      allowed.contributions.find((rule) => rule.ruleId === 'allowed_agent_payment_rails')
+    ).toMatchObject({ passed: true });
+
+    const blocked = engine.evaluate({
+      ...createContext(),
+      routePlan: {
+        ...baseRoute,
+        steps: [
+          {
+            stepIndex: 0,
+            adapterId: 'mpp',
+            venueKind: 'agent-payment' as const,
+            supportLevel: 'simulatable' as const,
+            baseAsset: 'KTA',
+            quoteAsset: 'MPP_API_CREDIT',
+            side: 'sell' as const,
+            sizeIn: '1',
+            sizeOutEstimate: '0.955',
+            feeBps: 0,
+            quote: { ...quote, adapterId: 'mpp', quoteAsset: 'MPP_API_CREDIT' },
+          },
+        ],
+      },
+      config: { ...createContext().config, allowedAgentPaymentRails: ['x402', 'pay-sh'] },
+    });
+    expect(blocked.allowed).toBe(false);
+    expect(
+      blocked.contributions.find((rule) => rule.ruleId === 'allowed_agent_payment_rails')
+    ).toMatchObject({ passed: false });
   });
 });

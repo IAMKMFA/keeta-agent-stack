@@ -2,6 +2,7 @@ import type {
   AdapterSummary,
   AvailableRail,
   RailTransport,
+  SupportLevel,
   VenueKind,
 } from '@keeta-agent-stack/types';
 
@@ -19,6 +20,7 @@ interface RailDefinition {
   kind: VenueKind;
   transport: RailTransport;
   production: boolean;
+  supportLevel?: SupportLevel;
   description: string;
   supportsManagedTransfer?: boolean;
 }
@@ -65,6 +67,34 @@ const RAIL_CATALOG: RailDefinition[] = [
     production: true,
     description: 'Oracle-backed USDC transfer rail intended for live partner-backed payment flows.',
     supportsManagedTransfer: true,
+  },
+  {
+    id: 'x402',
+    name: 'x402 Agent Payment',
+    kind: 'agent-payment',
+    transport: 'agent-payment',
+    production: false,
+    supportLevel: 'simulatable',
+    description: 'Simulated HTTP 402 agent-payment rail for per-request stablecoin API payments.',
+  },
+  {
+    id: 'pay-sh',
+    name: 'pay.sh API Gateway',
+    kind: 'agent-payment',
+    transport: 'agent-payment',
+    production: false,
+    supportLevel: 'simulatable',
+    description:
+      'Simulated pay.sh API discovery and payment rail for Google Cloud-style agent API calls.',
+  },
+  {
+    id: 'mpp',
+    name: 'Machine Payments Protocol',
+    kind: 'agent-payment',
+    transport: 'agent-payment',
+    production: false,
+    supportLevel: 'simulatable',
+    description: 'Simulated Machine Payments Protocol rail for lifecycle-aware agent payments.',
   },
 
   {
@@ -281,6 +311,9 @@ function toEntry(def: RailDefinition): RailMetadataEntry {
   if (def.supportsManagedTransfer !== undefined) {
     rail.supportsManagedTransfer = def.supportsManagedTransfer;
   }
+  if (def.supportLevel !== undefined) {
+    rail.supportLevel = def.supportLevel;
+  }
   return rail;
 }
 
@@ -307,6 +340,7 @@ export function mergeRailMetadata(adapters: AdapterSummary[]): AvailableRail[] {
       name: metadata?.name ?? adapter.id,
       production: metadata?.production ?? true,
       kind: metadata?.kind ?? adapter.kind,
+      supportLevel: metadata?.supportLevel ?? adapter.supportLevel,
     };
     if (metadata?.description) rail.description = metadata.description;
     if (metadata?.transport) rail.transport = metadata.transport;

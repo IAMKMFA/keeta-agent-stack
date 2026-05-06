@@ -32,6 +32,8 @@ export interface PolicyConfig {
   maxNotionalPerStrategy?: number;
   maxDailyTrades?: number;
   maxUnsettledExecutions?: number;
+  perSessionAgentSpendCapUsd?: number;
+  allowedAgentPaymentRails?: string[];
   /** When set, requires equity history — currently returns not implemented. */
   maxDrawdownBps?: number;
 }
@@ -43,6 +45,7 @@ export interface PolicyPortfolioStats {
   openExposureByAsset?: Record<string, number>;
   openExposureByVenue?: Record<string, number>;
   walletExposure?: number;
+  agentPaymentSessionSpendUsd?: number;
 }
 
 /** Optional Keeta-derived hints for Keeta-aware policy rules (extension point). */

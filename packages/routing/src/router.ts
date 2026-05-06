@@ -8,6 +8,7 @@ import type {
   QuoteResponse,
   RoutePlan,
   RouteStep,
+  SupportLevel,
 } from '@keeta-agent-stack/types';
 import { randomUUID } from 'node:crypto';
 
@@ -47,6 +48,23 @@ const defaultWeights = {
   hops: 0.5,
   reliability: 0.25,
 };
+
+const supportLevelRank: Record<SupportLevel, number> = {
+  listed: 0,
+  readable: 1,
+  routable: 2,
+  simulatable: 3,
+  executable: 4,
+  'agent-ready': 5,
+};
+
+function combineSupportLevels(levels: Array<SupportLevel | undefined>): SupportLevel | undefined {
+  const known = levels.filter((level): level is SupportLevel => level !== undefined);
+  if (known.length === 0) return undefined;
+  return known.reduce((lowest, level) =>
+    supportLevelRank[level] < supportLevelRank[lowest] ? level : lowest
+  );
+}
 
 export function scoreRoute(
   input: {
@@ -89,7 +107,11 @@ export class Router {
     const w = this.opts.weights ?? defaultWeights;
     const pairIndex = new Map<
       string,
-      Array<{ adapter: VenueAdapter; pair: CapabilityMap['pairs'][number] }>
+      Array<{
+        adapter: VenueAdapter;
+        pair: CapabilityMap['pairs'][number];
+        supportLevel?: SupportLevel;
+      }>
     >();
     const knownAssets = new Set<string>([intent.baseAsset, intent.quoteAsset]);
     for (const { adapter, capabilities } of eligibleAdapters) {
@@ -99,19 +121,29 @@ export class Router {
         knownAssets.add(pair.quote);
         const key = `${pair.base}:${pair.quote}`;
         const entries = pairIndex.get(key) ?? [];
-        entries.push({ adapter, pair });
+        entries.push({ adapter, pair, supportLevel: capabilities.supportLevel });
         pairIndex.set(key, entries);
       }
     }
 
     const candidatePaths: Array<
-      Array<{ adapter: VenueAdapter; baseAsset: string; quoteAsset: string }>
+      Array<{
+        adapter: VenueAdapter;
+        baseAsset: string;
+        quoteAsset: string;
+        supportLevel?: SupportLevel;
+      }>
     > = [];
     const maxHops = Math.max(1, this.opts.maxHops);
     const visit = (
       currentAsset: string,
       depth: number,
-      path: Array<{ adapter: VenueAdapter; baseAsset: string; quoteAsset: string }>,
+      path: Array<{
+        adapter: VenueAdapter;
+        baseAsset: string;
+        quoteAsset: string;
+        supportLevel?: SupportLevel;
+      }>,
       seenAssets: Set<string>
     ) => {
       if (depth >= maxHops) return;
@@ -122,7 +154,12 @@ export class Router {
         for (const edge of edges) {
           const nextPath = [
             ...path,
-            { adapter: edge.adapter, baseAsset: currentAsset, quoteAsset: nextAsset },
+            {
+              adapter: edge.adapter,
+              baseAsset: currentAsset,
+              quoteAsset: nextAsset,
+              supportLevel: edge.supportLevel,
+            },
           ];
           if (nextAsset === intent.quoteAsset) {
             candidatePaths.push(nextPath);
@@ -191,6 +228,7 @@ export class Router {
           stepIndex,
           adapterId: candidateStep.adapter.id,
           venueKind: candidateStep.adapter.kind,
+          supportLevel: candidateStep.supportLevel,
           ...adapterDescription,
           ...(mergedRoutingContext ? { routingContext: mergedRoutingContext } : {}),
           baseAsset: candidateStep.baseAsset,
@@ -214,6 +252,7 @@ export class Router {
         id: randomUUID(),
         intentId: intent.id,
         steps,
+        supportLevel: combineSupportLevels(steps.map((step) => step.supportLevel)),
         totalFeeBps,
         expectedSlippageBps,
         hopCount,

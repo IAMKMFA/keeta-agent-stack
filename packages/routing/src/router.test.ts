@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { scoreRoute } from './router.js';
 import { Router } from './router.js';
 import type { AdapterRegistry } from '@keeta-agent-stack/adapter-registry';
+import { X402Adapter } from '@keeta-agent-stack/adapter-x402';
+import { PayShAdapter } from '@keeta-agent-stack/adapter-pay-sh';
 import type { VenueAdapter } from '@keeta-agent-stack/adapter-base';
 import type { QuoteRequest } from '@keeta-agent-stack/types';
 
@@ -336,5 +338,31 @@ describe('Router scoring', () => {
     expect(built.best.steps[1]?.sizeIn).toBe('101');
     expect(built.best.totalFeeBps).toBe(14);
     expect(built.best.expectedSlippageBps).toBe(5);
+  });
+
+  it('discovers an agent-payment path and propagates support levels', async () => {
+    const registry = createRegistry([new X402Adapter(), new PayShAdapter()]);
+    const router = new Router(registry, { maxQuotes: 8, maxHops: 3 });
+
+    const built = await router.buildPlans({
+      id: '550e8400-e29b-41d4-a716-446655440103',
+      walletId: '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+      baseAsset: 'KTA',
+      quoteAsset: 'GEMINI_API_CALL',
+      side: 'sell',
+      size: '1',
+      maxSlippageBps: 50,
+      mode: 'simulate',
+      createdAt: new Date().toISOString(),
+      metadata: {
+        apiId: 'gemini-generate-content',
+        requestSize: 1024,
+      },
+    });
+
+    expect(built.best.steps.map((step) => step.adapterId)).toEqual(['x402', 'pay-sh']);
+    expect(built.best.steps.every((step) => step.venueKind === 'agent-payment')).toBe(true);
+    expect(built.best.steps.every((step) => step.supportLevel === 'simulatable')).toBe(true);
+    expect(built.best.supportLevel).toBe('simulatable');
   });
 });

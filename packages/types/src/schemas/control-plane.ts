@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { VenueKindSchema } from './common.js';
+import { SupportLevelSchema, VenueKindSchema } from './common.js';
 
 export const WalletSettingsSchema = z.object({
   defaultPolicyPackId: z.string().uuid().nullable().optional(),
@@ -91,15 +91,23 @@ export const OpsMetricSampleSchema = z.object({
 export const AdapterSummarySchema = z.object({
   id: z.string().min(1),
   kind: VenueKindSchema,
+  supportLevel: SupportLevelSchema.optional(),
 });
 
-export const RailTransportSchema = z.enum(['fiat-push', 'fiat-pull', 'crypto', 'native']);
+export const RailTransportSchema = z.enum([
+  'fiat-push',
+  'fiat-pull',
+  'crypto',
+  'native',
+  'agent-payment',
+]);
 
 export const AvailableRailSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   production: z.boolean(),
   kind: VenueKindSchema,
+  supportLevel: SupportLevelSchema.optional(),
   description: z.string().optional(),
   /**
    * Transport classification mirroring `@keetanetwork/anchor` FiatPullRails / FiatPushRails /

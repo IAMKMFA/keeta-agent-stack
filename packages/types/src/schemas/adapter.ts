@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AssetIdSchema, VenueKindSchema } from './common.js';
+import { AssetIdSchema, SupportLevelSchema, VenueKindSchema } from './common.js';
 
 export const AdapterHealthSchema = z.object({
   adapterId: z.string(),
@@ -19,6 +19,7 @@ export const CapabilityMapSchema = z.object({
   kind: VenueKindSchema,
   pairs: z.array(CapabilityPairSchema),
   features: z.array(z.string()),
+  supportLevel: SupportLevelSchema.optional(),
 });
 
 export type AdapterHealth = z.infer<typeof AdapterHealthSchema>;

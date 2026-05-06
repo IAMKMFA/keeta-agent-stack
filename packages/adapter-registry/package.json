@@ -27,6 +27,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "import": "./dist/registry.js"
+    },
+    "./metadata": {
+      "types": "./dist/metadata.d.ts",
+      "import": "./dist/metadata.js"
     }
   },
   "files": [
@@ -38,7 +46,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean",
+    "build": "tsup src/index.ts src/registry.ts src/metadata.ts --format esm --dts --clean",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -52,7 +60,10 @@
     "@keeta-agent-stack/adapter-mock-cex": "workspace:*",
     "@keeta-agent-stack/adapter-solana-stub": "workspace:*",
     "@keeta-agent-stack/adapter-keeta-transfer": "workspace:*",
-    "@keeta-agent-stack/adapter-oracle-rail": "workspace:*"
+    "@keeta-agent-stack/adapter-oracle-rail": "workspace:*",
+    "@keeta-agent-stack/adapter-x402": "workspace:*",
+    "@keeta-agent-stack/adapter-pay-sh": "workspace:*",
+    "@keeta-agent-stack/adapter-mpp": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.3.5",
